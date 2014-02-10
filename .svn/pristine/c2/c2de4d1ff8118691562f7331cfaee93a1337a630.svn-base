@@ -1,0 +1,310 @@
+package com.geetion.job138.widget.custom;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map.Entry;
+
+import com.liqi.job.R;
+import com.geetion.job138.adapter.JobTypeListAdapter;
+import com.geetion.job138.model.JobType;
+import com.geetion.job138.service.SearchJobService;
+import com.geetion.job138.service.StationTypeSave;
+import com.geetion.job138.util.AndroidUtil;
+import com.geetion.job138.util.MyHttpException;
+import com.geetion.job138.util.UIUtil;
+import com.geetion.job138.widget.custom.ParentLinearLayoutTouch.OnInterceptTouchListener;
+
+import android.R.bool;
+import android.R.integer;
+import android.app.ActionBar.LayoutParams;
+import android.content.Context;
+import android.os.AsyncTask;
+import android.os.Handler;
+import android.util.Log;
+import android.view.Gravity;
+import android.view.MotionEvent;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.widget.AdapterView;
+import android.widget.ImageButton;
+import android.widget.ListView;
+import android.widget.PopupWindow;
+import android.widget.ProgressBar;
+import android.widget.AdapterView.OnItemClickListener;
+
+public class SelectJobTypePop extends PopupWindow implements OnClickListener {
+	private View stationView;
+	private ImageButton closeButton;
+	private ListView stationListView, stationSubListView;
+	private JobTypeListAdapter subAdapter, stationAdapter;
+	private Context context;
+	private SelectJobType selectInterface;
+	private ParentLinearLayoutTouch parentLayout;
+	private ProgressBar progressBar;
+	private GetJobTypeTask getJobTypeTask;
+	private List<JobType> childs;
+	private Handler handler = new Handler();
+	private boolean isSingle = false;
+	private HashMap<Integer, Boolean> clickMap = new HashMap<Integer, Boolean>();
+	private HashMap<Integer, Boolean> clickAbleMap = new HashMap<Integer, Boolean>();
+	private int Fid = 0;
+	private  int mPoistion = 0;
+	private int subCount = 0;
+
+	public interface SelectJobType {
+		public void check(HashMap<Integer, JobType> chooseMap);
+		public void getJobType(JobType jobType);
+	}
+
+	public void setSelectJobTpe(SelectJobType selectJobType) {
+		this.selectInterface = selectJobType;
+	}
+
+	public SelectJobTypePop(View view, final Context context, boolean isSingle) {
+		super(view, LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT, true);
+		this.stationView = view;
+		this.context = context;
+		this.isSingle = isSingle;
+		this.setOutsideTouchable(true);
+		this.setTouchable(true);
+		this.update();
+		closeButton = (ImageButton) stationView.findViewById(R.id.button_close);
+		closeButton.setImageResource((isSingle ? R.drawable.close_icon : R.drawable.sure_icon));
+		stationListView = (ListView) stationView.findViewById(R.id.list_station);
+		stationSubListView = (ListView) stationView.findViewById(R.id.list_station_sub);
+		progressBar = (ProgressBar) stationView.findViewById(R.id.progressBar1);
+		closeButton.setOnClickListener(this);
+		setAnimationStyle(R.style.PopupAnimation);
+		parentLayout = (ParentLinearLayoutTouch) stationView.findViewById(R.id.parent_layout);
+		parentLayout.setOnInterceptTouchListener(new OnInterceptTouchListener() {
+			float downX = 0;
+
+			@Override
+			public boolean OnTouch(MotionEvent event) {
+				if (event.getAction() == MotionEvent.ACTION_DOWN) {
+					downX = event.getX();
+					Log.e("downX", "" + downX);
+				} else if (event.getAction() == MotionEvent.ACTION_MOVE) {
+					if (event.getX() - downX > AndroidUtil.dpToPx(64, context)) {
+						closeButton.performClick();
+					}
+					Log.e("moveX", "" + event.getX());
+				}
+				return false;
+			}
+		});
+	}
+
+	public void showPop(View station) {
+		getData();
+		stationView.findViewById(R.id.shadow).setVisibility(View.INVISIBLE);
+		this.showAtLocation(station, Gravity.RIGHT, 0, 0);
+		handler.postDelayed(new Runnable() {
+			public void run() {
+				stationView.findViewById(R.id.shadow).setVisibility(View.VISIBLE);
+			}
+		}, 250);
+	}
+
+	public void getData() {
+		initData();
+	}
+
+	public void initData() {
+		if (!StationTypeSave.isGetType()) {
+			getJobTypeTask = new GetJobTypeTask();
+			getJobTypeTask.execute();
+		}
+		childs = new ArrayList<JobType>();
+		if(isSingle) {
+			stationAdapter = new JobTypeListAdapter(stationListView.getContext(), StationTypeSave.parentJobTypes, R.layout.item_station, R.id.item_station_text,
+					true, isSingle, this);
+		} else {
+			stationAdapter = new JobTypeListAdapter(stationListView.getContext(), StationTypeSave.parentJobTypes, R.layout.item_station_multi, R.id.item_station_text,
+					true, isSingle, this);
+		}
+		
+		stationListView.setAdapter(stationAdapter);
+		subAdapter = new JobTypeListAdapter(stationSubListView.getContext(), childs, R.layout.item_station2, R.id.item_station2_text, false, isSingle, this);
+		stationSubListView.setAdapter(subAdapter);
+		stationSubListView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
+//		stationListView.setOnItemClickListener(new StationItemListener());
+//		stationSubListView.setOnItemClickListener(new SubItemListener());
+
+	}
+
+	@Override
+	public void onClick(View v) {
+		if (v == closeButton) {
+			stationView.findViewById(R.id.shadow).setVisibility(View.INVISIBLE);
+			stationSubListView.setVisibility(View.GONE);
+			dismiss();
+			if (selectInterface != null) {
+				selectInterface.check(subAdapter.getChoseMap());
+			}
+		}
+	}
+	
+	
+
+	@Override
+	public void dismiss() {
+		// TODO Auto-generated method stub
+		if(getJobTypeTask != null) {
+			getJobTypeTask.cancel(true);
+		}
+		clickAbleMap.clear();
+		clickMap.clear();
+		mPoistion = 0;
+		subCount = 0;
+		super.dismiss();
+	}
+
+
+
+	public class GetJobTypeTask extends AsyncTask<Void, integer, List<JobType>> {
+		List<JobType> list = new ArrayList<JobType>();
+
+		@Override
+		protected List<JobType> doInBackground(Void... params) {
+			try {
+				list = SearchJobService.getJobType();
+				return list;
+			} catch (MyHttpException e) {
+				Log.e("MyHttpException", e.getErrorCode());
+				UIUtil.toast(context, e.getErrorMessage());
+			}
+			return list;
+		}
+
+		@Override
+		protected void onPostExecute(List<JobType> resultList) {
+			if (!resultList.isEmpty()) {
+				StationTypeSave.saveJobType(resultList);
+				stationAdapter.notifyDataSetChanged();
+				progressBar.setVisibility(View.GONE);
+			}
+		}
+
+		@Override
+		protected void onPreExecute() {
+			progressBar.setVisibility(View.VISIBLE);
+		}
+
+	}
+
+		public void onItemClick(int position) {
+			mPoistion = position;
+			int id = StationTypeSave.parentJobTypes.get(position).getId();
+			Fid = id;
+			List<JobType> l = StationTypeSave.childJobtypes.get(id);
+			childs.clear();
+			childs.addAll(l);
+			subAdapter.notifyDataSetChanged();
+			stationAdapter.setSelect(position);
+			stationAdapter.notifyDataSetChanged();
+			stationSubListView.setVisibility(View.VISIBLE);
+		}
+
+
+		public void onSubItemClick(int position) {
+			if(clickMap.containsKey(Fid)) {
+				if (clickMap.get(Fid)) {
+					return;
+				}
+			}
+			if (isSingle) {
+				JobType jobType = childs.get(position);
+				if (selectInterface != null) {
+					selectInterface.getJobType(jobType);
+				}
+				stationView.findViewById(R.id.shadow).setVisibility(View.INVISIBLE);
+				stationSubListView.setVisibility(View.GONE);
+				dismiss();
+			} else {
+				int id = childs.get(position).getId();
+				JobType jobType = childs.get(position);
+				if (subAdapter.isSelect(id)) {
+					subCount --;
+					stationAdapter.setMyCount(subCount);
+					clickAbleMap.put(jobType.getFid(), true);
+					subAdapter.cleanSelect(id);
+					for (Entry<Integer, JobType> entry : subAdapter.getChoseMap().entrySet()) {						
+						if (jobType.getFid() == entry.getValue().getFid()) {
+							clickAbleMap.put(jobType.getFid(), false);	
+							break;
+						}				
+					}					
+				} else {
+					if (stationAdapter.getSelectCount() + subCount >= 5) {
+						UIUtil.toast(context, "最多只能选择5个！");
+						return;
+					}
+					subCount ++;
+					stationAdapter.setMyCount(subCount);
+					clickAbleMap.put(jobType.getFid(), false);
+					subAdapter.addSelect(id, jobType);
+				}
+				stationAdapter.notifyDataSetChanged();
+				subAdapter.notifyDataSetChanged();
+			}
+		}
+		
+		public void onCheckClick(int position) {
+			JobType jobType = StationTypeSave.parentJobTypes.get(position);
+			int id = jobType.getId();
+			List<JobType> l = StationTypeSave.childJobtypes.get(id);
+			if(stationAdapter.isSelect(id)) {
+				stationAdapter.cleanSelect(id);
+				removeAll(l);
+			} else {
+				removeChlids(l);
+				stationAdapter.addSelect(id, jobType);
+				selectAll(l);
+			}
+			onItemClick(position);
+		}
+		
+		private void selectAll(List<JobType> l) {
+			for(int i = 0; i < l.size(); i++) {
+				JobType child = l.get(i);
+				int cId = child.getId();
+				subAdapter.addSelect(cId, child);
+			}
+		}
+		
+		private void removeAll(List<JobType> l) {			
+			for(int i = 0; i < l.size(); i++) {
+				JobType child = l.get(i);
+				int cId = child.getId();
+				subAdapter.cleanSelect(cId);
+			}
+		}
+		
+		private void removeChlids(List<JobType> childs) {
+			for(int i = 0; i < childs.size(); i++) {
+				if(subAdapter.getChoseMap().containsKey(childs.get(i).getId())) {
+					subAdapter.cleanSelect(childs.get(i).getId());
+//					subCount --;
+//					stationAdapter.setMyCount(subCount);
+				}
+			}
+		} 
+		
+		public void addClickMap(int id, boolean isCheck) {
+			clickMap.put(id, isCheck);
+		} 
+		
+		public boolean clickAble(int id) {
+			if(clickAbleMap.containsKey(id)) {
+				return clickAbleMap.get(id);
+			}
+			return true;
+		} 
+		
+		public void setChooseMap(HashMap<Integer, JobType> father, HashMap<Integer, JobType> child) {
+			stationAdapter.setChooseMap(father);
+			subAdapter.setChooseMap(child);
+		}
+}

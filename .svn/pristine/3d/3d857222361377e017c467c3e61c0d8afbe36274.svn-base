@@ -1,0 +1,98 @@
+package com.geetion.job138.activity;
+
+import com.geetion.job138.R;
+import com.geetion.job138.fragment.PosDetailComFragment;
+import com.geetion.job138.fragment.PosDetailFragment;
+import com.geetion.job138.fragment.PosDetailListFragment;
+import com.geetion.job138.util.AndroidUtil;
+import android.os.Bundle;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.view.ViewGroup;
+import android.widget.ImageButton;
+import android.widget.LinearLayout;
+import android.widget.TextView;
+
+public class PosDetailActivity extends BaseActivity implements OnClickListener {
+	private TextView tabpos, tabintro, tabother;
+	private ImageButton backButton;
+	private ViewGroup menu;
+	private FragmentManager fm;
+	private FragmentTransaction tr;
+
+	@Override
+	protected void onCreate(Bundle arg0) {
+		super.onCreate(arg0);
+		setContentView(R.layout.activity_pos_detail);
+		initView();
+		initData();
+	}
+
+
+	private void initView() {
+		backButton = (ImageButton) findViewById(R.id.button_back);
+		tabpos = (TextView) findViewById(R.id.tabpos);
+		tabintro = (TextView) findViewById(R.id.tabintro);
+		tabother = (TextView) findViewById(R.id.tabother);
+		menu = (ViewGroup) findViewById(R.id.menu);
+		backButton.setOnClickListener(this);
+		tabpos.setOnClickListener(this);
+		tabintro.setOnClickListener(this);
+		tabother.setOnClickListener(this);
+		changeFragmentAnOnResume(new PosDetailFragment(), null);
+	}
+
+	private void initData() {
+
+	}
+
+	private void tabSelector(View view) {
+		for (int i = 0; i < menu.getChildCount(); i++) {
+			View tab = menu.getChildAt(i);
+			if (tab instanceof TextView) {
+				LinearLayout.LayoutParams params = (LinearLayout.LayoutParams) tab
+						.getLayoutParams();
+				if (tab.getId() == view.getId()) {
+					tab.setBackgroundResource(R.color.light_gray);
+					params.height = AndroidUtil.dpToPx(44, context);
+					params.setMargins(0, 0, 0, 0);
+				} else {
+					tab.setBackgroundResource(R.color.bg_light_gray2);
+					params.height = AndroidUtil.dpToPx(43, context);
+					params.setMargins(0, -AndroidUtil.dpToPx(1, context), 0, 0);
+				}
+				tab.setLayoutParams(params);
+			}
+		}
+	}
+
+	@Override
+	public void onClick(View v) {
+		if (v == tabpos) {
+			tabSelector(tabpos);
+			changeFragmentAnOnResume(new PosDetailFragment(), null);
+		} else if (v == tabintro) {
+			tabSelector(tabintro);
+			changeFragmentAnOnResume(new PosDetailComFragment(), null);
+		} else if (v == tabother) {
+			tabSelector(tabother);
+			changeFragmentAnOnResume(new PosDetailListFragment(), null);
+		} else if(v == backButton){
+			finish();
+		}
+	}
+
+	public Fragment changeFragmentAnOnResume(Fragment changeFragment,
+			Bundle args) {
+		fm = getSupportFragmentManager();
+		tr = fm.beginTransaction();
+		if (args != null)
+			changeFragment.setArguments(args);
+		tr.replace(R.id.content, changeFragment);
+		tr.commitAllowingStateLoss();
+		return changeFragment;
+	}
+}

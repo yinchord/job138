@@ -1,0 +1,227 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" >
+
+    <RelativeLayout
+        android:id="@+id/header"
+        android:layout_width="match_parent"
+        android:layout_height="44dp"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:background="@drawable/navigationbar_bg" >
+
+        <ImageButton
+            android:id="@+id/button_back"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_centerVertical="true"
+            android:background="@null"
+            android:src="@drawable/button_back_selector" />
+
+        <ImageView
+            android:id="@+id/imageView1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:src="@drawable/title_candidates" />
+
+        <ImageButton
+            android:id="@+id/button_pass"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:background="@null"
+            android:src="@drawable/button_login_selector" />
+    </RelativeLayout>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@+id/header"
+        android:fillViewport="true" >
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/bg"
+            android:orientation="vertical"
+            android:padding="16dp" >
+
+            <TextView
+                android:id="@+id/title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="注册应聘"
+                android:textColor="@color/font_blue"
+                android:textSize="16sp" />
+
+            <View
+                android:id="@+id/view1"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginTop="5dp"
+                android:background="@color/font_blue" />
+
+            <EditText
+                android:id="@+id/PName"
+                android:layout_width="match_parent"
+                android:layout_height="30dp"
+                android:layout_marginLeft="5dp"
+                android:layout_marginTop="10dp"
+                android:background="@drawable/textbox"
+                android:ems="10"
+                android:hint="姓名"
+                android:paddingBottom="0dp"
+                android:paddingLeft="10dp"
+                android:paddingTop="0dp"
+                android:textColor="@color/font_gray"
+                android:textColorHint="@color/font_light_gray"
+                android:textSize="16sp" >
+            </EditText>
+
+            <EditText
+                android:id="@+id/Sex"
+                android:layout_width="match_parent"
+                android:layout_height="30dp"
+                android:layout_marginLeft="5dp"
+                android:layout_marginTop="10dp"
+                android:background="@drawable/textbox"
+                android:gravity="center_vertical"
+                android:hint="性别"
+                android:paddingBottom="0dp"
+                android:paddingTop="0dp"
+                android:textColor="@color/font_gray"
+                android:textColorHint="@color/font_light_gray" />
+
+            <EditText
+                android:id="@+id/Mobile"
+                android:layout_width="match_parent"
+                android:layout_height="30dp"
+                android:layout_marginLeft="5dp"
+                android:layout_marginTop="10dp"
+                android:background="@drawable/textbox"
+                android:ems="10"
+                android:hint="手机号码"
+                android:inputType="number"
+                android:paddingBottom="0dp"
+                android:paddingLeft="10dp"
+                android:paddingTop="0dp"
+                android:textColor="@color/font_gray"
+                android:textColorHint="@color/font_light_gray"
+                android:textSize="16sp" />
+
+            <EditText
+                android:id="@+id/Birth"
+                android:layout_width="match_parent"
+                android:layout_height="30dp"
+                android:layout_marginLeft="5dp"
+                android:layout_marginTop="10dp"
+                android:background="@drawable/textbox"
+                android:ems="10"
+                android:hint="出生日期"
+                android:paddingBottom="0dp"
+                android:paddingLeft="10dp"
+                android:paddingTop="0dp"
+                android:textColor="@color/font_gray"
+                android:textColorHint="@color/font_light_gray"
+                android:textSize="16sp" />
+
+            <EditText
+                android:id="@+id/WorkAdd"
+                android:layout_width="match_parent"
+                android:layout_height="30dp"
+                android:layout_marginLeft="5dp"
+                android:layout_marginTop="10dp"
+                android:background="@drawable/textbox"
+                android:drawableRight="@drawable/gps_icon"
+                android:ems="10"
+                android:hint="选择城市"
+                android:paddingBottom="0dp"
+                android:paddingLeft="10dp"
+                android:paddingTop="0dp"
+                android:textColor="@color/font_gray"
+                android:textColorHint="@color/font_light_gray"
+                android:textSize="16sp" >
+            </EditText>
+
+            <EditText
+                android:id="@+id/Position"
+                android:layout_width="match_parent"
+                android:layout_height="30dp"
+                android:layout_marginLeft="5dp"
+                android:layout_marginTop="10dp"
+                android:background="@drawable/textbox"
+                android:drawableRight="@drawable/arrow_right"
+                android:gravity="center_vertical"
+                android:hint="岗位类别"
+                android:paddingBottom="0dp"
+                android:paddingTop="0dp"
+                android:textColor="@color/font_gray"
+                android:textColorHint="@color/font_light_gray" />
+
+            <EditText
+                android:id="@+id/Pay"
+                android:layout_width="match_parent"
+                android:layout_height="30dp"
+                android:layout_marginLeft="5dp"
+                android:layout_marginTop="10dp"
+                android:background="@drawable/textbox"
+                android:ems="10"
+                android:hint="薪水要求"
+                android:paddingBottom="0dp"
+                android:paddingLeft="10dp"
+                android:paddingTop="0dp"
+                android:textColor="@color/font_gray"
+                android:textColorHint="@color/font_light_gray"
+                android:textSize="16sp" />
+
+            <EditText
+                android:id="@+id/Email"
+                android:layout_width="match_parent"
+                android:layout_height="30dp"
+                android:layout_marginLeft="5dp"
+                android:layout_marginTop="10dp"
+                android:background="@drawable/textbox"
+                android:ems="10"
+                android:hint="电子邮箱"
+                android:inputType="textEmailAddress"
+                android:paddingBottom="0dp"
+                android:paddingLeft="10dp"
+                android:paddingTop="0dp"
+                android:textColor="@color/font_gray"
+                android:textColorHint="@color/font_light_gray"
+                android:textSize="16sp" />
+
+            <EditText
+                android:id="@+id/UserPwd"
+                android:layout_width="match_parent"
+                android:layout_height="30dp"
+                android:layout_marginLeft="5dp"
+                android:layout_marginTop="10dp"
+                android:background="@drawable/textbox"
+                android:ems="10"
+                android:hint="密码"
+                android:inputType="textPassword"
+                android:paddingBottom="0dp"
+                android:paddingLeft="10dp"
+                android:paddingTop="0dp"
+                android:textColor="@color/font_gray"
+                android:textColorHint="@color/font_light_gray"
+                android:textSize="16sp" />
+
+            <ImageButton
+                android:id="@+id/Apply_Button"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="30dp"
+                android:layout_marginRight="30dp"
+                android:layout_marginTop="32dp"
+                android:background="@null"
+                android:src="@drawable/candidates_btn" />
+        </LinearLayout>
+    </ScrollView>
+
+</RelativeLayout>

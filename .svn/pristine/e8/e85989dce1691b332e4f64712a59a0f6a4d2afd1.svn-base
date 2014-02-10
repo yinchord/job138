@@ -1,0 +1,92 @@
+package com.geetion.job138.fragment.resume;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.ImageButton;
+import android.widget.ListView;
+
+import com.geetion.job138.R;
+import com.geetion.job138.activity.MyResumeActivity;
+import com.geetion.job138.adapter.JobInfoAdpter;
+import com.geetion.job138.adapter.TrainInfoAdpter;
+import com.geetion.job138.fragment.BaseFragment;
+import com.geetion.job138.model.JobInfo;
+import com.geetion.job138.model.Lang;
+import com.geetion.job138.model.TrainExperience;
+import com.geetion.job138.service.PersonInfoSave;
+
+public class TrainInfoFragment extends BaseFragment {
+
+	public static String TAG = TrainInfoFragment.class.getName();
+	private MyResumeActivity activity;
+	private ImageButton closeButton;
+	private ListView listView;
+	private Button btAdd;
+	private TrainInfoAdpter trainInfoAdpter;
+	private List<TrainExperience> list = new ArrayList<TrainExperience>();
+	private int count;// 记录添加的次数
+
+	@Override
+	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+		return inflater.inflate(R.layout.fragment_resume_global_list, container, false);
+	}
+
+	@Override
+	public void onActivityCreated(Bundle savedInstanceState) {
+		activity = (MyResumeActivity) getActivity();
+		init();
+		super.onActivityCreated(savedInstanceState);
+	}
+
+	public void init() {
+		// 测试数据，未从服务取出数据
+		// list.add(new TrainExperience());
+		// list.add(new TrainExperience());
+
+		View footerView = getActivity().getLayoutInflater().inflate(R.layout.button_add, null);
+		listView = (ListView) getView().findViewById(R.id.listView_jobInfo);
+		listView.addFooterView(footerView);
+		closeButton = (ImageButton) getView().findViewById(R.id.close_button);
+		btAdd = (Button) getView().findViewById(R.id.btAdd);
+		btAdd.setOnClickListener(this);
+		closeButton.setOnClickListener(this);
+		trainInfoAdpter = new TrainInfoAdpter(getActivity(), getTrainExperiencelist());
+		listView.setAdapter(trainInfoAdpter);
+	}
+
+	public List<TrainExperience> getTrainExperiencelist() {
+		PersonInfoSave.resumeInfo.setTrainList(list);
+		return PersonInfoSave.resumeInfo.getTrainList();
+	}
+
+	@Override
+	public void onResume() {
+		if (getArguments() != null) {
+			trainInfoAdpter.notifyDataSetChanged();
+			count = getArguments().getInt("count");
+			for (int i = 0; i < count; i++) {
+				TrainExperience trainExperience = (TrainExperience) getArguments().get("trainExperience");
+				getTrainExperiencelist().add(trainExperience);
+			}
+		}
+		super.onResume();
+	}
+
+	@Override
+	public void onClick(View v) {
+		if (v == closeButton) {
+			activity.hideSelectFragment();
+		} else if (v == btAdd) {
+			Bundle bundle = new Bundle();
+			bundle.putInt("count", count);
+			activity.changeFragmentAnOnResume(TrainInfoFChildragment.TAG, bundle);
+		}
+
+	}
+}

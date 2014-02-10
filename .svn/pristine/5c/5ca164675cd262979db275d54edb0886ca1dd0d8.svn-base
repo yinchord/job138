@@ -1,0 +1,139 @@
+package com.geetion.job138.model;
+
+import java.io.Serializable;
+
+public class Company implements Serializable {
+	/**
+	 * 1、Pages:页数 2、Area:地区 , 3、CompanyName:公司名 , 4、Id:公司ID , 5、IsVip:
+	 * 是否是VIP（1为VIP，0为非VIP）, 6、Trade:行业类型 , 7、Worker:员工人数 8、Contact：联系人 9、Tel：电话
+	 * 10、Address：地址 11、Map：是否标识地图（1为是，0为否） 12、Logo：公司Logo 13、Date：成立日期
+	 * 14、Introduce：公司简介
+	 **/
+	private String Area;
+	private String CompanyName;
+	private int Id;
+	private int IsVip;
+	private String Trade;
+	private String Worker;
+	private String Connect;
+	private String Tel;
+	private String Address;
+	private int Map;
+	private String Logo;
+	private String Date;
+	private String Introduce;
+	private Float[] lable = new Float[2];
+
+	public Float[] getLable() {
+		return lable;
+	}
+
+	public void setLable(Float[] label) {
+		this.lable = label;
+	}
+
+	public String getArea() {
+		return Area;
+	}
+
+	public void setArea(String area) {
+		Area = area;
+	}
+
+	public String getCompanyName() {
+		return CompanyName;
+	}
+
+	public void setCompanyName(String companyName) {
+		CompanyName = companyName;
+	}
+
+	public int getId() {
+		return Id;
+	}
+
+	public void setId(int id) {
+		Id = id;
+	}
+
+	public int getIsVip() {
+		return IsVip;
+	}
+
+	public void setIsVip(int isVip) {
+		IsVip = isVip;
+	}
+
+	public String getTrade() {
+		return Trade;
+	}
+
+	public void setTrade(String trade) {
+		Trade = trade;
+	}
+
+	public String getWorker() {
+		return Worker;
+	}
+
+	public void setWorker(String worker) {
+		Worker = worker;
+	}
+
+	public String getConnect() {
+		return Connect;
+	}
+
+	public void setConnect(String connect) {
+		Connect = connect;
+	}
+
+	public String getTel() {
+		return Tel;
+	}
+
+	public void setTel(String tel) {
+		Tel = tel;
+	}
+
+	public String getAddress() {
+		return Address;
+	}
+
+	public void setAddress(String address) {
+		Address = address;
+	}
+
+	public int getMap() {
+		return Map;
+	}
+
+	public void setMap(int map) {
+		Map = map;
+	}
+
+	public String getLogo() {
+		return Logo;
+	}
+
+	public void setLogo(String logo) {
+		Logo = logo;
+	}
+
+	public String getDate() {
+		return Date;
+	}
+
+	public void setDate(String date) {
+		Date = date;
+	}
+
+	public String getIntroduce() {
+		return Introduce;
+	}
+
+	public void setIntroduce(String introduce) {
+		Introduce = introduce;
+	}
+
+}

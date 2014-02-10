@@ -1,0 +1,64 @@
+package com.geetion.job138.fragment.resume;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ImageButton;
+import android.widget.ListView;
+
+import com.geetion.job138.R;
+import com.geetion.job138.activity.MyResumeActivity;
+import com.geetion.job138.adapter.JobInfoAdpter;
+import com.geetion.job138.adapter.LanInfoAdpter;
+import com.geetion.job138.fragment.BaseFragment;
+import com.geetion.job138.model.JobInfo;
+import com.geetion.job138.model.Lang;
+
+public class LanInfoFragment extends BaseFragment {
+	public static String TAG = LanInfoFragment.class.getName();
+	private MyResumeActivity activity;
+	private ImageButton closeButton;
+	private ListView listView;
+	private LanInfoAdpter lanInfoAdpter;
+	private List<Lang>list=new ArrayList<Lang>();
+
+	@Override
+	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+		return inflater.inflate(R.layout.fragment_resume_global_list, container, false);
+	}
+
+	@Override
+	public void onActivityCreated(Bundle savedInstanceState) {
+		activity = (MyResumeActivity) getActivity();
+		init();
+		super.onActivityCreated(savedInstanceState);
+	}
+
+	public void init() {
+		//测试数据，未从服务取出数据
+//		jobInfoList.add(new JobInfo());
+//		jobInfoList.add(new JobInfo());
+//		jobInfoList.add(new JobInfo());
+//		jobInfoList.add(new JobInfo());
+
+		View footerView=getActivity().getLayoutInflater().inflate(R.layout.button_add, null);
+		listView=(ListView)getView().findViewById(R.id.listView_jobInfo);
+		listView.addFooterView(footerView);
+		closeButton=(ImageButton)getView().findViewById(R.id.close_button);
+		closeButton.setOnClickListener(this);
+		lanInfoAdpter=new LanInfoAdpter(getActivity(), list);
+		listView.setAdapter(lanInfoAdpter);
+	}
+
+	@Override
+	public void onClick(View v) {
+		if(v==closeButton){
+			activity.hideSelectFragment();
+		}
+
+	}
+}

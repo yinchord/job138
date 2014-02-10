@@ -1,0 +1,9 @@
+package com.geetion.job138.service;
+
+public class CacheService {
+	public static boolean isLogined;
+
+	public static boolean isLogined() {
+		return isLogined;
+	}
+}

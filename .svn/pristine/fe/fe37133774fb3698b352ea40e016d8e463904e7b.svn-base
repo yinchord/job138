@@ -1,0 +1,130 @@
+package com.geetion.job138.activity;
+
+import java.util.ArrayList;
+import java.util.List;
+import com.geetion.job138.R;
+import com.geetion.job138.adapter.SeemListAdapter;
+import com.geetion.job138.model.JobInfo;
+import com.geetion.job138.model.PageUtil;
+import com.geetion.job138.service.JobManageService;
+import com.geetion.job138.service.PersonInfoSave;
+import com.geetion.job138.util.MyHttpException;
+import com.geetion.job138.util.UIUtil;
+import com.handmark.pulltorefresh.library.PullToRefreshBase;
+import com.handmark.pulltorefresh.library.PullToRefreshListView;
+import com.handmark.pulltorefresh.library.PullToRefreshBase.Mode;
+import com.handmark.pulltorefresh.library.PullToRefreshBase.OnRefreshListener2;
+import android.os.AsyncTask;
+import android.os.Bundle;
+import android.text.format.DateUtils;
+import android.util.Log;
+import android.view.View;
+import android.widget.ImageButton;
+import android.widget.ListView;
+
+public class PersonalSeemActivity extends BaseActivity {
+	private ImageButton backButton;
+	private PullToRefreshListView listView;
+	private SeemListAdapter adapter;
+	private List<JobInfo> list = new ArrayList<JobInfo>();
+	private boolean isPullUp = false;
+	private PageUtil pageUtil = new PageUtil();
+	private GetSeemTask task;
+
+	@Override
+	protected void onCreate(Bundle arg0) {
+		super.onCreate(arg0);
+		setContentView(R.layout.activity_personal_seem);
+		init();
+	}
+
+	public void init() {
+		pageUtil.setPageSize(15);
+		backButton = (ImageButton) findViewById(R.id.button_left);
+		backButton.setOnClickListener(this);
+		listView = (PullToRefreshListView) findViewById(R.id.pull_refresh_list);
+		listView.getLoadingLayoutProxy(true, false).setPullLabel("下拉刷新...");
+		listView.getLoadingLayoutProxy(false, true).setPullLabel("上拉加载更多...");
+		listView.getLoadingLayoutProxy(true, true).setRefreshingLabel("数据加载中...");
+		listView.setOnRefreshListener(new OnRefreshListener2<ListView>() {
+			@Override
+			public void onPullDownToRefresh(PullToRefreshBase refreshView) {
+				String label = DateUtils.formatDateTime(getApplicationContext(), System.currentTimeMillis(), DateUtils.FORMAT_SHOW_TIME
+						| DateUtils.FORMAT_SHOW_DATE | DateUtils.FORMAT_ABBREV_ALL);
+				listView.getLoadingLayoutProxy(true, false).setLastUpdatedLabel("刷新时间:" + label);
+				pageUtil.setPageNo(1);
+				isPullUp = true;
+				task = new GetSeemTask();
+				task.execute();
+			}
+
+			@Override
+			public void onPullUpToRefresh(PullToRefreshBase refreshView) {
+				pageUtil.setPageNo(pageUtil.getPageNo() + 1);
+				Log.e("pageNo", pageUtil.getPageNo() + "");
+				isPullUp = false;
+				task = new GetSeemTask();
+				task.execute();
+			}
+		});
+		adapter = new SeemListAdapter(context, list);
+		listView.setAdapter(adapter);
+		listView.setRefreshing();
+	}
+
+	@Override
+	public void onClick(View v) {
+		if (v == backButton) {
+			finish();
+		}
+	}
+
+	@Override
+	protected void onDestroy() {
+		if (task != null)
+			task.cancel(true);
+		super.onDestroy();
+	}
+
+	/**
+	 * 获取简历被看邀请
+	 */
+	public class GetSeemTask extends AsyncTask<String, Integer, List<JobInfo>> {
+		protected void onPreExecute() {
+		};
+
+		@Override
+		protected List<JobInfo> doInBackground(String... arg0) {
+			try {
+				List<JobInfo> list = JobManageService.getResumeReaded(pageUtil, PersonInfoSave.memberInfo.getMemberId());
+				return list;
+			} catch (MyHttpException e) {
+				Log.e("MyHttpException", e.getErrorCode());
+				UIUtil.toast(context, e.getErrorMessage());
+				runOnUiThread(new Runnable() {
+					public void run() {
+						listView.onRefreshComplete();
+					}
+				});
+			}
+			return null;
+		}
+
+		@Override
+		protected void onPostExecute(List<JobInfo> result) {
+			if (result != null && !result.isEmpty()) {
+				listView.onRefreshComplete();
+				if (isPullUp) {
+					listView.setMode(Mode.BOTH);
+					list.clear();
+				} else {
+					if (pageUtil.getPageNo() == pageUtil.getPageCount()) {
+						listView.setMode(Mode.PULL_FROM_START);
+					}
+				}
+				list.addAll(result);
+				adapter.notifyDataSetChanged();
+			}
+		}
+	}
+}

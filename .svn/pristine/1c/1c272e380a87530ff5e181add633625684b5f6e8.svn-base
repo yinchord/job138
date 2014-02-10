@@ -1,0 +1,19 @@
+package com.geetion.job138.service;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import com.geetion.job138.model.Station;
+
+public class CacheService {
+	public static boolean isLogined;
+	public static List<Station> quickSearchKeyWords = new ArrayList<Station>();
+
+	public static boolean isLogined() {
+		return isLogined;
+	}
+	
+	public static void saveQuickSearchKeyWords(List<Station> list) {
+		quickSearchKeyWords = list;
+	}
+}

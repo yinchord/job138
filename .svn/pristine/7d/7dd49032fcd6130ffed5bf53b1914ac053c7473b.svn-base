@@ -1,0 +1,48 @@
+package com.geetion.job138.service;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import android.annotation.SuppressLint;
+import com.geetion.job138.model.CityInfo;
+import com.geetion.job138.model.Station;
+
+public class CacheService {
+	public static boolean isLogined;
+	public static List<Station> quickSearchKeyWords = new ArrayList<Station>();
+	
+	public static List<CityInfo> provinces = new ArrayList<CityInfo>();
+	@SuppressLint("UseSparseArrays")
+	public static Map<Integer, List<CityInfo>> cities = new HashMap<Integer, List<CityInfo>>();
+
+	public static boolean isLogined() {
+		return isLogined;
+	}
+	
+	public static void saveQuickSearchKeyWords(List<Station> list) {
+		quickSearchKeyWords = list;
+	}
+	
+	public static void saveCity(List<CityInfo> list) {
+		if(!list.isEmpty()) {
+			for(int i = 0; i < list.size(); i++) {
+				CityInfo cityInfo = list.get(i);
+				int fid = cityInfo.getFid();
+				if(fid == 0) {
+					provinces.add(cityInfo);
+				} else { 
+					if(!cities.containsKey(fid)) {
+						List<CityInfo> city = new ArrayList<CityInfo>();
+						city.add(cityInfo);
+						cities.put(fid, city);
+					} else {
+						cities.get(fid).add(cityInfo);
+					}
+				}
+			}
+		}
+	}
+	
+}

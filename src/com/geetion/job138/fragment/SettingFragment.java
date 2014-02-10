@@ -1,0 +1,187 @@
+package com.geetion.job138.fragment;
+
+import java.util.HashMap;
+
+import cn.sharesdk.framework.Platform;
+import cn.sharesdk.framework.ShareSDK;
+import cn.sharesdk.onekeyshare.OnekeyShare;
+import cn.sharesdk.sina.weibo.SinaWeibo;
+import cn.sharesdk.tencent.qzone.TencentSSOClientNotInstalledException;
+
+import com.liqi.job.R;
+import com.geetion.job138.activity.AboutActivity;
+import com.geetion.job138.activity.BindActivity;
+import com.geetion.job138.activity.FeedBackActivity;
+import com.geetion.job138.activity.group.BaseGroupActivity;
+import com.geetion.job138.asynctask.PushTask;
+import com.geetion.job138.model.UpdateMessage;
+import com.geetion.job138.service.CacheService;
+import com.geetion.job138.service.PersonInfoSave;
+import com.geetion.job138.service.PushService;
+import com.geetion.job138.service.SettingService;
+import com.geetion.job138.service.UpdateService;
+import com.geetion.job138.util.MyHttpException;
+import com.geetion.job138.util.UIUtil;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.net.Uri;
+import android.os.AsyncTask;
+import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.view.View.OnClickListener;
+import android.widget.CheckBox;
+import android.widget.ImageButton;
+import android.widget.TextView;
+import android.widget.Toast;
+
+public class SettingFragment extends BaseFragment {
+	public static String TAG = SettingFragment.class.getName();
+	private BaseGroupActivity activity;
+	private TextView bind, share, logoutView, feedBack, update, about;
+	private AsyncTask updateTask, pushTask;
+	private CheckBox interView, orderHir;
+
+	@Override
+	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+		return inflater.inflate(R.layout.fragment_setting, container, false);
+	}
+
+	@Override
+	public void onActivityCreated(Bundle savedInstanceState) {
+		activity = (BaseGroupActivity) getActivity();
+		initView();
+		initData();
+		super.onActivityCreated(savedInstanceState);
+	}
+
+	@Override
+	public void onDestroy() {
+		if (updateTask != null) {
+			updateTask.cancel(true);
+		}
+		super.onDestroy();
+	}
+
+	@Override
+	public void onPause() {
+		if (pushTask != null)
+			pushTask.cancel(true);
+		PushService.savePush(interView.isChecked(), orderHir.isChecked());
+		super.onPause();
+	}
+	void initView() {
+		bind = (TextView) getView().findViewById(R.id.bind);
+		share = (TextView) getView().findViewById(R.id.share);
+		logoutView = (TextView) getView().findViewById(R.id.logout);
+		feedBack = (TextView) getView().findViewById(R.id.feedback);
+		update = (TextView) getView().findViewById(R.id.update);
+		about = (TextView) getView().findViewById(R.id.about);
+		interView = (CheckBox) getView().findViewById(R.id.interview);
+		orderHir = (CheckBox) getView().findViewById(R.id.orderhir);
+		bind.setOnClickListener(this);
+		share.setOnClickListener(this);
+		logoutView.setOnClickListener(this);
+		feedBack.setOnClickListener(this);
+		update.setOnClickListener(this);
+		about.setOnClickListener(this);
+		interView.setOnClickListener(this);
+		orderHir.setOnClickListener(this);
+	}
+
+	void initData() {
+		interView.setChecked(PushService.isInterview);
+		orderHir.setChecked(PushService.isOrderHir);
+	}
+
+	@Override
+	public void onClick(View v) {
+		if (bind == v) {
+			Intent intent = new Intent(getActivity(), BindActivity.class);
+			startActivity(intent);
+		} else if (share == v) {
+			OnekeyShare oks = new OnekeyShare();
+			oks.setTitle("美容人才");
+			oks.setText("我是美业人，我在使用138美容人才网客户端，好工作，就在手里。http://m.138job.com/app/job/index.shtml ");
+			oks.setTitleUrl("http://sharesdk.cn");
+			oks.setUrl("http://www.sharesdk.cn");
+			oks.setSiteUrl("http://sharesdk.cn");
+			oks.disableSSOWhenAuthorize();
+			oks.setNotification(R.drawable.ic_launcher, getActivity().getString(R.string.app_name));
+			oks.show(getActivity());
+		} else if (v == logoutView) {
+			UIUtil.confirm(activity, "提  示", "你确定要注销登录 ?", new DialogInterface.OnClickListener() {
+				@Override
+				public void onClick(DialogInterface dialog, int which) {
+					CacheService.isLogined = false;
+					SettingService.cleanLoginMessage(activity);
+					PersonInfoSave.clear();
+					SettingService.clearCache();
+					ImageButton bt1=(ImageButton)activity.getParent().findViewById(R.id.btn1);
+					bt1.performClick();
+				}
+			});
+		} else if (v == feedBack) {
+			Intent intent = new Intent(getActivity(), FeedBackActivity.class);
+			startActivity(intent);
+		} else if (v == update) {
+			updateTask = new UpdateTask().execute();
+		} else if (v == about) {
+			Intent intent = new Intent(getActivity(), AboutActivity.class);
+			startActivity(intent);
+		} else if (v == interView) {
+			// runPushTask();
+		} else if (v == orderHir) {
+			// runPushTask();
+		}
+	}
+
+	void runPushTask() {
+		PushService.savePush(interView.isChecked(), orderHir.isChecked());
+		if (pushTask != null)
+			pushTask.cancel(true);
+		pushTask = new PushTask(getActivity()).execute();
+	}
+
+	class UpdateTask extends AsyncTask {
+		UpdateMessage updateMessage;
+
+		@Override
+		protected void onPreExecute() {
+			activity.showLoadiing();
+			update.setEnabled(false);
+			super.onPreExecute();
+		}
+
+		@Override
+		protected Object doInBackground(Object... params) {
+			try {
+				updateMessage = UpdateService.checkUpdate(getActivity());
+			} catch (MyHttpException e) {
+				e.printStackTrace();
+			}
+			return null;
+		}
+
+		@Override
+		protected void onPostExecute(Object result) {
+			activity.hideLoading();
+			update.setEnabled(true);
+			if (updateMessage != null) {
+				if (updateMessage.getState() == 0) {
+					Intent intent = new Intent();
+					intent.setAction("android.intent.action.VIEW");
+					Uri contentUrl = Uri.parse(updateMessage.getAppUrl());
+					intent.setData(contentUrl);
+					startActivity(intent);
+				} else {
+					UIUtil.toast(getActivity(), "已是最新版本");
+				}
+			}
+		}
+	}
+
+}

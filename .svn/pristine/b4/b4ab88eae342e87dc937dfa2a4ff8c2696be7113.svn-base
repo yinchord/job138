@@ -1,0 +1,325 @@
+package com.geetion.job138.fragment;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import com.fourmob.panningview.PanningView;
+import com.geetion.job138.R;
+import com.geetion.job138.activity.JobInfoSingleDetailActivity;
+import com.geetion.job138.activity.PersonalApplyActivity;
+import com.geetion.job138.activity.PersonalFavoriteActivity;
+import com.geetion.job138.activity.PersonalInviteActivity;
+import com.geetion.job138.activity.PersonalLeaveActivity;
+import com.geetion.job138.activity.PersonalSeemActivity;
+import com.geetion.job138.activity.RegisterActivity;
+import com.geetion.job138.activity.group.BaseGroupActivity;
+import com.geetion.job138.adapter.PosIndexListAdapter;
+import com.geetion.job138.asynctask.PushTask;
+import com.geetion.job138.imagecache.ImageLoader;
+import com.geetion.job138.model.Company;
+import com.geetion.job138.model.JobInfo;
+import com.geetion.job138.model.MemberMessage;
+import com.geetion.job138.model.PageUtil;
+import com.geetion.job138.service.CacheService;
+import com.geetion.job138.service.IndexPageService;
+import com.geetion.job138.service.PersonInfoSave;
+import com.geetion.job138.service.PushService;
+import com.geetion.job138.util.AndroidUtil;
+import com.geetion.job138.util.FuncUtil;
+import com.geetion.job138.util.MyHttpException;
+import com.geetion.job138.util.UIUtil;
+
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.os.AsyncTask;
+import android.os.Bundle;
+import android.text.Html;
+import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.ImageButton;
+import android.widget.ImageView;
+import android.widget.ListView;
+import android.widget.TextView;
+
+public class IndexFragment extends BaseFragment implements OnClickListener {
+	public static String TAG = IndexFragment.class.getName();
+	private BaseGroupActivity activity;
+	private ImageButton searchButton, loginButton, postButton, btn2, btn3;
+	private Button message1, message2, message3, message4, message5;
+	private PosIndexListAdapter adapter;
+	private ListView listView;
+	private View headerView, loginLayout, emptyView, messageLayout;
+	private PanningView panningView;
+	private TextView dateText;
+	private IndexDateTask dataTask;
+	private CompanyTask companyTask;
+	private List<Company> list = new ArrayList<Company>();
+	private GetMemberMessageTask memberTask;
+
+	@Override
+	public View onCreateView(LayoutInflater inflater, ViewGroup container,
+			Bundle savedInstanceState) {
+		return inflater.inflate(R.layout.fragment_index, container, false);
+	}
+
+	@Override
+	public void onActivityCreated(Bundle savedInstanceState) {
+		activity = (BaseGroupActivity) getActivity();
+		initView();
+		initData();
+		super.onActivityCreated(savedInstanceState);
+	}
+
+	@Override
+	public void onResume() {
+		initMessageLayout();
+		panningView.startPanning();
+		super.onResume();
+	}
+	
+	
+	@Override
+	public void onDestroy() {
+		if (dataTask != null) {
+			dataTask.cancel(true);
+		}
+		if (companyTask != null) {
+			companyTask.cancel(true);
+		}
+		if (memberTask != null)
+			memberTask.cancel(false);
+		super.onDestroy();
+	}
+
+	private void initView() {
+		listView = (ListView) getView().findViewById(R.id.listView1);
+		headerView = getActivity().getLayoutInflater().inflate(
+				R.layout.header_index, null);
+		emptyView = getActivity().getLayoutInflater().inflate(
+				R.layout.gloabl_listview_empty, null);
+		listView.addHeaderView(headerView);
+		listView.addFooterView(emptyView);
+		adapter = new PosIndexListAdapter(activity, list);
+		listView.setAdapter(adapter);
+		panningView = (PanningView) getView()
+				.findViewById(R.id.index_header_bg);
+		loginLayout = headerView.findViewById(R.id.login_layout);
+		messageLayout = headerView.findViewById(R.id.message_layout);
+		dateText = (TextView) headerView.findViewById(R.id.date);
+		searchButton = (ImageButton) headerView
+				.findViewById(R.id.button_search);
+		loginButton = (ImageButton) headerView.findViewById(R.id.button_login);
+		postButton = (ImageButton) headerView.findViewById(R.id.button_post);
+		message1 = (Button) headerView.findViewById(R.id.message_text1);
+		message2 = (Button) headerView.findViewById(R.id.message_text2);
+		message3 = (Button) headerView.findViewById(R.id.message_text3);
+		message4 = (Button) headerView.findViewById(R.id.message_text4);
+		message5 = (Button) headerView.findViewById(R.id.message_text5);
+		btn2 = (ImageButton) activity.getParent().findViewById(R.id.btn2);
+		btn3 = (ImageButton) activity.getParent().findViewById(R.id.btn3);
+		searchButton.setOnClickListener(this);
+		loginButton.setOnClickListener(this);
+		postButton.setOnClickListener(this);
+		message1.setOnClickListener(this);
+		message2.setOnClickListener(this);
+		message3.setOnClickListener(this);
+		message4.setOnClickListener(this);
+		message5.setOnClickListener(this);
+	}
+
+	private void initData() {
+		dataTask = new IndexDateTask();
+		dataTask.execute();
+		companyTask = new CompanyTask();
+		companyTask.execute("5", "1", "广州");
+		if (CacheService.isLogined()) {
+			memberTask = new GetMemberMessageTask();
+			memberTask.execute();
+		}
+
+	}
+
+	
+
+	@Override
+	public void onClick(View v) {
+		if (v == searchButton) {
+			btn2.performClick();
+		} else if (v == loginButton) {
+			btn3.performClick();
+		} else if (v == postButton) {
+			Intent intent = new Intent(activity, RegisterActivity.class);
+			startActivity(intent);
+		} else if (v == message1) {
+			Intent intent = new Intent(activity, PersonalInviteActivity.class);
+			startActivity(intent);
+		} else if (v == message2) {
+			Intent intent = new Intent(activity, PersonalLeaveActivity.class);
+			startActivity(intent);
+		} else if (v == message3) {
+			Intent intent = new Intent(activity, PersonalFavoriteActivity.class);
+			startActivity(intent);
+		} else if (v == message4) {
+			Intent intent = new Intent(activity, PersonalApplyActivity.class);
+			startActivity(intent);
+		} else if (v == message5) {
+			Intent intent = new Intent(activity, PersonalSeemActivity.class);
+			startActivity(intent);
+		}
+	}
+
+
+	public class IndexDateTask extends AsyncTask<Void, Integer, String> {
+		@Override
+		protected String doInBackground(Void... params) {
+			String date = FuncUtil.getDateString();
+			try {
+				String calendar = IndexPageService.getCalendar();
+				date = date + "(" + calendar + ")";
+				Log.e("日期", date);
+				return date;
+			} catch (MyHttpException e) {
+				// TODO Auto-generated catch block
+				Log.e("MyHttpException", e.getErrorCode());
+				UIUtil.toast(activity, e.getErrorMessage());
+			}
+			return date;
+		}
+
+		@Override
+		protected void onPostExecute(String date) {
+			// TODO Auto-generated method stub
+			dateText.setText(date);
+		}
+
+		@Override
+		protected void onPreExecute() {
+			// TODO Auto-generated method stub
+			super.onPreExecute();
+		}
+
+	}
+
+	public class CompanyTask extends AsyncTask<String, Integer, List<Company>> {
+		@Override
+		protected List<Company> doInBackground(String... params) {
+			try {
+				List<Company> list = IndexPageService.getVipCompanyList(
+						new PageUtil(params[0], params[1]), params[2]);
+
+				return list;
+			} catch (MyHttpException e) {
+				Log.e("MyHttpException", e.getErrorCode());
+				UIUtil.toast(activity, e.getErrorMessage());
+
+			}
+			return null;
+		}
+
+		@Override
+		protected void onPostExecute(List<Company> resultList) {
+			// TODO Auto-generated method stub
+			if (resultList != null && !resultList.isEmpty()) {
+				listView.removeFooterView(emptyView);
+				list.addAll(resultList);
+				adapter.notifyDataSetChanged();
+			} else {
+				emptyView.findViewById(R.id.progressBar1).setVisibility(
+						View.GONE);
+				TextView textView = (TextView) emptyView
+						.findViewById(R.id.title);
+				textView.setText("暂无数据");
+			}
+		}
+
+		@Override
+		protected void onPreExecute() {
+			// TODO Auto-generated method stub
+
+		}
+	}
+
+	public class GetMemberMessageTask extends
+			AsyncTask<Void, Integer, MemberMessage> {
+		protected void onPreExecute() {
+		};
+
+		@Override
+		protected MemberMessage doInBackground(Void... arg0) {
+			try {
+				Log.e("memberId", PersonInfoSave.memberInfo.getMemberId() + "");
+				MemberMessage memberMessage = IndexPageService
+						.getMemberMessage(PersonInfoSave.memberInfo
+								.getMemberId());
+				return memberMessage;
+			} catch (MyHttpException e) {
+				Log.e("MyHttpException", e.getErrorCode());
+				UIUtil.toast(activity, e.getErrorMessage());
+			}
+			return null;
+		}
+
+		@Override
+		protected void onPostExecute(MemberMessage memberMessage) {
+			if (memberMessage != null) {
+				PersonInfoSave.saveMemberMessage(memberMessage);
+				initMessageLayout();
+			}
+		}
+	}
+
+	private void initMessageLayout() {
+		if (CacheService.isLogined()) {
+			messageLayout.setVisibility(View.VISIBLE);
+			loginLayout.setVisibility(View.GONE);
+			ImageLoader imageLoader = new ImageLoader(activity);
+			ImageView userImageView = (ImageView) headerView
+					.findViewById(R.id.user_bg);
+			imageLoader.DisplayImage(PersonInfoSave.memberInfo.getAvatar(),
+					userImageView, R.drawable.image_avatar_0,
+					AndroidUtil.dpToPx(54, activity),
+					AndroidUtil.dpToPx(64, activity));
+			message1.setText(Html.fromHtml("<big><big>"
+					+ PersonInfoSave.memberInfo.getInterview()
+					+ "</big></big><br/><small><small>面试通知</small></small>"));
+			message2.setText(Html.fromHtml("<big><big>"
+					+ PersonInfoSave.memberInfo.getComments()
+					+ "</big></big><br/><small><small>评价留言</small></small>"));
+			message3.setText(Html.fromHtml("<big><big>"
+					+ PersonInfoSave.memberInfo.getFavorite()
+					+ "</big></big><br/><small><small>职位收藏</small></small>"));
+			message4.setText(Html.fromHtml("<big><big>"
+					+ PersonInfoSave.memberInfo.getCandidates()
+					+ "</big></big><br/><small><small>应聘记录</small></small>"));
+			message5.setText(Html.fromHtml("<big><big>"
+					+ PersonInfoSave.memberInfo.getSee()
+					+ "</big></big><br/><small><small>简历被看</small></small>"));
+			TextView noInterviewText = (TextView) headerView
+					.findViewById(R.id.message_new1);
+			TextView noCommentsText = (TextView) headerView
+					.findViewById(R.id.message_new2);
+			int noInterview = PersonInfoSave.memberInfo.getNoInterview();
+			int noComments = PersonInfoSave.memberInfo.getNoComments();
+			if (noInterview == 0) {
+				noInterviewText.setVisibility(View.GONE);
+			} else {
+				noInterviewText.setVisibility(View.VISIBLE);
+				noInterviewText.setText(FuncUtil.showNoRead(noInterview));
+			}
+
+			if (PersonInfoSave.memberInfo.getNoComments() == 0) {
+				noCommentsText.setVisibility(View.GONE);
+			} else {
+				noCommentsText.setVisibility(View.VISIBLE);
+				noCommentsText.setText(FuncUtil.showNoRead(noComments));
+			}
+		} else {
+			messageLayout.setVisibility(View.GONE);
+			loginLayout.setVisibility(View.VISIBLE);
+		}
+	}
+}

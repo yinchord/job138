@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/transparent"
+    android:padding="16dp" >
+
+    <RelativeLayout
+        android:layout_width="296dp"
+        android:layout_height="wrap_content"
+        android:background="@drawable/bg_notice"
+        android:paddingLeft="60dp"
+        android:paddingRight="0dp"
+        android:paddingTop="0dp" >
+
+        <TextView
+            android:id="@+id/title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="24dp"
+            android:layout_marginTop="146dp"
+            android:gravity="center"
+            android:text="刷新简历成功 !刷新简历成功"
+            android:textColor="@color/font_orange"
+            android:textSize="18sp" />
+
+        <ImageButton
+            android:id="@+id/applyButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignLeft="@+id/title"
+            android:layout_alignRight="@+id/title"
+            android:layout_below="@+id/title"
+            android:layout_marginTop="16dp"
+            android:background="@null"
+            android:src="@drawable/button_apply_notice" />
+
+        <ImageButton
+            android:id="@+id/close_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_marginRight="10dp"
+            android:layout_marginTop="100dp"
+            android:background="@null"
+            android:src="@drawable/button_cancel_notice" />
+    </RelativeLayout>
+
+</RelativeLayout>

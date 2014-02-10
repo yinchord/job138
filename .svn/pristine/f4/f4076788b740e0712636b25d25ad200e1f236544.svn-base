@@ -1,0 +1,215 @@
+package com.geetion.job138.widget.custom;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+
+import com.geetion.job138.R;
+import com.geetion.job138.adapter.CityListAdapter;
+import com.geetion.job138.model.CityInfo;
+import com.geetion.job138.model.JobType;
+import com.geetion.job138.service.CacheService;
+import com.geetion.job138.service.SearchJobService;
+import com.geetion.job138.service.StationTypeSave;
+import com.geetion.job138.util.AndroidUtil;
+import com.geetion.job138.util.MyHttpException;
+import com.geetion.job138.util.UIUtil;
+import com.geetion.job138.widget.custom.ParentLinearLayoutTouch.OnInterceptTouchListener;
+
+import android.app.ActionBar.LayoutParams;
+import android.content.Context;
+import android.os.AsyncTask;
+import android.os.Handler;
+import android.util.Log;
+import android.view.Gravity;
+import android.view.MotionEvent;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
+import android.widget.ImageButton;
+import android.widget.ListView;
+import android.widget.PopupWindow;
+import android.widget.ProgressBar;
+
+public class SelectCityPop extends PopupWindow implements OnClickListener {
+	private View cityView;
+	private ImageButton closeButton;
+	private ListView proviceListView, cityListView;
+	private CityListAdapter proviceAdapter, cityAdapter;
+	private Context context;
+	private ParentLinearLayoutTouch parentLayout;
+	private ProgressBar progressBar; 
+	private GetCitiesTask getCitiesTask;
+	private List<CityInfo> childs; 
+	private Handler handler = new Handler();
+	private SelectCity selectInterface;
+	private CityInfo parent;
+	private boolean isSingle = true;
+	
+	
+	public interface SelectCity {
+		public void check(HashMap<Integer, CityInfo> chooseMap);
+	}
+	
+	public void setSelectCity(SelectCity selectCity) {
+		this.selectInterface = selectCity;
+	}
+	
+	public SelectCityPop(View view, final Context context, boolean isSingle) {
+		super(view, LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT, true);
+		this.cityView = view;
+		this.context = context;
+		this.isSingle = isSingle;
+		this.setOutsideTouchable(true);
+		this.setTouchable(true);
+		this.update();
+		closeButton = (ImageButton) cityView.findViewById(R.id.button_close);
+		closeButton.setImageResource((isSingle?R.drawable.close_icon:R.drawable.sure_icon));
+		proviceListView = (ListView) cityView.findViewById(R.id.list_province);
+		cityListView = (ListView) cityView.findViewById(R.id.list_city);
+		progressBar = (ProgressBar) cityView.findViewById(R.id.progressBar1);
+		closeButton.setOnClickListener(this);
+		setAnimationStyle(R.style.PopupAnimation);
+		parentLayout = (ParentLinearLayoutTouch) cityView.findViewById(R.id.parent_layout);
+		parentLayout.setOnInterceptTouchListener(new OnInterceptTouchListener() {
+			float downX = 0;
+
+			@Override
+			public boolean OnTouch(MotionEvent event) {
+				if (event.getAction() == MotionEvent.ACTION_DOWN) {
+					downX = event.getX();
+					Log.e("downX", "" + downX);
+				} else if (event.getAction() == MotionEvent.ACTION_MOVE) {
+					if (event.getX() - downX > AndroidUtil.dpToPx(64, context)) {
+						dismiss();
+					}
+					Log.e("moveX", "" + event.getX());
+				}
+				return false;
+			}
+		});
+	}
+	
+	public void showPop(View region) {
+		getData();
+		cityView.findViewById(R.id.shadow).setVisibility(View.INVISIBLE);
+		this.showAtLocation(region, Gravity.RIGHT, 0, 0);
+		this.showAtLocation(region, Gravity.RIGHT, 0, 0);
+		handler.postDelayed(new Runnable() {
+			public void run() {
+				cityView.findViewById(R.id.shadow).setVisibility(View.VISIBLE);
+			}
+		}, 250);
+		
+	}
+
+	public void getData() {
+		initData();
+	}
+	
+	public void initData() {
+		if (CacheService.provinces.isEmpty()) {
+			getCitiesTask = new GetCitiesTask();
+			getCitiesTask.execute();
+		}
+		childs = new ArrayList<CityInfo>(); 
+		proviceAdapter = new CityListAdapter(proviceListView.getContext(), CacheService.provinces,R.layout.item_station, R.id.item_station_text, true, isSingle);
+		proviceListView.setAdapter(proviceAdapter);
+		cityAdapter = new CityListAdapter(cityListView.getContext(),childs, R.layout.item_station2, R.id.item_station2_text, false, isSingle);
+		cityListView.setAdapter(cityAdapter);
+		proviceListView.setOnItemClickListener(new ProviceItemListener());
+		cityListView.setOnItemClickListener(new CityItemListener());
+	}
+
+	@Override
+	public void onClick(View v) {
+		// TODO Auto-generated method stub
+		if(v == closeButton) {
+			cityView.findViewById(R.id.shadow).setVisibility(View.INVISIBLE);
+			cityListView.setVisibility(View.GONE);
+			dismiss();
+			if (selectInterface != null) {
+				selectInterface.check(cityAdapter.getChoseMap());
+			}
+		}
+	}
+	
+	private class GetCitiesTask extends AsyncTask<Void, Integer, List<CityInfo>> {
+		List<CityInfo> list = new ArrayList<CityInfo>();
+		@Override
+		protected List<CityInfo> doInBackground(Void... params) {
+			try {
+				list = SearchJobService.getCityInfo();
+				return list;
+			} catch (MyHttpException e) {
+				Log.e("MyHttpException", e.getErrorCode());
+				UIUtil.toast(context, e.getErrorMessage());
+			}
+			return list;
+		}
+
+		@Override
+		protected void onPostExecute(List<CityInfo> resultList) {
+			if (!resultList.isEmpty()) {
+				CacheService.saveCity(resultList);
+				proviceAdapter.notifyDataSetChanged();
+				progressBar.setVisibility(View.GONE);
+			}
+		}
+
+		@Override
+		protected void onPreExecute() {
+			progressBar.setVisibility(View.VISIBLE);
+		}
+		
+	}
+	
+	private class ProviceItemListener implements OnItemClickListener {
+
+		@Override
+		public void onItemClick(AdapterView<?> arg0, View arg1, int position, long arg3) {
+			parent = CacheService.provinces.get(position);
+			int id = parent.getId();
+			List<CityInfo> l = CacheService.cities.get(id);
+			childs = l;
+			cityAdapter.clear();
+			cityAdapter.addAll(l);
+			cityAdapter.notifyDataSetChanged();
+			proviceAdapter.setSelect(position);
+			proviceAdapter.notifyDataSetChanged();
+			cityListView.setVisibility(View.VISIBLE);
+		}
+		
+	}
+	
+	private class CityItemListener implements OnItemClickListener {
+
+		@Override
+		public void onItemClick(AdapterView<?> arg0, View arg1, int position, long arg3) {
+			if(isSingle) {
+				if (selectInterface != null) {
+					selectInterface.check(cityAdapter.getChoseMap());
+				}
+				cityView.findViewById(R.id.shadow).setVisibility(View.INVISIBLE);
+				cityListView.setVisibility(View.GONE);
+				dismiss();
+			} else {
+				int id = childs.get(position).getId();
+				CityInfo cityInfo = childs.get(position);
+				if (cityAdapter.isSelect(id)) {
+					cityAdapter.cleanSelect(id);
+				} else {
+					if (cityAdapter.getSelectCount() >= 5) {
+						UIUtil.toast(context, "最多只能选择5个！");
+						return;
+					}
+					cityAdapter.addSelect(id, cityInfo);
+				}
+				cityAdapter.notifyDataSetChanged();
+			}
+			
+		}
+		
+	}
+}

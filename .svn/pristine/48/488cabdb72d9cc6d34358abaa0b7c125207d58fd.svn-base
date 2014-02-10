@@ -1,0 +1,121 @@
+package com.geetion.job138.service;
+
+import java.util.HashMap;
+import java.util.Map;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import com.geetion.job138.util.HttpUtil;
+import com.geetion.job138.util.MyHttpException;
+
+import android.content.Context;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
+
+public class SettingService extends BaseService {
+	private final static String SETTING_PREFERNECES = "setting_preferneces";
+	private final static String UPDATE_PWD = SERVER_URL + "/User/ChangePassword/1";
+	private final static String UPDATE_MOBILE = SERVER_URL + "/Resume/Mobile/1";
+	private final static String GET_STATE = SERVER_URL + "/Resume/Status";
+	private final static String UPDATE_STATE = SERVER_URL + "/Resume/Status/Update/1";
+
+	public static void saveHelpShowed(Context context) {
+		SharedPreferences pref = context.getSharedPreferences(SETTING_PREFERNECES, Context.MODE_APPEND);
+		Editor editor = pref.edit();
+		editor.putBoolean("help", true);
+		editor.commit();
+	}
+
+	public static boolean isShowedHelp(Context context) {
+		SharedPreferences pref = context.getSharedPreferences(SETTING_PREFERNECES, Context.MODE_APPEND);
+		return pref.getBoolean("help", false);
+	}
+
+	public static String updatePWD(String UserName, String UserPwd, String NewPwd) throws MyHttpException {
+		Map<String, String> params = new HashMap<String, String>();
+		params.put("UserName", UserName);
+		params.put("UserPwd", UserPwd);
+		params.put("NewPwd", NewPwd);
+		String json = HttpUtil.postJSON(UPDATE_PWD, params);
+		JSONObject jsonObject;
+		try {
+			jsonObject = new JSONObject(json);
+			boolean state = jsonObject.optBoolean("State");
+			if (state) {
+				JSONObject valueObject = jsonObject.optJSONObject("Value");
+				String UserNameBack = valueObject.optString("UserName");
+				return UserNameBack;
+			} else {
+				throw new MyHttpException(jsonObject.optString("Message"), jsonObject.optString("Message"));
+			}
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+
+	public static int updateMobile(String UserName, String Rid, String Mobile) throws MyHttpException {
+		Map<String, String> params = new HashMap<String, String>();
+		params.put("UserName", UserName);
+		params.put("UserPwd", Rid);
+		params.put("NewPwd", Mobile);
+		String json = HttpUtil.postJSON(UPDATE_PWD, params);
+		JSONObject jsonObject;
+		try {
+			jsonObject = new JSONObject(json);
+			boolean state = jsonObject.optBoolean("State");
+			if (state) {
+				JSONObject valueObject = jsonObject.optJSONObject("Value");
+				int resumeId = valueObject.optInt("Id");
+				return resumeId;
+			} else {
+				throw new MyHttpException(jsonObject.optString("Message"), jsonObject.optString("Message"));
+			}
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+		return 0;
+	}
+
+	public static String getStatus(int MemberId) throws MyHttpException {
+		String json = HttpUtil.get(GET_STATE + "/" + String.valueOf(MemberId), null);
+		JSONObject jsonObject;
+		try {
+			jsonObject = new JSONObject(json);
+			boolean state = jsonObject.optBoolean("State");
+			if (state) {
+				JSONObject valueObject = jsonObject.optJSONObject("Value");
+				String status = valueObject.optString("Status");
+				return status;
+			} else {
+				throw new MyHttpException(jsonObject.optString("Message"), jsonObject.optString("Message"));
+			}
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+
+	public static int updateStatus(int MemberId, String status) throws MyHttpException {
+		Map<String, String> params = new HashMap<String, String>();
+		params.put("MemberId", String.valueOf(MemberId));
+		params.put("status", status);
+		String json = HttpUtil.postJSON(UPDATE_STATE, params);
+		JSONObject jsonObject;
+		try {
+			jsonObject = new JSONObject(json);
+			boolean state = jsonObject.optBoolean("State");
+			if (state) {
+				JSONObject valueObject = jsonObject.optJSONObject("Value");
+				int resumeId = valueObject.optInt("Id");
+				return resumeId;
+			} else {
+				throw new MyHttpException(jsonObject.optString("Message"), jsonObject.optString("Message"));
+			}
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+		return 0;
+	}
+}

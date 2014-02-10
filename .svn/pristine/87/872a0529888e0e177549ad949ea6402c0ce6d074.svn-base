@@ -1,0 +1,213 @@
+package com.geetion.job138.widget.custom;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+
+import com.geetion.job138.R;
+import com.geetion.job138.adapter.JobTypeListAdapter;
+import com.geetion.job138.model.JobType;
+import com.geetion.job138.service.SearchJobService;
+import com.geetion.job138.service.StationTypeSave;
+import com.geetion.job138.util.AndroidUtil;
+import com.geetion.job138.util.MyHttpException;
+import com.geetion.job138.util.UIUtil;
+import com.geetion.job138.widget.custom.ParentLinearLayoutTouch.OnInterceptTouchListener;
+
+import android.R.integer;
+import android.app.ActionBar.LayoutParams;
+import android.content.Context;
+import android.os.AsyncTask;
+import android.os.Handler;
+import android.util.Log;
+import android.view.Gravity;
+import android.view.MotionEvent;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.widget.AdapterView;
+import android.widget.ImageButton;
+import android.widget.ListView;
+import android.widget.PopupWindow;
+import android.widget.ProgressBar;
+import android.widget.AdapterView.OnItemClickListener;
+
+public class SelectJobTypePop extends PopupWindow implements OnClickListener {
+	private View stationView;
+	private ImageButton closeButton;
+	private ListView stationListView, stationSubListView;
+	private JobTypeListAdapter subAdapter, stationAdapter;
+	private Context context;
+	private SelectJobType selectInterface;
+	private ParentLinearLayoutTouch parentLayout;
+	private ProgressBar progressBar;
+	private GetJobTypeTask getJobTypeTask;
+	private List<JobType> childs = new ArrayList<JobType>();
+	private Handler handler = new Handler();
+	private boolean isSingle = false;
+
+
+	public interface SelectJobType {
+		public void check(HashMap<Integer, JobType> chooseMap);
+	}
+
+	public void setSelectJobTpe(SelectJobType selectJobType) {
+		this.selectInterface = selectJobType;
+	}
+
+	public SelectJobTypePop(View view, final Context context, boolean isSingle) {
+		super(view, LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT, true);
+		this.stationView = view;
+		this.context = context;
+		this.isSingle = isSingle;
+		this.setOutsideTouchable(true);
+		this.setTouchable(true);
+		this.update();
+		closeButton = (ImageButton) stationView.findViewById(R.id.button_close);
+		closeButton.setImageResource((isSingle?R.drawable.close_icon:R.drawable.sure_icon));
+		stationListView = (ListView) stationView.findViewById(R.id.list_station);
+		stationSubListView = (ListView) stationView.findViewById(R.id.list_station_sub);
+		progressBar = (ProgressBar) stationView.findViewById(R.id.progressBar1);
+		closeButton.setOnClickListener(this);
+		setAnimationStyle(R.style.PopupAnimation);
+		parentLayout = (ParentLinearLayoutTouch) stationView.findViewById(R.id.parent_layout);
+		parentLayout.setOnInterceptTouchListener(new OnInterceptTouchListener() {
+			float downX = 0;
+
+			@Override
+			public boolean OnTouch(MotionEvent event) {
+				if (event.getAction() == MotionEvent.ACTION_DOWN) {
+					downX = event.getX();
+					Log.e("downX", "" + downX);
+				} else if (event.getAction() == MotionEvent.ACTION_MOVE) {
+					if (event.getX() - downX > AndroidUtil.dpToPx(64, context)) {
+						dismiss();
+					}
+					Log.e("moveX", "" + event.getX());
+				}
+				return false;
+			}
+		});
+	}
+
+	public void showPop(View station) {
+		getData();
+		stationView.findViewById(R.id.shadow).setVisibility(View.INVISIBLE);
+		this.showAtLocation(station, Gravity.RIGHT, 0, 0);
+		handler.postDelayed(new Runnable() {
+			public void run() {
+				stationView.findViewById(R.id.shadow).setVisibility(View.VISIBLE);
+			}
+		}, 250);
+	}
+
+	public void getData() {
+		initData();
+	}
+
+	public void initData() {
+		if (!StationTypeSave.isGetType()) {
+			getJobTypeTask = new GetJobTypeTask();
+			getJobTypeTask.execute();
+		}
+		stationAdapter = new JobTypeListAdapter(stationListView.getContext(), StationTypeSave.parentJobTypes, R.layout.item_station, R.id.item_station_text, true, isSingle);
+		stationListView.setAdapter(stationAdapter);
+		subAdapter = new JobTypeListAdapter(stationSubListView.getContext(), childs, R.layout.item_station2, R.id.item_station2_text, false, isSingle);
+		stationSubListView.setAdapter(subAdapter);
+		stationSubListView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
+		stationListView.setOnItemClickListener(new StationItemListener());
+		stationSubListView.setOnItemClickListener(new SubItemListener());
+
+	}
+
+	@Override
+	public void onClick(View v) {
+		if (v == closeButton) {
+			stationView.findViewById(R.id.shadow).setVisibility(View.INVISIBLE);
+			stationSubListView.setVisibility(View.GONE);
+			dismiss();
+			if (selectInterface != null) {
+				selectInterface.check(subAdapter.getChoseMap());
+			}
+		}
+	}
+
+	public class GetJobTypeTask extends AsyncTask<Void, integer, List<JobType>> {
+		List<JobType> list = new ArrayList<JobType>();
+
+		@Override
+		protected List<JobType> doInBackground(Void... params) {
+			try {
+				list = SearchJobService.getJobType();
+				return list;
+			} catch (MyHttpException e) {
+				Log.e("MyHttpException", e.getErrorCode());
+				UIUtil.toast(context, e.getErrorMessage());
+			}
+			return list;
+		}
+
+		@Override
+		protected void onPostExecute(List<JobType> resultList) {
+			if (!resultList.isEmpty()) {
+				StationTypeSave.saveJobType(resultList);
+				stationAdapter.notifyDataSetChanged();
+				progressBar.setVisibility(View.GONE);
+			}
+		}
+
+		@Override
+		protected void onPreExecute() {
+			progressBar.setVisibility(View.VISIBLE);
+		}
+
+	}
+
+	private class StationItemListener implements OnItemClickListener {
+
+		@Override
+		public void onItemClick(AdapterView<?> arg0, View arg1, int position, long arg3) {
+			int id = StationTypeSave.parentJobTypes.get(position).getId();
+			List<JobType> l = StationTypeSave.childJobtypes.get(id);
+			childs = l;
+			subAdapter.clear();
+			subAdapter.addAll(l);
+			subAdapter.notifyDataSetChanged();
+			stationAdapter.setSelect(position);
+			stationAdapter.notifyDataSetChanged();
+			stationSubListView.setVisibility(View.VISIBLE);
+		}
+
+	}
+
+	private class SubItemListener implements OnItemClickListener {
+		@Override
+		public void onItemClick(AdapterView<?> arg0, View arg1, int position, long arg3) {
+			if(isSingle) {
+				int id = childs.get(position).getId();
+				JobType jobType = childs.get(position);
+				subAdapter.addSelect(id, jobType);
+				if (selectInterface != null) {
+					selectInterface.check(subAdapter.getChoseMap());
+				}
+				stationView.findViewById(R.id.shadow).setVisibility(View.INVISIBLE);
+				stationSubListView.setVisibility(View.GONE);
+				dismiss();
+			} else {
+				int id = childs.get(position).getId();
+				JobType jobType = childs.get(position);
+				if (subAdapter.isSelect(id)) {
+					subAdapter.cleanSelect(id);
+				} else {
+					if (subAdapter.getSelectCount() >= 5) {
+						UIUtil.toast(context, "最多只能选择5个！");
+						return;
+					}
+					subAdapter.addSelect(id, jobType);
+				}
+				subAdapter.notifyDataSetChanged();
+			}			
+
+		}
+	}
+
+}

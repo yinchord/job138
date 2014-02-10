@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="16dp" >
+
+    <TextView
+        android:id="@+id/job_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
+        android:singleLine="true"
+        android:text="浙江市场美容店长"
+        android:textColor="@color/font_blue"
+        android:textSize="17sp" />
+
+    <ImageView
+        android:id="@+id/imageView1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_centerVertical="true"
+        android:src="@drawable/arrow_right" />
+
+    <TextView
+        android:id="@+id/company_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/job_name"
+        android:layout_below="@+id/job_name"
+        android:layout_marginTop="6dp"
+        android:text="维多利亚完美体雕(国际连锁)"
+        android:textColor="@color/font_gray"
+        android:textSize="10sp" />
+
+    <TextView
+        android:id="@+id/loc_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/company_name"
+        android:layout_below="@+id/company_name"
+        android:layout_marginTop="5dp"
+        android:text="地区: "
+        android:textColor="@color/font_gray"
+        android:textSize="10sp" />
+
+    <TextView
+        android:id="@+id/loc"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@+id/loc_title"
+        android:layout_toRightOf="@+id/loc_title"
+        android:paddingLeft="5dp"
+        android:text="广东广州"
+        android:textColor="@color/font_gray"
+        android:minWidth="60dp"
+        android:textSize="10sp" />
+
+    <TextView
+        android:id="@+id/salary_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBaseline="@+id/loc"
+        android:layout_alignTop="@+id/loc"
+        android:layout_toRightOf="@+id/loc"
+        android:paddingLeft="26dp"
+        android:text="月薪: "
+        android:textColor="@color/font_gray"
+        android:textSize="10sp" />
+
+    <TextView
+        android:id="@+id/salary"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBaseline="@+id/loc"
+        android:layout_alignTop="@+id/salary_title"
+        android:layout_toRightOf="@+id/salary_title"
+        android:paddingLeft="5dp"
+        android:text="3000~4499元"
+        android:textColor="@color/font_red"
+        android:textSize="10sp" />
+
+    <TextView
+        android:id="@+id/date"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:layout_toLeftOf="@+id/imageView1"
+        android:paddingRight="16dp"
+        android:text="2013.11.07"
+        android:textColor="@color/font_light2_gray"
+        android:textSize="10sp" />
+
+</RelativeLayout>

@@ -1,0 +1,56 @@
+package com.geetion.job138.fragment;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import com.geetion.job138.R;
+import com.geetion.job138.adapter.PosDetailListAdapter;
+import com.geetion.job138.model.Pos;
+
+import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ListView;
+
+public class PosDetailListFragment extends BaseFragment {
+	public static String TAG = PosDetailListFragment.class.getName();
+	private ListView listView;
+	private PosDetailListAdapter adapter;
+	private List<Pos> list;
+
+	@Override
+	public View onCreateView(LayoutInflater inflater, ViewGroup container,
+			Bundle savedInstanceState) {
+		return inflater.inflate(R.layout.fragment_pos_detail_list, container,
+				false);
+	}
+
+	@Override
+	public void onActivityCreated(Bundle savedInstanceState) {
+		initView();
+		initData();
+		super.onActivityCreated(savedInstanceState);
+	}
+
+	private void initView() {
+		listView = (ListView) getActivity().findViewById(R.id.listView1);
+	}
+
+	private void initData() {
+		list = new ArrayList<Pos>();
+		list.add(new Pos());
+		list.add(new Pos());
+		list.add(new Pos());
+		list.add(new Pos());
+		list.add(new Pos());
+		list.add(new Pos());
+		list.add(new Pos());
+		adapter = new PosDetailListAdapter(getActivity(), list);
+		listView.setAdapter(adapter);
+	}
+
+	@Override
+	public void onClick(View v) {
+	}
+}

@@ -1,0 +1,16 @@
+package com.geetion.job138.service;
+
+import com.geetion.job138.model.ResumeInfo;
+
+public class ResumeInfoSave {
+	public static ResumeInfo resumeInfo = new ResumeInfo();
+
+	public static void saveContact(ResumeInfo contactInfo) {
+		resumeInfo.setEmail(contactInfo.getEmail());
+		resumeInfo.setMobile(contactInfo.getMobile());
+		resumeInfo.setTel(contactInfo.getTel());
+		resumeInfo.setQQ(contactInfo.getQQ());
+		resumeInfo.setWeibo(contactInfo.getWeibo());
+		resumeInfo.setAddress(contactInfo.getAddress());
+	}
+}

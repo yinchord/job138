@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TextView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="48dp"
+    android:textSize="18sp"
+    android:textColor="@color/white"
+    android:gravity="left|center_vertical"
+    android:paddingLeft="16dp"
+    android:paddingRight="16dp"
+    android:drawableRight="@drawable/arrow_right"
+    android:text="美容" >
+    
+
+</TextView>

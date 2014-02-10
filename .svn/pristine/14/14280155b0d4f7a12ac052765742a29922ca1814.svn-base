@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:gravity="center_horizontal"
+    android:orientation="vertical">
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp"  >
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/choose_box" >
+
+            <TextView
+                android:id="@+id/type"
+                android:layout_width="80dp"
+                android:layout_height="42dp"
+                android:layout_alignParentRight="true"
+                android:paddingLeft="8dp"
+                android:paddingTop="8dp"
+                android:textSize="18sp"
+                android:text="职位" />
+
+            <EditText
+                android:id="@+id/keyword"
+                android:layout_width="wrap_content"
+                android:layout_height="42dp"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentTop="true"
+                android:background="@null"
+                android:ems="10"
+                android:hint="输入关键字"
+                android:paddingLeft="16dp"
+                android:paddingRight="16dp"
+                android:singleLine="true"
+                android:textColor="@color/font_gray"
+                android:textColorHint="@color/font_light_gray" >
+
+            </EditText>
+
+        </RelativeLayout>
+
+        <EditText
+            android:id="@+id/regin"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:background="@drawable/text_box"
+            android:drawableRight="@drawable/gps_icon"
+            android:ems="10"
+            android:hint="选择地区"
+            android:paddingLeft="16dp"
+            android:paddingRight="12dp"
+            android:singleLine="true"
+            android:textColor="@color/font_gray"
+            android:textColorHint="@color/font_light_gray" />
+
+        <EditText
+            android:id="@+id/station"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:background="@drawable/text_box"
+            android:drawableRight="@drawable/more_icon"
+            android:ems="10"
+            android:hint="岗位类别"
+            android:paddingLeft="16dp"
+            android:paddingRight="12dp"
+            android:singleLine="true"
+            android:textColor="@color/font_gray"
+            android:textColorHint="@color/font_light_gray" />
+
+        <ImageButton
+            android:id="@+id/button_search"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:background="@drawable/search_btn" />
+
+        <TextView
+            android:id="@+id/textView1"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:textColor="@color/font_gray"
+            android:text="快速搜索：" />
+
+        <LinearLayout
+            android:id="@+id/quick_search_box"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:visibility="gone">
+
+            <TextView
+                android:id="@+id/quick_text1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/quicksearch_bg"
+                android:textSize="11sp"
+                android:gravity="center"
+                android:text="美容美体"
+                android:textColor="@color/brown" />
+
+            <TextView
+                android:id="@+id/quick_text2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="8dp"
+                android:background="@drawable/quicksearch_bg"
+                android:textSize="11sp"
+                android:gravity="center"
+                android:text="美容美甲"
+                android:textColor="@color/brown" />
+
+            <TextView
+                android:id="@+id/quick_text3"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="8dp"
+                android:background="@drawable/quicksearch_bg"
+                android:textSize="11sp"
+                android:gravity="center"
+                android:text="化妆纹绣"
+                android:textColor="@color/brown" />
+
+            <TextView
+                android:id="@+id/quick_text4"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="8dp"
+                android:background="@drawable/quicksearch_bg"
+                android:textSize="11sp"
+                android:gravity="center"
+                android:text="销售策划"
+                android:textColor="@color/brown" />         
+
+        </LinearLayout>
+        
+        <ProgressBar
+                android:id="@+id/quick_progressBar"
+                style="?android:attr/progressBarStyleSmall"
+                android:layout_width="16dp"
+                android:layout_height="16dp" 
+                android:layout_gravity="center_horizontal" />
+
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/textView3"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingLeft="16dp"
+        android:paddingTop="4dp"
+        android:paddingBottom="4dp"
+        android:background="@color/bg_light_gray"
+        android:text="搜索历史"
+        android:textColor="@color/font_gray" />
+
+</LinearLayout>

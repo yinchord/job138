@@ -1,0 +1,261 @@
+package com.geetion.job138.widget.pulldoor;
+
+import java.util.Calendar;
+import java.util.TimeZone;
+
+import com.liqi.job.R;
+
+import android.annotation.SuppressLint;
+import android.content.Context;
+import android.graphics.Color;
+import android.graphics.drawable.Drawable;
+import android.os.Handler;
+import android.util.AttributeSet;
+import android.util.DisplayMetrics;
+import android.util.Log;
+import android.view.GestureDetector;
+import android.view.GestureDetector.OnGestureListener;
+import android.view.MotionEvent;
+import android.view.View;
+import android.view.WindowManager;
+import android.view.animation.AccelerateInterpolator;
+import android.view.animation.BounceInterpolator;
+import android.view.animation.Interpolator;
+import android.widget.FrameLayout;
+import android.widget.ImageView;
+import android.widget.RelativeLayout;
+import android.widget.Scroller;
+
+public class PullDoorView extends RelativeLayout implements OnGestureListener {
+
+	private Context mContext;
+
+	private Scroller mScroller;
+
+	private int mScreenWidth = 0;
+
+	private int mScreenHeigh = 0;
+
+	private int mLastDownY = 0;
+
+	private int mCurryY;
+
+	private int mDelY;
+
+	private boolean mCloseFlag = false;
+
+	private boolean fling = false;
+
+	private static final int FLING_MIN_VELOCITY = 200;// 移动最大速度
+
+	private ImageView mImgView;
+	GestureDetector mygesture = new GestureDetector(this);
+
+	public PullDoorView(Context context) {
+		super(context);
+		mContext = context;
+		setupView();
+	}
+
+	public PullDoorView(Context context, AttributeSet attrs) {
+		super(context, attrs);
+		mContext = context;
+		setupView();
+	}
+
+	@SuppressLint("NewApi")
+	private void setupView() {
+
+		// 这个Interpolator你可以设置别的 我这里选择的是有弹跳效果的Interpolator
+		Interpolator polator = new BounceInterpolator();
+		mScroller = new Scroller(mContext, polator);
+
+		// 获取屏幕分辨率
+		WindowManager wm = (WindowManager) (mContext.getSystemService(Context.WINDOW_SERVICE));
+		DisplayMetrics dm = new DisplayMetrics();
+		wm.getDefaultDisplay().getMetrics(dm);
+		mScreenHeigh = dm.heightPixels;
+		mScreenWidth = dm.widthPixels;
+
+		// 这里你一定要设置成透明背景,不然会影响你看到底层布局
+		this.setBackgroundColor(Color.argb(0, 0, 0, 0));
+		mImgView = new ImageView(mContext);
+		mImgView.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
+		mImgView.setScaleType(ImageView.ScaleType.CENTER_CROP);// 填充整个屏幕
+		final Calendar c = Calendar.getInstance();
+		c.setTimeZone(TimeZone.getTimeZone("GMT+8:00"));
+		int mWay = c.get(Calendar.DAY_OF_WEEK);
+		switch (mWay) {
+		case 1:
+			mImgView.setImageResource(R.drawable.sun); // 默认背景
+			break;
+		case 2:
+			mImgView.setImageResource(R.drawable.mon); // 默认背景
+			break;
+		case 3:
+			mImgView.setImageResource(R.drawable.tue); // 默认背景
+			break;
+		case 4:
+			mImgView.setImageResource(R.drawable.wed); // 默认背景
+			break;
+		case 5:
+			mImgView.setImageResource(R.drawable.thu); // 默认背景
+			break;
+		case 6:
+			mImgView.setImageResource(R.drawable.fri); // 默认背景
+			break;
+		case 7:
+			mImgView.setImageResource(R.drawable.sat); // 默认背景
+			break;
+		}
+		addView(mImgView);
+	}
+
+	// 设置推动门背景
+	public void setBgImage(int id) {
+		mImgView.setImageResource(id);
+	}
+
+	// 设置推动门背景
+	public void setBgImage(Drawable drawable) {
+		mImgView.setImageDrawable(drawable);
+	}
+
+	// 推动门的动画
+	public void startBounceAnim(int startY, int dy, int duration) {
+		mScroller.startScroll(0, startY, 0, dy, duration);
+		invalidate();
+	}
+
+	@Override
+	public boolean onTouchEvent(MotionEvent event) {
+		boolean isFinish = mygesture.onTouchEvent(event);
+		int action = event.getAction();
+		switch (action) {
+		case MotionEvent.ACTION_DOWN:
+			if (mCloseFlag)
+				break;
+			mLastDownY = (int) event.getY();
+			System.err.println("ACTION_DOWN=" + mLastDownY);
+			return true;
+		case MotionEvent.ACTION_MOVE:
+			if (mCloseFlag)
+				break;
+			mCurryY = (int) event.getY();
+			System.err.println("ACTION_MOVE=" + mCurryY);
+			mDelY = mCurryY - mLastDownY;
+			// 只准上滑有效
+			if (mDelY < 0) {
+				scrollTo(0, -mDelY);
+			}
+			System.err.println("-------------  " + mDelY);
+
+			break;
+		case MotionEvent.ACTION_UP:
+			if (mCloseFlag)
+				break;
+			mCurryY = (int) event.getY();
+			mDelY = mCurryY - mLastDownY;
+			if (mDelY < 0) {
+				if (Math.abs(mDelY) > mScreenHeigh / 3) {
+					// 向上滑动超过半个屏幕高的时候 开启向上消失动画
+					startBounceAnim(this.getScrollY(), mScreenHeigh, 600);
+					mCloseFlag = true;
+				} else {
+					// 向上滑动未超过半个屏幕高的时候 开启向下弹动动画
+					if (!fling && !mCloseFlag && !isFinish)
+						startBounceAnim(this.getScrollY(), -this.getScrollY(), 600);
+				}
+			}
+
+			break;
+		}
+		return super.onTouchEvent(event);
+	}
+
+	private int nowY;
+
+	public interface FinishListener {
+		public void onFinish();
+	}
+
+	private FinishListener finishListener;
+
+	public void setFinishListener(FinishListener finishListener) {
+		this.finishListener = finishListener;
+	}
+
+	private boolean isFinish = false;
+
+	@Override
+	public void computeScroll() {
+		if (mScroller.computeScrollOffset()) {
+			if (fling && nowY > mScroller.getCurrY()) {
+				postInvalidate();
+				return;
+			}
+			scrollTo(mScroller.getCurrX(), mScroller.getCurrY());
+			nowY = mScroller.getCurrY();
+			Log.i("scroller", "getCurrX()= " + mScroller.getCurrX() + "     getCurrY()=" + mScroller.getCurrY() + "  getFinalY() =  " + mScroller.getFinalY());
+			// 不要忘记更新界面
+			postInvalidate();
+			if (mScroller.getCurrY() == mScroller.getFinalY() && mCloseFlag && !isFinish) {
+				Log.e("tag", "finish");
+				isFinish = true;
+				if (finishListener != null) {
+					finishListener.onFinish();
+				}
+			}
+		} else {
+			if (mCloseFlag) {
+				this.setVisibility(View.GONE);
+				fling = false;
+				mCloseFlag = false;
+			}
+		}
+	}
+
+	@Override
+	public boolean onDown(MotionEvent arg0) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public boolean onFling(MotionEvent arg0, MotionEvent arg1, float velocityX, float velocityY) {
+		Log.e("fling", "fling");
+		if (velocityY < 0 && Math.abs(velocityY) > FLING_MIN_VELOCITY) {
+			mScroller.abortAnimation();
+			startBounceAnim(this.getScrollY(), mScreenHeigh, 1000);
+			mCloseFlag = true;
+			fling = true;
+			return true;
+		}
+		return false;
+	}
+
+	@Override
+	public void onLongPress(MotionEvent arg0) {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public boolean onScroll(MotionEvent arg0, MotionEvent arg1, float arg2, float arg3) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public void onShowPress(MotionEvent arg0) {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public boolean onSingleTapUp(MotionEvent arg0) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+}

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" >
+    
+    <CheckBox 
+        android:id="@+id/item_station_check"
+        android:layout_width="wrap_content"
+        android:layout_height="48dp"
+        android:button="@drawable/station_check_selector"
+        />
+
+    <TextView
+        android:id="@+id/item_station_text"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:layout_toRightOf="@id/item_station_check"
+        android:gravity="left|center_vertical"
+        android:paddingLeft="10dp"
+        android:paddingRight="2dp"
+        android:drawablePadding="3dp"
+        android:text="美容"       
+        android:textStyle="bold"
+        android:textColor="@color/white"
+        android:textSize="14sp" >
+    </TextView>
+
+</RelativeLayout>

@@ -1,0 +1,360 @@
+﻿package com.geetion.job138.util;
+
+import java.text.SimpleDateFormat;
+
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Locale;
+
+import com.liqi.job.R;
+
+import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.AlertDialog.Builder;
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.content.DialogInterface.OnClickListener;
+import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
+import android.os.Handler;
+import android.view.Gravity;
+import android.view.View;
+import android.widget.DatePicker;
+import android.widget.EditText;
+import android.widget.Gallery;
+import android.widget.PopupWindow;
+import android.widget.TextView;
+import android.widget.Toast;
+import android.widget.DatePicker.OnDateChangedListener;
+
+/**
+ * 
+ * @author 80work
+ * @version 0.1
+ */
+
+public class UIUtil {
+
+	/**
+	 * 弹出提示函数封装Toast
+	 * 
+	 * @param context
+	 *            Activity活动
+	 * @param str
+	 *            要弹出提示的内容
+	 */
+	public static Toast toast = null;
+
+	/**
+	 * 选择数字
+	 * 
+	 * @param context
+	 * @param text
+	 * @param min
+	 * @param max
+	 */
+	public static void numberPicker(Context context, final EditText text, int min, int max) {
+		AlertDialog.Builder builder = new AlertDialog.Builder(context);
+		int position = 0;
+		final String[] items = new String[max - min + 1];
+		for (int i = 0; i < items.length; i++) {
+			String value = String.valueOf(i + 30);
+			items[i] = value;
+			if (text.getText().toString().equals(value)) {
+				position = i;
+			}
+		}
+		builder.setSingleChoiceItems(items, position, new DialogInterface.OnClickListener() {
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				text.setText(items[which]);
+				dialog.dismiss();
+			}
+		});
+		builder.show();
+	}
+
+	/**
+	 * 
+	 * @param context
+	 * @param date
+	 *            文本编辑器，规定日期格式：yyyy-MM-dd
+	 */
+	public static void datePicker(Context context, final EditText date) {
+		String[] dateArray = null;
+		if (date.getText() != null && !date.getText().toString().equals("")) {
+			dateArray = date.getText().toString().split("-");
+		} else {
+			dateArray = new SimpleDateFormat("yyyy-MM-dd").format(new Date()).split("-");
+		}
+		AlertDialog.Builder builder = new AlertDialog.Builder(context);
+		DatePicker datePicker = new DatePicker(context);
+		// datePicker.setMaxDate(System.currentTimeMillis());
+		datePicker.init(Integer.valueOf(dateArray[0]), Integer.valueOf(dateArray[1]) - 1, Integer.valueOf(dateArray[2]), new OnDateChangedListener() {
+			@Override
+			public void onDateChanged(DatePicker picker, int year, int month, int day) {
+				Calendar calendar = Calendar.getInstance();
+				calendar.set(Calendar.YEAR, year);
+				calendar.set(Calendar.MONTH, month);
+				calendar.set(Calendar.DAY_OF_MONTH, day);
+				SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+				date.setText(sdf.format(calendar.getTime()));
+			}
+		});
+		builder.setView(datePicker);
+		builder.setNeutralButton("确定", new DialogInterface.OnClickListener() {
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				dialog.dismiss();
+			}
+		});
+		AlertDialog dialog = builder.create();
+		dialog.show();
+	}
+	
+
+	/**
+	 * 
+	 * @param context
+	 * @param date
+	 *            文本编辑器，规定日期格式：yyyy-MM-dd
+	 */
+	public static void datePicker(Context context, final TextView date) {
+		String[] dateArray = null;
+		if (date.getText() != null && !date.getText().toString().equals("")) {
+			dateArray = date.getText().toString().split("-");
+		} else {
+			dateArray = new SimpleDateFormat("yyyy-MM-dd").format(new Date()).split("-");
+		}
+		AlertDialog.Builder builder = new AlertDialog.Builder(context);
+		DatePicker datePicker = new DatePicker(context);
+		// datePicker.setMaxDate(System.currentTimeMillis());
+		datePicker.init(Integer.valueOf(dateArray[0]), Integer.valueOf(dateArray[1]) - 1, Integer.valueOf(dateArray[2]), new OnDateChangedListener() {
+			@Override
+			public void onDateChanged(DatePicker picker, int year, int month, int day) {
+				Calendar calendar = Calendar.getInstance();
+				calendar.set(Calendar.YEAR, year);
+				calendar.set(Calendar.MONTH, month);
+				calendar.set(Calendar.DAY_OF_MONTH, day);
+				SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+				date.setText(sdf.format(calendar.getTime()));
+			}
+		});
+		builder.setView(datePicker);
+		builder.setNeutralButton("确定", new DialogInterface.OnClickListener() {
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				dialog.dismiss();
+			}
+		});
+		AlertDialog dialog = builder.create();
+		dialog.show();
+	}
+
+	public static void showPopupWindow(View parent, View child, int width, int height) {
+		final PopupWindow popupWindow = new PopupWindow(child, width, height);
+		popupWindow.setFocusable(true);
+		popupWindow.setOutsideTouchable(true);
+		popupWindow.setBackgroundDrawable(new BitmapDrawable());
+		int xPos = parent.getWidth() / 2 - popupWindow.getWidth() / 2;
+		popupWindow.showAsDropDown(parent, xPos, 0);
+	}
+
+	public static PopupWindow getPopupWindow(View parent, View child, int width, int height) {
+		final PopupWindow popupWindow = new PopupWindow(child, width, height);
+		popupWindow.setFocusable(true);
+		popupWindow.setOutsideTouchable(true);
+		popupWindow.setBackgroundDrawable(new BitmapDrawable());
+		int xPos = parent.getWidth() / 2 - popupWindow.getWidth() / 2;
+		popupWindow.showAsDropDown(parent, xPos, 0);
+		return popupWindow;
+	}
+
+	public static void toast(final Activity context, final String str) {
+		context.runOnUiThread(new Runnable() {
+			@Override
+			public void run() {
+				if (toast == null) {
+					toast = Toast.makeText(context, str, Toast.LENGTH_SHORT);
+					toast.setGravity(Gravity.CENTER, 0, 0);
+				} else {
+					toast.setText(str);
+				}
+				toast.show();
+			}
+		});
+	}
+
+	public static void toast(Context context, final String str) {
+		Activity activity = ((Activity) context);
+		toast(activity, str);
+	}
+
+	/**
+	 * 带确定按钮的提示框
+	 * 
+	 * @param context
+	 *            Activity活动
+	 * @param title
+	 *            标题
+	 * @param message
+	 *            弹出提示的内容
+	 */
+	public static void alert(Activity context, String title, String message) {
+		AlertDialog.Builder builder = new AlertDialog.Builder(context);
+		builder.setTitle("提示");
+		builder.setMessage(message);
+		builder.setPositiveButton("关闭", new android.content.DialogInterface.OnClickListener() {
+			@Override
+			public void onClick(DialogInterface arg0, int arg1) {
+			}
+		});
+		AlertDialog ad = builder.create();
+		ad.show();
+
+	}
+	
+	public static void showAlert(Context context, String title, String message,
+			android.content.DialogInterface.OnClickListener listener) {
+		AlertDialog.Builder builder = new AlertDialog.Builder(context);
+		builder.setTitle(title);
+		builder.setMessage(message);
+		builder.setNeutralButton("取消",
+				new android.content.DialogInterface.OnClickListener() {
+					@Override
+					public void onClick(DialogInterface arg0, int arg1) {
+						arg0.dismiss();
+					}
+				});
+		builder.setPositiveButton("查看",listener);
+		AlertDialog ad = builder.create();
+		ad.show();
+	}
+
+
+	public static void showDialog(final Activity context, final String message) {
+		final AlertDialog.Builder builder = new Builder(context);
+		builder.setMessage(message);
+		builder.setTitle("提示");
+		builder.setPositiveButton("确认", new android.content.DialogInterface.OnClickListener() {
+			@Override
+			public void onClick(final DialogInterface dialog, final int which) {
+				dialog.dismiss();
+			}
+		});
+		builder.show();
+	}
+
+	/**
+	 * 
+	 * @param context
+	 *            Activity活动
+	 * @param title
+	 *            确认框标题
+	 * @param view
+	 *            视图
+	 * @param enter
+	 *            确认后的OnClickListener
+	 */
+	public static void confirm(Activity context, String title, String message, OnClickListener enter) {
+		AlertDialog.Builder builder = new AlertDialog.Builder(context);
+		if (title != null)
+			builder.setTitle(title);
+		if (message != null)
+			builder.setMessage(message);
+		builder.setPositiveButton("确定", enter);
+		builder.setNegativeButton("取消", new android.content.DialogInterface.OnClickListener() {
+			public void onClick(DialogInterface dialog, int which) {
+				dialog.dismiss();
+			}
+		});
+		AlertDialog ad = builder.create();
+		ad.show();
+	}
+
+	/**
+	 * 通知管理器
+	 * 
+	 * @param context
+	 *            Activity活动
+	 * @return 通知管理器
+	 */
+	public static NotificationManager getNotificationManager(Context context) {
+		return (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+	}
+
+	/**
+	 * 通知
+	 * 
+	 * @param context
+	 *            Activity活动
+	 * @param contentTitle
+	 *            标题
+	 * @param contentText
+	 *            内容
+	 * @param tickerText
+	 *            显示在顶部的弹出信息描述
+	 * @param intent
+	 *            点击通知后的行为
+	 * @return 通知
+	 */
+	public static Notification getNotification(Context context, String contentTitle, String contentText, String tickerText, Intent intent) {
+		Notification notification = new Notification(R.drawable.ic_launcher, tickerText, System.currentTimeMillis());
+		PendingIntent contentIntent = PendingIntent.getActivity(context, 0, intent, 0);
+		notification.setLatestEventInfo(context, contentTitle, contentText, contentIntent);
+		return notification;
+	}
+
+	/**
+	 * 释放bmp资源
+	 * 
+	 * @param bmp
+	 */
+	public static void recycleBmp(Bitmap bmp) {
+		if (null != bmp && !bmp.isRecycled()) {
+			bmp.recycle();
+		}
+	}
+
+	/**
+	 * 
+	 * @param context
+	 *            Activity活动
+	 * @param title
+	 *            确认框标题
+	 * @param view
+	 *            视图
+	 */
+	public static void menuDialog(Activity context, String title, View view, String buttonText) {
+		AlertDialog.Builder builder = new AlertDialog.Builder(context);
+		builder.setTitle(title);
+		builder.setView(view);
+		builder.setPositiveButton(buttonText, new android.content.DialogInterface.OnClickListener() {
+			public void onClick(DialogInterface dialog, int which) {
+				dialog.dismiss();
+			}
+		});
+		AlertDialog ad = builder.create();
+		ad.show();
+	}
+
+	public interface OnSelectAlter {
+		public void onSelect(String select);
+	}
+
+	public static void showSelectAlert(Activity context, final String[] arrayString, final OnSelectAlter onSelectAlter) {
+		AlertDialog.Builder builder = new AlertDialog.Builder(context);
+		builder.setItems(arrayString, new android.content.DialogInterface.OnClickListener() {
+			@Override
+			public void onClick(DialogInterface arg0, int arg1) {
+				onSelectAlter.onSelect(arrayString[arg1]);
+			}
+		});
+		builder.show();
+	}
+
+}

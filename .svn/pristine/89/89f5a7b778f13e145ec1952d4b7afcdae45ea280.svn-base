@@ -1,0 +1,63 @@
+package com.geetion.job138.model;
+
+public class Interview {
+	/**
+	 * 1、Company：公司名 2、Time：应聘时间 3、HireId：职位ID 4、HireName：职位名 5、Id：邀请面试ID
+	 * 6、isRead：是否已读（1为已读，0为未读）
+	 */
+	private String Company;
+	private String Time;
+	private int HireId;
+	private String HireName;
+	private int Id;
+	private int isRead;
+
+	public String getCompany() {
+		return Company;
+	}
+
+	public void setCompany(String company) {
+		Company = company;
+	}
+
+	public String getTime() {
+		return Time;
+	}
+
+	public void setTime(String time) {
+		Time = time;
+	}
+
+	public int getHireId() {
+		return HireId;
+	}
+
+	public void setHireId(int hireId) {
+		HireId = hireId;
+	}
+
+	public String getHireName() {
+		return HireName;
+	}
+
+	public void setHireName(String hireName) {
+		HireName = hireName;
+	}
+
+	public int getId() {
+		return Id;
+	}
+
+	public void setId(int id) {
+		Id = id;
+	}
+
+	public int getIsRead() {
+		return isRead;
+	}
+
+	public void setIsRead(int isRead) {
+		this.isRead = isRead;
+	}
+
+}

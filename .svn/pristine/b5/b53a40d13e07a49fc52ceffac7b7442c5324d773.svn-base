@@ -1,0 +1,31 @@
+package com.geetion.job138.service;
+
+import com.geetion.job138.model.MemberMessage;
+import com.geetion.job138.model.ResumeInfo;
+
+public class PersonInfoSave {
+	public static ResumeInfo resumeInfo = new ResumeInfo();
+	public static MemberMessage memberInfo = new MemberMessage();
+
+	public static void saveContact(ResumeInfo contactInfo) {
+		resumeInfo.setEmail(contactInfo.getEmail());
+		resumeInfo.setMobile(contactInfo.getMobile());
+		resumeInfo.setTel(contactInfo.getTel());
+		resumeInfo.setQQ(contactInfo.getQQ());
+		resumeInfo.setWeibo(contactInfo.getWeibo());
+		resumeInfo.setAddress(contactInfo.getAddress());
+	}
+
+	public static void saveMemberMessage(MemberMessage member) {
+		memberInfo.setAvatar(member.getAvatar());
+		memberInfo.setEmail(member.getEmail());
+		memberInfo.setMobile(member.getMobile());
+		memberInfo.setUserName(member.getUserName());
+		memberInfo.setStatus(member.getStatus());
+		memberInfo.setNoInterview(member.getNoInterview());
+		memberInfo.setNoComments(member.getNoComments());
+		memberInfo.setFavarite(member.getFavarite());
+		memberInfo.setCandidates(member.getCandidates());
+		memberInfo.setSee(member.getSee());
+	}
+}

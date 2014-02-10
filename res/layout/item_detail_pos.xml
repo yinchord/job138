@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/common_list_bg_selector"
+    android:padding="16dp" >
+
+    <TextView
+        android:id="@+id/hirename"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
+        android:paddingBottom="4dp"
+        android:singleLine="true"
+        android:text="hirename"
+        android:textColor="@color/font_blue"
+        android:textSize="16sp" />
+
+    <ImageView
+        android:id="@+id/imageView1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_centerVertical="true"
+        android:src="@drawable/more_icon" />
+
+    <TextView
+        android:id="@+id/info"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBaseline="@+id/hirename"
+        android:layout_alignBottom="@+id/hirename"
+        android:layout_toRightOf="@+id/hirename"
+        android:paddingLeft="8dp"
+        android:text="(%s) (%s)"
+        android:textColor="@color/font_light_gray"
+        android:textSize="12sp" />
+
+</RelativeLayout>

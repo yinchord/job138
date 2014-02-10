@@ -1,0 +1,171 @@
+package com.geetion.job138.service;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
+import android.annotation.SuppressLint;
+import com.geetion.job138.model.CityInfo;
+import com.geetion.job138.model.Station;
+
+public class CacheService {
+	public static boolean isLogined;
+	public static List<Station> quickSearchKeyWords = new ArrayList<Station>();
+
+	public static Map<Integer, String> nationKeyMap = new LinkedHashMap<Integer, String>();
+	public static Map<String, Integer> nationNameMap = new LinkedHashMap<String, Integer>();
+	public static Map<Integer, String> sexKeyMap = new LinkedHashMap<Integer, String>();
+	public static Map<String, Integer> sexNameMap = new LinkedHashMap<String, Integer>();
+	public static Map<Integer, String> educKeyMap = new LinkedHashMap<Integer, String>();
+	public static Map<String, Integer> educNameMap = new LinkedHashMap<String, Integer>();
+	public static Map<Integer, String> marriageKeyMap = new LinkedHashMap<Integer, String>();
+	public static Map<String, Integer> marriageNameMap = new LinkedHashMap<String, Integer>();
+	public static Map<Integer, String> cardKeyMap = new LinkedHashMap<Integer, String>();
+	public static Map<String, Integer> cardNameMap = new LinkedHashMap<String, Integer>();
+	public static Map<Integer, String> jobTypeKeyMap = new LinkedHashMap<Integer, String>();
+	public static Map<String, Integer> jobTypeNameMap = new LinkedHashMap<String, Integer>();
+	public static Map<Integer, String> workDateKeyMap = new LinkedHashMap<Integer, String>();
+	public static Map<String, Integer> workDateNameMap = new LinkedHashMap<String, Integer>();
+	// public static Map<String, Integer> payNameMap = new
+	// LinkedHashMap<String,Integer>();
+	public static Map<Integer, String> payKeyMap = new LinkedHashMap<Integer, String>();
+
+	public static List<CityInfo> provinces = new ArrayList<CityInfo>();
+	@SuppressLint("UseSparseArrays")
+	public static Map<Integer, List<CityInfo>> cities = new HashMap<Integer, List<CityInfo>>();
+	@SuppressLint("UseSparseArrays")
+	public static Map<Integer, CityInfo> provincesMap = new HashMap<Integer, CityInfo>();
+
+	public static void initMap() {
+		// 性别Map
+		sexKeyMap.put(1, "男");
+		sexKeyMap.put(2, "女");
+		sexNameMap.put("男", 1);
+		sexNameMap.put("女", 2);
+
+		// 最高学历Map
+		/**
+		 * 1>初中 2>高中 3>职高技校 4>中专 5>大专 6>大学本科 7>硕士 8>博士
+		 */
+		educKeyMap.put(1, "初中");
+		educKeyMap.put(2, "高中");
+		educKeyMap.put(3, "职高技校");
+		educKeyMap.put(4, "中专");
+		educKeyMap.put(5, "大专");
+		educKeyMap.put(6, "大学本科");
+		educKeyMap.put(7, "硕士");
+		educKeyMap.put(8, "博士");
+
+		educNameMap.put("初中", 1);
+		educNameMap.put("高中", 2);
+		educNameMap.put("职高技校", 3);
+		educNameMap.put("中专", 4);
+		educNameMap.put("大专", 5);
+		educNameMap.put("大学本科", 6);
+		educNameMap.put("硕士", 7);
+		educNameMap.put("博士", 8);
+
+		/**
+		 * 1>未婚 2>已婚 3>离异 5>保密
+		 */
+		marriageKeyMap.put(1, "未婚");
+		marriageKeyMap.put(2, "已婚");
+		marriageKeyMap.put(3, "离异");
+		marriageKeyMap.put(5, "保密");
+		marriageNameMap.put("未婚", 1);
+		marriageNameMap.put("已婚", 2);
+		marriageNameMap.put("离异", 3);
+		marriageNameMap.put("保密", 5);
+
+		/**
+		 * 0>身份证 1>驾证 2>军官证 3>护照 4>其它
+		 */
+		cardKeyMap.put(0, "身份证");
+		cardKeyMap.put(1, "驾证");
+		cardKeyMap.put(2, "军官证");
+		cardKeyMap.put(3, "护照");
+		cardKeyMap.put(4, "其它");
+		cardNameMap.put("身份证", 0);
+		cardNameMap.put("驾证", 1);
+		cardNameMap.put("军官证", 2);
+		cardNameMap.put("护照", 3);
+		cardNameMap.put("其它", 4);
+
+		/**
+		 * 求职类型 1>全职 2>兼职 3>全职、兼职均可
+		 */
+		jobTypeKeyMap.put(1, "全职");
+		jobTypeKeyMap.put(2, "兼职");
+		jobTypeKeyMap.put(3, "全职、兼职均可");
+		jobTypeNameMap.put("全职", 1);
+		jobTypeNameMap.put("兼职", 2);
+		jobTypeNameMap.put("全职、兼职均可", 3);
+
+		/**
+		 * 面议 1500元以下 1500～1999元 2000～2999元 3000～4499元 4500～5999元 6000～7999元
+		 * 8000～9999元 10000～14999元 15000～19999元 20000元以上
+		 */
+		payKeyMap.put(1, "面议");
+		payKeyMap.put(2, "1500～1999元");
+		payKeyMap.put(3, "2000～2999元");
+		payKeyMap.put(4, "3000～4499元");
+		payKeyMap.put(5, "4500～5999元");
+		payKeyMap.put(6, "6000～7999元");
+		payKeyMap.put(7, "8000～9999元");
+		payKeyMap.put(8, "10000～14999元");
+		payKeyMap.put(9, "15000～19999元");
+		payKeyMap.put(10, "20000元以上");
+
+		/**
+		 * 7>1周以内 14>2周以内 30>1个月内 60>1～3个月 90>3个月以后
+		 */
+		workDateKeyMap.put(7, "1周以内");
+		workDateKeyMap.put(14, "2周以内");
+		workDateKeyMap.put(30, "1个月内");
+		workDateKeyMap.put(60, "1～3个月");
+		workDateKeyMap.put(90, "3个月以后");
+
+		workDateNameMap.put("1周以内", 7);
+		workDateNameMap.put("2周以内", 14);
+		workDateNameMap.put("1个月内", 30);
+		workDateNameMap.put("1～3个月", 60);
+		workDateNameMap.put("3个月以后", 90);
+	}
+
+	public static boolean isLogined() {
+		return isLogined;
+	}
+
+	public static void saveQuickSearchKeyWords(List<Station> list) {
+		quickSearchKeyWords = list;
+	}
+
+	public static void saveCity(List<CityInfo> list) {
+		if (!list.isEmpty()) {
+			for (int i = 0; i < list.size(); i++) {
+				CityInfo cityInfo = list.get(i);
+				int fid = cityInfo.getFid();
+				if (fid == 0) {
+					provinces.add(cityInfo);
+				} else {
+					if (!cities.containsKey(fid)) {
+						List<CityInfo> city = new ArrayList<CityInfo>();
+						city.add(cityInfo);
+						cities.put(fid, city);
+					} else {
+						cities.get(fid).add(cityInfo);
+					}
+				}
+			}
+			saveProvinces(provinces);
+		}
+	}
+
+	private static void saveProvinces(List<CityInfo> list) {
+		for (int i = 0; i < list.size(); i++) {
+			provincesMap.put(list.get(i).getId(), list.get(i));
+		}
+	}
+}

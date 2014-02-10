@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/common_list_bg_selector"
+    android:padding="16dp" >
+
+    <TextView
+        android:id="@+id/job_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
+        android:singleLine="true"
+        android:text="浙江市场美容店长"
+        android:textColor="@color/font_blue"
+        android:textSize="17sp" />
+
+    <ImageView
+        android:id="@+id/imageView1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_centerVertical="true"
+        android:src="@drawable/arrow_right" />
+
+    <TextView
+        android:id="@+id/company_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/job_name"
+        android:layout_below="@+id/job_name"
+        android:layout_marginTop="6dp"
+        android:text="维多利亚完美体雕(国际连锁)"
+        android:textColor="@color/font_gray"
+        android:textSize="10sp" />
+
+    <ImageView
+        android:id="@+id/new_icon"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@+id/job_name"
+        android:layout_alignTop="@+id/job_name"
+        android:layout_marginLeft="16dp"
+        android:layout_toRightOf="@+id/job_name"
+        android:src="@drawable/icon_new" />
+
+</RelativeLayout>

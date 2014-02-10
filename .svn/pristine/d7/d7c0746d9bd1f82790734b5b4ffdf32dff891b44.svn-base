@@ -1,0 +1,197 @@
+package com.geetion.job138.fragment;
+
+import cn.sharesdk.onekeyshare.OnekeyShare;
+
+import com.baidu.mobstat.StatService;
+import com.liqi.job.R;
+import com.geetion.job138.activity.BaseActivity;
+import com.geetion.job138.activity.MapActivity;
+import com.geetion.job138.model.JobInfo;
+import com.geetion.job138.model.ResumeInfo;
+import com.geetion.job138.service.JobInfoService;
+import com.geetion.job138.service.JobManageService;
+import com.geetion.job138.service.PersonInfoSave;
+import com.geetion.job138.util.AndroidUtil;
+import com.geetion.job138.util.MyHttpException;
+import com.geetion.job138.util.UIUtil;
+import com.handmark.pulltorefresh.library.internal.Utils;
+
+import android.content.Intent;
+import android.net.Uri;
+import android.os.AsyncTask;
+import android.os.Bundle;
+import android.text.Html;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.view.ViewGroup;
+import android.widget.ImageButton;
+import android.widget.TextView;
+import android.widget.Toast;
+
+public class PosDetailFragment extends BaseFragment implements OnClickListener {
+	public static String TAG = PosDetailFragment.class.getName();
+	private ImageButton btShare, phone, candidates, collection;
+	private JobInfo jobInfo;
+	private BaseActivity activity;
+	private TextView hirename, contact, address, introduce, info, number;
+	private AsyncTask candidatesTask, collectionTask;
+	private ResumeInfo resumeInfo;
+
+	@Override
+	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+		return inflater.inflate(R.layout.fragment_pos_detail, container, false);
+	}
+
+	@Override
+	public void onActivityCreated(Bundle savedInstanceState) {
+		initView();
+		initData();
+		super.onActivityCreated(savedInstanceState);
+	}
+
+	@Override
+	public void onDestroy() {
+		if (candidatesTask != null) {
+			candidatesTask.cancel(true);
+		}
+		if (collectionTask != null) {
+			collectionTask.cancel(true);
+		}
+		super.onDestroy();
+	}
+
+	public void initView() {
+		hirename = (TextView) getActivity().findViewById(R.id.hirename);
+		number = (TextView) getActivity().findViewById(R.id.number);
+		address = (TextView) getActivity().findViewById(R.id.address);
+		contact = (TextView) getActivity().findViewById(R.id.contact);
+		introduce = (TextView) getActivity().findViewById(R.id.introduce);
+		info = (TextView) getActivity().findViewById(R.id.info);
+
+		btShare = (ImageButton) getActivity().findViewById(R.id.btShare);
+		phone = (ImageButton) getActivity().findViewById(R.id.phone);
+		candidates = (ImageButton) getActivity().findViewById(R.id.candidates);
+		collection = (ImageButton) getActivity().findViewById(R.id.collection);
+		address.setOnClickListener(this);
+		btShare.setOnClickListener(this);
+		phone.setOnClickListener(this);
+		candidates.setOnClickListener(this);
+		collection.setOnClickListener(this);
+		activity = (BaseActivity) getActivity();
+	}
+
+	void initData() {
+		resumeInfo = PersonInfoSave.resumeInfo;
+		Bundle bundle = getArguments();
+		if (bundle != null)
+			jobInfo = (JobInfo) bundle.get("jobInfo");
+		if (jobInfo != null) {
+			hirename.setText(jobInfo.getHireName());
+			number.setText("(" + jobInfo.getNumber() + "人)");
+			if (jobInfo.getIntroduce() != null)
+				introduce.setText(Html.fromHtml(jobInfo.getIntroduce()));
+			info.setText("工作经验：" + jobInfo.getExperience() + "\n工作地区：" + jobInfo.getArea() + "\n待遇水平：" + jobInfo.getPay() + "\n招聘期限："
+					+ jobInfo.getAnnounceDate() + " ~ " + jobInfo.getEndDate() + "");
+			contact.setText("联系人：" + jobInfo.getContact());
+			address.setText("地址：" + jobInfo.getAddress());
+		}
+	}
+
+	class CandidatesTask extends AsyncTask<Void, Void, Integer> {
+		@Override
+		protected void onPreExecute() {
+			activity.showHoldLoading();
+			candidates.setEnabled(false);
+			StatService.onEvent(getActivity(), "A03", "应聘职位", 1);
+			super.onPreExecute();
+		}
+
+		@Override
+		protected Integer doInBackground(Void... params) {
+			try {
+				return JobManageService.applyPosition(resumeInfo.getUserName(), jobInfo.getHireId(), resumeInfo.getId());
+			} catch (MyHttpException e) {
+				UIUtil.toast(getActivity(), e.getErrorMessage());
+			}
+			return 0;
+		}
+
+		@Override
+		protected void onPostExecute(Integer result) {
+			activity.hideHoldLoading();
+			candidates.setEnabled(true);
+			if (result != 0) {
+				UIUtil.toast(getActivity(), "应聘成功");
+			}
+		}
+	}
+
+	class CollectionTask extends AsyncTask<Void, Void, Integer> {
+		@Override
+		protected void onPreExecute() {
+			activity.showHoldLoading();
+			collection.setEnabled(false);
+			StatService.onEvent(getActivity(), "A04", "收藏职位", 1);
+			super.onPreExecute();
+		}
+
+		@Override
+		protected Integer doInBackground(Void... params) {
+			try {
+				return JobManageService.favoritePosition(resumeInfo.getUserName(), jobInfo.getHireId());
+			} catch (MyHttpException e) {
+				UIUtil.toast(getActivity(), e.getErrorMessage());
+			}
+			return 0;
+		}
+
+		@Override
+		protected void onPostExecute(Integer result) {
+			activity.hideHoldLoading();
+			collection.setEnabled(true);
+			if (result != 0) {
+				UIUtil.toast(getActivity(), "收藏成功");
+			}
+		}
+	}
+
+	@Override
+	public void onClick(View v) {
+		if (v == address) {
+			if (jobInfo.getLable()[0].equals("") || jobInfo.getLable()[1].equals("")) {
+				UIUtil.toast(activity, "暂时找不地址");
+			} else {
+				Intent intent = new Intent(getActivity(), MapActivity.class);
+				intent.putExtra("x", jobInfo.getLable()[0]);
+				intent.putExtra("y", jobInfo.getLable()[1]);
+				intent.putExtra("address", jobInfo.getAddress());
+				startActivity(intent);
+			}
+		} else if (v == btShare) {
+			OnekeyShare oks = new OnekeyShare();
+			oks.disableSSOWhenAuthorize();
+			oks.setTitleUrl("http://sharesdk.cn");
+			oks.setUrl("http://www.sharesdk.cn");
+			oks.setSiteUrl("http://sharesdk.cn");
+			oks.setText("我在#138中国美容人才网#看到" + jobInfo.getCompanyName() + "招聘" + jobInfo.getHireName() + "(" + jobInfo.getNumber() + "-"
+					+ jobInfo.getPay() + ")" + "http://m.138job.com/Job/Hire-" + jobInfo.getHireId());
+			oks.setNotification(R.drawable.ic_launcher, getActivity().getString(R.string.app_name));
+			oks.setSite(getActivity().getString(R.string.app_name));
+			oks.show(getActivity());
+		} else if (v == phone) {
+			call(jobInfo.getTel());
+		} else if (v == candidates) {
+			candidatesTask = new CandidatesTask().execute();
+		} else if (v == collection) {
+			collectionTask = new CollectionTask().execute();
+		}
+	}
+
+	// 跳转到打电话的页面
+	public void call(String phoneNum) {
+		Intent intent = new Intent(Intent.ACTION_DIAL, Uri.parse("tel:" + phoneNum));
+		intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+		startActivity(intent);
+	}
+}

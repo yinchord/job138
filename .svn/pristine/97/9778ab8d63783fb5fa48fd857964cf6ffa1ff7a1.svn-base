@@ -1,0 +1,75 @@
+package com.geetion.job138.activity;
+
+import java.io.IOException;
+
+import com.geetion.job138.R;
+import com.geetion.job138.util.SoundUtil;
+import android.app.Dialog;
+import android.content.Context;
+import android.content.DialogInterface.OnCancelListener;
+import android.content.res.AssetFileDescriptor;
+import android.os.Bundle;
+import android.support.v4.app.FragmentActivity;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.widget.ProgressBar;
+
+public abstract class BaseActivity extends FragmentActivity implements OnClickListener {
+	public Context context = this;
+	private AssetFileDescriptor afd = null;
+	private Dialog dialog;
+
+	@Override
+	protected void onCreate(Bundle arg0) {
+		super.onCreate(arg0);
+	}
+
+	public void playSound() {
+		try {
+			if (afd == null)
+				afd = getAssets().openFd("3807.mp3");
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		try {
+			SoundUtil.playSound(afd.getFileDescriptor(), (int) afd.getStartOffset(), (int) afd.getLength());
+		} catch (IllegalArgumentException e) {
+			e.printStackTrace();
+		} catch (IllegalStateException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+	public void showHoldLoading() {
+		dialog = new Dialog(context, R.style.dialog_loaing);
+		View viewToLoad = LayoutInflater.from(context).inflate(R.layout.global_loading_dialog, null);
+		dialog.setContentView(viewToLoad);
+		dialog.setCancelable(false);
+		dialog.setCanceledOnTouchOutside(false);
+		dialog.show();
+	}
+
+	public void setHoloadLoadingCancelListener(OnCancelListener listener) {
+		dialog.setCancelable(true);
+		dialog.setOnCancelListener(listener);
+	}
+
+	public void hideHoldLoading() {
+		if (dialog != null)
+			dialog.dismiss();
+	}
+
+	public void showLoadiing() {
+		ProgressBar loading = (ProgressBar) findViewById(R.id.loading);
+		loading.setVisibility(View.VISIBLE);
+	}
+
+	public void hideLoading() {
+		ProgressBar loading = (ProgressBar) findViewById(R.id.loading);
+		loading.setVisibility(View.GONE);
+	}
+
+}

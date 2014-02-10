@@ -1,0 +1,227 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.geetion.job138.widget.custom.ParentLinearLayoutTouch xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/parent_layout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:baselineAligned="false" >
+
+    <RelativeLayout
+        android:id="@+id/shadow"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="2"
+        android:background="#40000000"
+        android:onClick="onClick"
+        android:visibility="invisible" >
+    </RelativeLayout>
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="8"
+        android:background="@color/select_bg"
+        android:onClick="onClick"
+        android:orientation="vertical" >
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/select_title" >
+
+            <TextView
+                android:id="@+id/textView1"
+                android:layout_width="wrap_content"
+                android:layout_height="48dp"
+                android:gravity="left|center_vertical"
+                android:paddingLeft="26dp"
+                android:text="资格证书"
+                android:textColor="@color/white"
+                android:textSize="22sp" />
+
+            <ImageButton
+                android:id="@+id/button_close"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:layout_alignParentRight="true"
+                android:layout_alignParentTop="true"
+                android:background="@null"
+                android:src="@drawable/sure_icon" />
+
+            <ProgressBar
+                android:id="@+id/progressBar1"
+                style="?android:attr/progressBarStyleSmall"
+                android:layout_width="wrap_content"
+                android:layout_height="48dp"
+                android:layout_alignParentTop="true"
+                android:layout_marginLeft="16dp"
+                android:layout_toRightOf="@+id/textView1"
+                android:visibility="gone" />
+        </RelativeLayout>
+
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:fillViewport="true" >
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical" >
+
+                <CheckedTextView
+                    android:id="@+id/select_1"
+                    android:layout_width="match_parent"
+                    android:layout_height="40dp"
+                    android:checkMark="?android:attr/listChoiceIndicatorMultiple"
+                    android:gravity="center_vertical"
+                    android:paddingLeft="26dp"
+                    android:tag="初级美容师证"
+                    android:text="初级美容师证"
+                    android:textColor="@color/white" >
+                </CheckedTextView>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="2dp"
+                    android:background="@drawable/line_3" />
+
+                <CheckedTextView
+                    android:id="@+id/select_2"
+                    android:layout_width="match_parent"
+                    android:layout_height="40dp"
+                    android:checkMark="?android:attr/listChoiceIndicatorMultiple"
+                    android:gravity="center_vertical"
+                    android:paddingLeft="26dp"
+                    android:tag="中级美容师证"
+                    android:text="中级美容师证"
+                    android:textColor="@color/white" >
+                </CheckedTextView>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="2dp"
+                    android:background="@drawable/line_3" />
+
+                <CheckedTextView
+                    android:id="@+id/select_3"
+                    android:layout_width="match_parent"
+                    android:layout_height="40dp"
+                    android:checkMark="?android:attr/listChoiceIndicatorMultiple"
+                    android:gravity="center_vertical"
+                    android:paddingLeft="26dp"
+                    android:tag="高级美容师证"
+                    android:text="高级美容师证"
+                    android:textColor="@color/white" >
+                </CheckedTextView>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="2dp"
+                    android:background="@drawable/line_3" />
+
+                <CheckedTextView
+                    android:id="@+id/select_4"
+                    android:layout_width="match_parent"
+                    android:layout_height="40dp"
+                    android:checkMark="?android:attr/listChoiceIndicatorMultiple"
+                    android:gravity="center_vertical"
+                    android:paddingLeft="26dp"
+                    android:tag="香薰师"
+                    android:text="香薰师"
+                    android:textColor="@color/white" >
+                </CheckedTextView>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="2dp"
+                    android:background="@drawable/line_3" />
+
+                <CheckedTextView
+                    android:id="@+id/select_5"
+                    android:layout_width="match_parent"
+                    android:layout_height="40dp"
+                    android:checkMark="?android:attr/listChoiceIndicatorMultiple"
+                    android:gravity="center_vertical"
+                    android:paddingLeft="26dp"
+                    android:tag="纹绣师"
+                    android:text="纹绣师"
+                    android:textColor="@color/white" >
+                </CheckedTextView>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="2dp"
+                    android:background="@drawable/line_3" />
+
+                <CheckedTextView
+                    android:id="@+id/select_6"
+                    android:layout_width="match_parent"
+                    android:layout_height="40dp"
+                    android:checkMark="?android:attr/listChoiceIndicatorMultiple"
+                    android:gravity="center_vertical"
+                    android:paddingLeft="26dp"
+                    android:tag="化妆师"
+                    android:text="化妆师"
+                    android:textColor="@color/white" >
+                </CheckedTextView>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="2dp"
+                    android:background="@drawable/line_3" />
+
+                <CheckedTextView
+                    android:id="@+id/select_7"
+                    android:layout_width="match_parent"
+                    android:layout_height="40dp"
+                    android:checkMark="?android:attr/listChoiceIndicatorMultiple"
+                    android:gravity="center_vertical"
+                    android:paddingLeft="26dp"
+                    android:tag="美体师"
+                    android:text="美体师"
+                    android:textColor="@color/white" >
+                </CheckedTextView>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="2dp"
+                    android:background="@drawable/line_3" />
+
+                <CheckedTextView
+                    android:id="@+id/select_8"
+                    android:layout_width="match_parent"
+                    android:layout_height="40dp"
+                    android:checkMark="?android:attr/listChoiceIndicatorMultiple"
+                    android:gravity="center_vertical"
+                    android:paddingLeft="26dp"
+                    android:tag="营养师"
+                    android:text="营养师"
+                    android:textColor="@color/white" >
+                </CheckedTextView>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="2dp"
+                    android:background="@drawable/line_3" />
+
+                <CheckedTextView
+                    android:id="@+id/select_9"
+                    android:layout_width="match_parent"
+                    android:layout_height="40dp"
+                    android:checkMark="?android:attr/listChoiceIndicatorMultiple"
+                    android:gravity="center_vertical"
+                    android:paddingLeft="26dp"
+                    android:tag="医师"
+                    android:text="医师"
+                    android:textColor="@color/white" >
+                </CheckedTextView>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="2dp"
+                    android:background="@drawable/line_3" />
+            </LinearLayout>
+        </ScrollView>
+    </LinearLayout>
+
+</com.geetion.job138.widget.custom.ParentLinearLayoutTouch>

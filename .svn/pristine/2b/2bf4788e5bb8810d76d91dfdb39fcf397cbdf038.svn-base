@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical" >
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="44dp"
+        android:background="@drawable/bartall" >
+
+        <ImageView
+            android:id="@+id/imageView1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_centerVertical="true"
+            android:src="@drawable/sign" />
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" >
+
+        <ImageView
+            android:id="@+id/bg"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_centerHorizontal="true"
+            android:layout_centerVertical="true"
+            android:scaleType="centerCrop"
+            android:src="@drawable/sign_bg" />
+
+        <LinearLayout
+            android:id="@+id/linearLayout1"
+            android:layout_width="wrap_content"
+            android:layout_height="5dp"
+            android:layout_alignParentBottom="true"
+            android:layout_centerHorizontal="true"
+            android:layout_marginBottom="14dp"
+            android:orientation="vertical" >
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/textView1"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_above="@+id/linearLayout1"
+            android:layout_centerHorizontal="true"
+            android:layout_marginLeft="16dp"
+            android:layout_marginRight="16dp"
+            android:background="@drawable/textbox"
+            android:drawableRight="@drawable/signdown"
+            android:text="我抽过的签"
+            android:textColor="@color/font_gray"
+            android:textSize="18sp" />
+
+        <LinearLayout
+            android:id="@+id/linearLayout2"
+            android:layout_width="50dp"
+            android:layout_height="33dp"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentTop="true"
+            android:layout_marginTop="16dp"
+            android:background="@drawable/btn_voice"
+            android:orientation="vertical" >
+
+            <CheckBox
+                android:id="@+id/voice"
+                android:layout_width="wrap_content"
+                android:layout_height="31dp"
+                android:layout_marginLeft="10dp"
+                android:button="@drawable/voice_checkbox_selector"
+                android:gravity="center" />
+        </LinearLayout>
+
+        <RelativeLayout
+            android:layout_width="wrap_content"
+            android:layout_height="360dp"
+            android:layout_centerInParent="true" >
+
+            <RelativeLayout
+                android:id="@+id/show_job"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="90dp"
+                android:background="@drawable/signcontent"
+                android:visibility="gone" >
+
+                <TextView
+                    android:id="@+id/job_name"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="40dp"
+                    android:layout_marginTop="85dp"
+                    android:text="美容师/助理"
+                    android:textColor="@color/font_blue"
+                    android:textSize="18sp" />
+
+                <TextView
+                    android:id="@+id/addr"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignLeft="@+id/job_name"
+                    android:layout_below="@+id/job_name"
+                    android:layout_marginTop="5dp"
+                    android:singleLine="true"
+                    android:text="佛山市南海区桂城美容坊美肤美"
+                    android:textColor="@color/font_light2_gray"
+                    android:textSize="10sp" />
+
+                <TextView
+                    android:id="@+id/loc_title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignLeft="@+id/addr"
+                    android:layout_below="@+id/addr"
+                    android:layout_marginTop="5dp"
+                    android:text="地区: "
+                    android:textColor="@color/font_light2_gray"
+                    android:textSize="10sp" />
+
+                <TextView
+                    android:id="@+id/loc"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignBaseline="@+id/loc_title"
+                    android:layout_alignBottom="@+id/loc_title"
+                    android:layout_toRightOf="@+id/loc_title"
+                    android:text="广东佛山"
+                    android:textColor="@color/font_light2_gray"
+                    android:textSize="10sp" />
+
+                <TextView
+                    android:id="@+id/salary_title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignBaseline="@+id/loc"
+                    android:layout_alignBottom="@+id/loc"
+                    android:layout_marginLeft="16dp"
+                    android:layout_toRightOf="@+id/loc"
+                    android:text="月薪: "
+                    android:textColor="@color/font_light2_gray"
+                    android:textSize="10sp" />
+
+                <TextView
+                    android:id="@+id/salary"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignBaseline="@+id/salary_title"
+                    android:layout_alignBottom="@+id/salary_title"
+                    android:layout_toRightOf="@+id/salary_title"
+                    android:text="3000~5999元"
+                    android:textColor="@color/font_red"
+                    android:textSize="10sp" />
+            </RelativeLayout>
+
+            <ImageView
+                android:id="@+id/tag_tips"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignBottom="@+id/box"
+                android:layout_alignLeft="@+id/box"
+                android:layout_marginBottom="70dp"
+                android:layout_marginLeft="-5dp"
+                android:src="@drawable/icon_good_tip"
+                android:visibility="invisible" />
+
+            <ImageView
+                android:id="@+id/box"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentBottom="true"
+                android:layout_marginBottom="30dp"
+                android:layout_marginLeft="2dp"
+                android:paddingLeft="10dp"
+                android:src="@drawable/icon_tipbox" />
+        </RelativeLayout>
+
+        <ListView
+            android:id="@+id/listView1"
+            android:layout_width="match_parent"
+            android:layout_height="250dp"
+            android:layout_above="@+id/textView1"
+            android:layout_alignLeft="@+id/textView1"
+            android:layout_alignRight="@+id/textView1" >
+
+        </ListView>
+    </RelativeLayout>
+
+</LinearLayout>

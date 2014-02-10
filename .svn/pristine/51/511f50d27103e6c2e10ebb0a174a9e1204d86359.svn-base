@@ -1,0 +1,71 @@
+package com.geetion.job138.activity;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import com.geetion.job138.R;
+import com.geetion.job138.adapter.PosListAdapter;
+import com.geetion.job138.model.Pos;
+
+import android.content.Intent;
+import android.os.Bundle;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
+import android.widget.ImageButton;
+import android.widget.ListView;
+
+public class PosListActivity extends BaseActivity implements OnClickListener {
+	public static String TAG = PosListActivity.class.getName();
+	private ImageButton returnButton;
+	private PosListAdapter adapter;
+	private ListView listView;
+	private View headerView, footerView;
+	private List<Pos> list;
+
+	@Override
+	protected void onCreate(Bundle arg0) {
+		super.onCreate(arg0);
+		setContentView(R.layout.activity_pos_list);
+		initView();
+		initData();
+	}
+
+	private void initView() {
+		listView = (ListView) findViewById(R.id.listView1);
+		headerView = getLayoutInflater().inflate(R.layout.header_pos, null);
+		footerView = getLayoutInflater().inflate(R.layout.footer_list_more,
+				null);
+		listView.addHeaderView(headerView);
+		listView.addFooterView(footerView);
+		listView.setOnItemClickListener(new OnItemClickListener() {
+			@Override
+			public void onItemClick(AdapterView<?> arg0, View arg1, int arg2,
+					long arg3) {
+				Intent intent = new Intent(context, PosDetailActivity.class);
+				startActivity(intent);
+			}
+		});
+		returnButton = (ImageButton) findViewById(R.id.button_back);
+		returnButton.setOnClickListener(this);
+	}
+
+	private void initData() {
+		list = new ArrayList<Pos>();
+		list.add(new Pos());
+		list.add(new Pos());
+		list.add(new Pos());
+		list.add(new Pos());
+		list.add(new Pos());
+		adapter = new PosListAdapter(context, list);
+		listView.setAdapter(adapter);
+	}
+
+	@Override
+	public void onClick(View v) {
+		if (v == returnButton) {
+			finish();
+		}
+	}
+}

@@ -1,0 +1,98 @@
+package com.geetion.job138.activity;
+
+import com.liqi.job.R;
+import com.geetion.job138.activity.PersonalTelActivity.UpdateTelTask;
+import com.geetion.job138.model.ResumeInfo;
+import com.geetion.job138.service.PersonInfoSave;
+import com.geetion.job138.service.ResumeInfoService;
+import com.geetion.job138.service.SettingService;
+import com.geetion.job138.util.MyHttpException;
+import com.geetion.job138.util.UIUtil;
+
+import android.os.AsyncTask;
+import android.os.Bundle;
+import android.text.TextUtils;
+import android.util.Log;
+import android.view.View;
+import android.widget.EditText;
+import android.widget.ImageButton;
+
+public class PersonalPasswordActivity extends BaseActivity {
+	private ImageButton backButton, yesButton;
+	private EditText oldPasswordView, newPasswordView;
+	private String oldPassword, newPassword;
+	private ChangePasswordTask task;
+
+	@Override
+	protected void onCreate(Bundle arg0) {
+		super.onCreate(arg0);
+		setContentView(R.layout.activity_personal_password);
+		init();
+	}
+
+	public void init() {
+		backButton = (ImageButton) findViewById(R.id.button_left);
+		backButton.setOnClickListener(this);
+		yesButton = (ImageButton) findViewById(R.id.button_right);
+		yesButton.setOnClickListener(this);
+		oldPasswordView = (EditText) findViewById(R.id.old_password);
+		newPasswordView = (EditText) findViewById(R.id.new_password);
+	}
+
+	@Override
+	public void onClick(View v) {
+		if (v == backButton) {
+			finish();
+		} else if (v == yesButton) {
+			newPassword = newPasswordView.getText().toString();
+			oldPassword = oldPasswordView.getText().toString();
+			if (TextUtils.isEmpty(oldPassword)) {
+				UIUtil.toast(context, "旧密码不能为空");
+				return;
+			}
+			if (TextUtils.isEmpty(newPassword)) {
+				UIUtil.toast(context, "新密码不能为空");
+				return;
+			}
+			task = new ChangePasswordTask();
+			task.execute();
+		}
+	}
+
+	@Override
+	protected void onDestroy() {
+		if (task != null)
+			task.cancel(true);
+		super.onDestroy();
+	}
+
+	/**
+	 * 修改密码
+	 */
+	public class ChangePasswordTask extends AsyncTask<Void, Integer, String> {
+		protected void onPreExecute() {
+			showHoldLoading();
+		};
+
+		@Override
+		protected String doInBackground(Void... arg0) {
+			try {
+				String result = SettingService.updatePWD(PersonInfoSave.resumeInfo.getUserName(), oldPassword, newPassword);
+				return result;
+			} catch (MyHttpException e) {
+				Log.e("MyHttpException", e.getErrorCode());
+				UIUtil.toast(context, e.getErrorMessage());
+			}
+			return null;
+		}
+
+		@Override
+		protected void onPostExecute(String result) {
+			hideHoldLoading();
+			if (result != null) {
+				UIUtil.toast(context, "修改密码成功");
+				finish();
+			}
+		}
+	}
+}

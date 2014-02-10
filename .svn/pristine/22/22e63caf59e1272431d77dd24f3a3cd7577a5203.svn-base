@@ -1,0 +1,127 @@
+package com.geetion.job138.service;
+
+import java.util.HashMap;
+import java.util.Map;
+import org.json.JSONException;
+import org.json.JSONObject;
+import com.geetion.job138.util.HttpUtil;
+import com.geetion.job138.util.MyHttpException;
+
+public class WorkManageService extends BaseService {
+	private final static String APPLY_POSITION = SERVER_URL + "/Work/Apply/1";
+	private final static String FAVORITE_POSITION = SERVER_URL + "/Work/Favorite/1";
+	private final static String TEL_RECORD = SERVER_URL + "/Work/TelRecord/1";
+	private final static String REPLY_COMMENTS = SERVER_URL + "/Work/Comments/Reply/1";
+	private final static String DEL_COMMENTS = SERVER_URL + "/Work/Comments/Del/1";
+
+	public static int applyPosition(String UserName, int HireId, int Rid) throws MyHttpException {
+		Map<String, String> params = new HashMap<String, String>();
+		params.put("UserName", UserName);
+		params.put("HireId", String.valueOf(HireId));
+		params.put("Rid", String.valueOf(Rid));
+		String json = HttpUtil.postJSON(APPLY_POSITION, params);
+		JSONObject jsonObject;
+		try {
+			jsonObject = new JSONObject(json);
+			boolean state = jsonObject.optBoolean("State");
+			if (state) {
+				JSONObject valueObject = jsonObject.optJSONObject("Value");
+				int resumeId = valueObject.optInt("Id");
+				return resumeId;
+			} else {
+				throw new MyHttpException(jsonObject.optString("Message"), jsonObject.optString("Message"));
+			}
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+		return 0;
+	}
+
+	public static int favoritePosition(String UserName, int HireId) throws MyHttpException {
+		Map<String, String> params = new HashMap<String, String>();
+		params.put("UserName", UserName);
+		params.put("HireId", String.valueOf(HireId));
+		String json = HttpUtil.postJSON(FAVORITE_POSITION, params);
+		JSONObject jsonObject;
+		try {
+			jsonObject = new JSONObject(json);
+			boolean state = jsonObject.optBoolean("State");
+			if (state) {
+				JSONObject valueObject = jsonObject.optJSONObject("Value");
+				int resumeId = valueObject.optInt("Id");
+				return resumeId;
+			} else {
+				throw new MyHttpException(jsonObject.optString("Message"), jsonObject.optString("Message"));
+			}
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+		return 0;
+	}
+
+	public static int addTelRecord(String UserName, int HireId, int Cid, int Tel) throws MyHttpException {
+		Map<String, String> params = new HashMap<String, String>();
+		params.put("UserName", UserName);
+		params.put("HireId", String.valueOf(HireId));
+		params.put("Cid", String.valueOf(Cid));
+		params.put("Tel", String.valueOf(Tel));
+		String json = HttpUtil.postJSON(TEL_RECORD, params);
+		JSONObject jsonObject;
+		try {
+			jsonObject = new JSONObject(json);
+			boolean state = jsonObject.optBoolean("State");
+			if (state) {
+				JSONObject valueObject = jsonObject.optJSONObject("Value");
+				int resumeId = valueObject.optInt("Id");
+				return resumeId;
+			} else {
+				throw new MyHttpException(jsonObject.optString("Message"), jsonObject.optString("Message"));
+			}
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+		return 0;
+	}
+
+	public static int replyComments(String UserName, String Content, int Id) throws MyHttpException {
+		Map<String, String> params = new HashMap<String, String>();
+		params.put("UserName", UserName);
+		params.put("Content", Content);
+		params.put("Id", String.valueOf(Id));
+		String json = HttpUtil.postJSON(REPLY_COMMENTS, params);
+		JSONObject jsonObject;
+		try {
+			jsonObject = new JSONObject(json);
+			boolean state = jsonObject.optBoolean("State");
+			if (state) {
+				JSONObject valueObject = jsonObject.optJSONObject("Value");
+				int resumeId = valueObject.optInt("Id");
+				return resumeId;
+			} else {
+				throw new MyHttpException(jsonObject.optString("Message"), jsonObject.optString("Message"));
+			}
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+		return 0;
+	}
+
+	public static int delComments(int id) throws MyHttpException {
+		String json = HttpUtil.get(DEL_COMMENTS + "/" + String.valueOf(id), null);
+		JSONObject jsonObject;
+		try {
+			jsonObject = new JSONObject(json);
+			boolean state = jsonObject.optBoolean("State");
+			if (state) {
+				JSONObject valueObject = jsonObject.optJSONObject("Value");
+				int resumeId = valueObject.optInt("Id");
+				return resumeId;
+			} else {
+				throw new MyHttpException(jsonObject.optString("Message"), jsonObject.optString("Message"));
+			}
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+		return 0;
+	}
+}

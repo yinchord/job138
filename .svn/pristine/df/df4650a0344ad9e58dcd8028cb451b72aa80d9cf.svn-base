@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/common_list_bg_selector"
+    android:padding="16dp" >
+
+    <TextView
+        android:id="@+id/name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
+        android:paddingBottom="4dp"
+        android:singleLine="true"
+        android:text="广州极迅客信息科技有限公司"
+        android:textColor="@color/font_blue"
+        android:textSize="16sp" />
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/name"
+        android:layout_below="@id/name" >
+
+        <TextView
+            android:id="@+id/trade"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentTop="true"
+            android:text="公司类型：美容院"
+            android:textColor="@color/font_gray"
+            android:textSize="11sp" />
+
+        <TextView
+            android:id="@+id/workers"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignLeft="@id/trade"
+            android:minWidth="120dp"
+            android:layout_below="@id/trade"
+            android:text="员工人数：10-49人"
+            android:textColor="@color/font_gray"
+            android:textSize="11sp" />
+
+        <TextView
+            android:id="@+id/area"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignBottom="@id/workers"
+            android:layout_marginLeft="5dp"
+            android:layout_toRightOf="@id/workers"
+            android:singleLine="true"
+            android:minWidth="130dp"
+            android:text="所在地区：广东深圳"
+            android:textColor="@color/font_gray"
+            android:textSize="11sp" />
+    </RelativeLayout>
+
+</RelativeLayout>

@@ -1,0 +1,238 @@
+package com.geetion.job138.activity;
+
+import com.baidu.location.BDLocation;
+import com.baidu.location.BDLocationListener;
+import com.baidu.location.LocationClient;
+import com.baidu.location.LocationClientOption;
+import com.baidu.mapapi.BMapManager;
+import com.baidu.mapapi.map.ItemizedOverlay;
+import com.baidu.mapapi.map.LocationData;
+import com.baidu.mapapi.map.MapController;
+import com.baidu.mapapi.map.MapView;
+import com.baidu.mapapi.map.MyLocationOverlay;
+import com.baidu.mapapi.map.MyLocationOverlay.LocationMode;
+import com.baidu.mapapi.map.OverlayItem;
+import com.baidu.platform.comapi.basestruct.GeoPoint;
+import com.geetion.job138.R;
+
+import android.app.Activity;
+import android.graphics.drawable.Drawable;
+import android.os.Bundle;
+import android.util.Log;
+import android.view.Menu;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.widget.ImageButton;
+
+public class MapActivity extends Activity implements OnClickListener {
+	ImageButton backButton;
+	BMapManager mBMapMan = null;
+	MapView mMapView = null;
+	public LocationClient mLocationClient = null;
+	public BDLocationListener myListener = new MyLocationListener();
+	// 定位相关
+	LocationClient mLocClient;
+	LocationData locData = null;
+	locationOverlay myLocationOverlay = null;
+	private MapController mMapController = null;
+	boolean isRequest = false;// 是否手动触发请求定位
+	boolean isFirstLoc = true;// 是否首次定位
+
+	// 定位图层
+
+	@Override
+	protected void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		initView();
+	}
+
+	private void initView() {
+		mBMapMan = new BMapManager(getApplication());
+		mBMapMan.init("4yUG3Vrmg3BQ68Bv1XGvf01q", null);
+		// 注意：请在试用setContentView前初始化BMapManager对象，否则会报错
+		setContentView(R.layout.activity_map);
+		backButton = (ImageButton) findViewById(R.id.button_back);
+		backButton.setOnClickListener(this);
+
+		// 地图初始化
+		mMapView = (MapView) findViewById(R.id.bmapsView);
+		mMapController = mMapView.getController();
+		mMapView.getController().setZoom(14);
+		mMapView.getController().enableClick(true);
+		mMapView.setBuiltInZoomControls(true);
+
+		// 定位初始化
+		mLocClient = new LocationClient(this);
+		locData = new LocationData();
+		mLocClient.registerLocationListener(myListener);
+		LocationClientOption option = new LocationClientOption();
+		option.setOpenGps(true);// 打开gps
+		option.setCoorType("bd09ll"); // 设置坐标类型
+		option.setScanSpan(1000);
+		mLocClient.setLocOption(option);
+		mLocClient.start();
+
+		// 定位图层初始化
+		myLocationOverlay = new locationOverlay(mMapView);
+		// 设置定位数据
+		myLocationOverlay.setData(locData);
+		// 添加定位图层
+		mMapView.getOverlays().add(myLocationOverlay);
+		myLocationOverlay.enableCompass();
+		
+		
+		double mLat1 = 23.232178;  
+		double mLon1 = 113.424265;  
+		double mLat2 = 39.9022;  
+		double mLon2 = 116.3922;  
+		double mLat3 = 39.917723;  
+		double mLon3 = 116.3722;  
+		// 用给定的经纬度构造GeoPoint，单位是微度 (度 * 1E6)  
+		GeoPoint p1 = new GeoPoint((int) (mLat1 * 1E6), (int) (mLon1 * 1E6));  
+		GeoPoint p2 = new GeoPoint((int) (mLat2 * 1E6), (int) (mLon2 * 1E6));  
+		GeoPoint p3 = new GeoPoint((int) (mLat3 * 1E6), (int) (mLon3 * 1E6));  
+		//准备overlay图像数据，根据实情情况修复  
+		Drawable mark= getResources().getDrawable(R.drawable.icon_marka);  
+		//用OverlayItem准备Overlay数据  
+		OverlayItem item1 = new OverlayItem(p1,"item1","item1");  
+		//使用setMarker()方法设置overlay图片,如果不设置则使用构建ItemizedOverlay时的默认设置  
+		OverlayItem item2 = new OverlayItem(p2,"item2","item2");  
+		item2.setMarker(mark);  
+		OverlayItem item3 = new OverlayItem(p3,"item3","item3");  
+		   
+		//创建IteminizedOverlay  
+		OverlayTest itemOverlay = new OverlayTest(mark, mMapView);  
+		//将IteminizedOverlay添加到MapView中  
+		  
+		mMapView.getOverlays().clear();  
+		mMapView.getOverlays().add(itemOverlay);  
+		   
+		//现在所有准备工作已准备好，使用以下方法管理overlay.  
+		//添加overlay, 当批量添加Overlay时使用addItem(List<OverlayItem>)效率更高  
+		itemOverlay.addItem(item1);  
+		itemOverlay.addItem(item2);  
+		itemOverlay.addItem(item3);  
+		
+		// 修改定位数据后刷新图层生效
+		mMapView.refresh();
+	}
+
+	public class MyLocationListener implements BDLocationListener {
+		@Override
+		public void onReceiveLocation(BDLocation location) {
+			if (location == null)
+				return;
+			locData.latitude = location.getLatitude();
+			locData.longitude = location.getLongitude();
+			// 如果不显示定位精度圈，将accuracy赋值为0即可
+			locData.accuracy = location.getRadius();
+			// 此处可以设置 locData的方向信息, 如果定位 SDK 未返回方向信息，用户可以自己实现罗盘功能添加方向信息。
+			locData.direction = location.getDerect();
+			// 更新定位数据
+			myLocationOverlay.setData(locData);
+			// 更新图层数据执行刷新后生效
+			mMapView.refresh();
+			// 是手动触发请求或首次定位时，移动到定位点
+			if (isRequest || isFirstLoc) {
+				// 移动地图到定位点
+				Log.d("LocationOverlay", "receive location, animate to it");
+				mMapController.animateTo(new GeoPoint(
+						(int) (locData.latitude * 1e6),
+						(int) (locData.longitude * 1e6)));
+				Log.d("location",location.getLatitude() + " " + location.getLongitude());
+				isRequest = false;
+				// myLocationOverlay.setLocationMode(LocationMode.FOLLOWING);
+			}
+			// 首次定位完成
+			isFirstLoc = false;
+		}
+
+		public void onReceivePoi(BDLocation poiLocation) {
+			if (poiLocation == null) {
+				return;
+			}
+		}
+	}
+
+	class OverlayTest extends ItemizedOverlay<OverlayItem> {
+		// 用MapView构造ItemizedOverlay
+		public OverlayTest(Drawable mark, MapView mapView) {
+			super(mark, mapView);
+		}
+
+		protected boolean onTap(int index) {
+			// 在此处理item点击事件
+			System.out.println("item onTap: " + index);
+			return true;
+		}
+
+		public boolean onTap(GeoPoint pt, MapView mapView) {
+			// 在此处理MapView的点击事件，当返回 true时
+			super.onTap(pt, mapView);
+			return false;
+		}
+	}
+
+	// 继承MyLocationOverlay重写dispatchTap实现点击处理
+	public class locationOverlay extends MyLocationOverlay {
+
+		public locationOverlay(MapView mapView) {
+			super(mapView);
+			// TODO Auto-generated constructor stub
+		}
+
+		@Override
+		protected boolean dispatchTap() {
+
+			return true;
+		}
+
+	}
+
+	@Override
+	protected void onPause() {
+		mMapView.onPause();
+		super.onPause();
+	}
+
+	@Override
+	protected void onResume() {
+		mMapView.onResume();
+		super.onResume();
+	}
+
+	@Override
+	protected void onDestroy() {
+		// 退出时销毁定位
+		if (mLocClient != null)
+			mLocClient.stop();
+		mMapView.destroy();
+		super.onDestroy();
+	}
+
+	@Override
+	protected void onSaveInstanceState(Bundle outState) {
+		super.onSaveInstanceState(outState);
+		mMapView.onSaveInstanceState(outState);
+
+	}
+
+	@Override
+	protected void onRestoreInstanceState(Bundle savedInstanceState) {
+		super.onRestoreInstanceState(savedInstanceState);
+		mMapView.onRestoreInstanceState(savedInstanceState);
+	}
+
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		// getMenuInflater().inflate(R.menu.activity_main, menu);
+		return true;
+	}
+
+	@Override
+	public void onClick(View v) {
+		if (backButton == v) {
+			finish();
+		}
+	}
+}

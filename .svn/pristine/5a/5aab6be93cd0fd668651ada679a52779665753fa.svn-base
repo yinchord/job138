@@ -1,0 +1,269 @@
+﻿package com.geetion.job138.util;
+
+import java.io.BufferedOutputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+
+import android.app.Activity;
+import android.app.Fragment;
+import android.content.ActivityNotFoundException;
+import android.content.Context;
+import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
+import android.net.Uri;
+import android.provider.MediaStore;
+import android.util.Log;
+
+/**
+ * 
+ * @author 80work alexcai
+ * @version 0.2
+ */
+public class PhotoUtil extends FileUtil {
+
+	public static final int CAMERA_WITH_DATA = 1;
+	public static final int PHOTO_PICKED_WITH_DATA = 2;
+	public static final int PHOTO_CROP_WITH_DATA = 3;
+	public static final String CROP_TEMP_FILE_NAME = "crop_temp.jpg";
+	public static final String COMPRESS_TEMP_FILE_NAME = "compress_temp.jpg";
+	public static String packName;
+	public static String savePath;
+
+	public static String getPackName(Context context) {
+		return AppConfig.IMAGE_PATH;
+	}
+
+	public static String getPhotoPath(Context context) {
+		return getSavePath(getPackName(context) + "/");
+	}
+
+	public static File getSaveFile(Context context) {
+		String path = getPhotoPath(context);
+		File file = new File(path, CROP_TEMP_FILE_NAME);
+		return file;
+	}
+
+	/**
+	 * 获取储存器图片
+	 * 
+	 * @param uri
+	 *            存入要获取图片的uri
+	 * @param context
+	 *            存在activity活動
+	 * @return Bitmap 所圖片的Bitmap
+	 */
+	public static Bitmap loadPhoto(Uri uri, Activity context) {
+		return loadPhoto(uri, context, 800, 1280);
+	}
+
+	public static Bitmap loadPhoto(Uri uri, android.support.v4.app.Fragment context) {
+		return loadPhoto(uri, context, 800, 1280);
+	}
+
+	/**
+	 * 获取储存器图片
+	 * 
+	 * @param uri
+	 *            存入要获取图片的uri
+	 * @param context
+	 *            存在activity活動
+	 * @return Bitmap 所圖片的Bitmap
+	 */
+	public static Bitmap loadPhoto(Uri uri, Activity context, int w, int h) {
+		BitmapFactory.Options options = new BitmapFactory.Options();
+		options.inJustDecodeBounds = true;
+		BitmapFactory.decodeFile(uri.getPath(), options);
+		// options.inSampleSize = calculateInSampleSize(options, 94, 94);
+		final int height = options.outHeight;
+		final int width = options.outWidth;
+		options.inSampleSize = 1;
+		h = w * height / width;// 计算出宽高等比率
+		int a = options.outWidth / w;
+		int b = options.outHeight / h;
+		options.inSampleSize = Math.max(a, b);
+		options.inJustDecodeBounds = false;
+		Bitmap bitmap = BitmapFactory.decodeFile(uri.getPath(), options);
+		return bitmap;
+	}
+
+	public static Bitmap loadPhoto(Uri uri, android.support.v4.app.Fragment context, int w, int h) {
+		BitmapFactory.Options options = new BitmapFactory.Options();
+		options.inJustDecodeBounds = true;
+		BitmapFactory.decodeFile(uri.getPath(), options);
+		// options.inSampleSize = calculateInSampleSize(options, 94, 94);
+		final int height = options.outHeight;
+		final int width = options.outWidth;
+		options.inSampleSize = 1;
+		h = w * height / width;// 计算出宽高等比率
+		int a = options.outWidth / w;
+		int b = options.outHeight / h;
+		options.inSampleSize = Math.max(a, b);
+		options.inJustDecodeBounds = false;
+		Bitmap bitmap = BitmapFactory.decodeFile(uri.getPath(), options);
+		return bitmap;
+	}
+
+	/**
+	 * 调成照相机
+	 * 
+	 * @param context
+	 *            传入当前活动的Activity类
+	 * @inheritDoc 传出的resultCode为PhotoUtil.CAMERA_WITH_DATA
+	 */
+	public static void takePhotoByCamera(Activity context) {
+		try {
+			Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+			intent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(getSaveFile(context)));
+			context.startActivityForResult(intent, CAMERA_WITH_DATA);
+		} catch (ActivityNotFoundException e) {
+			e.printStackTrace();
+		}
+	}
+
+	public static void takePhotoByCamera(android.support.v4.app.Fragment context) {
+		try {
+			Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+			intent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(getSaveFile(context.getActivity())));
+			context.startActivityForResult(intent, CAMERA_WITH_DATA);
+		} catch (ActivityNotFoundException e) {
+			e.printStackTrace();
+		}
+	}
+
+	/**
+	 * 调出裁剪器
+	 * 
+	 * @param context
+	 *            传入当前活动的Activity类
+	 * @param uri
+	 *            传入要裁剪的文件URI
+	 * @param tempFileSubpath
+	 *            裁剪完后保存的临时相对地址 (临时文件名称为 crop_temp.png)
+	 */
+	public static void cropPhoto(Activity context, Uri uri) {
+		Intent intent = new Intent("com.android.camera.action.CROP");
+		intent.setDataAndType(uri, "image/*");
+		intent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(getSaveFile(context)));
+		context.startActivityForResult(intent, PHOTO_CROP_WITH_DATA);
+	}
+
+	public static void cropPhoto(android.support.v4.app.Fragment context, Uri uri) {
+		Intent intent = new Intent("com.android.camera.action.CROP");
+		intent.setDataAndType(uri, "image/*");
+		 // aspectX aspectY 是宽高的比例
+		intent.putExtra("crop", "true");
+        intent.putExtra("aspectX", 5);
+        intent.putExtra("aspectY", 6);
+        // outputX outputY 是裁剪图片宽高
+        intent.putExtra("outputX",480);
+        intent.putExtra("outputY",480);
+		intent.putExtra("outputFormat", "JPEG");
+		intent.putExtra("noFaceDetection", true);
+//        intent.putExtra("return-data", true);
+		intent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(getSaveFile(context.getActivity())));
+		context.startActivityForResult(intent, PHOTO_CROP_WITH_DATA);
+	}
+
+	/**
+	 * 压缩图片
+	 * 
+	 * @param uri
+	 *            需要压缩图片的URI
+	 * @param percent
+	 *            压缩比率
+	 * @param context
+	 *            需要传入的activity
+	 * @return Bitmap 压缩后文件的Bitmap
+	 */
+	public static Bitmap compressPhoto(Uri uri, int percent, Activity context) {
+		BufferedOutputStream stream = null;
+		File file = new File(getPhotoPath(context), COMPRESS_TEMP_FILE_NAME);
+		Bitmap result = null;
+		try {
+			FileOutputStream fstream = new FileOutputStream(file);
+			stream = new BufferedOutputStream(fstream);
+			ByteArrayOutputStream baos = new ByteArrayOutputStream();
+			Bitmap bm = loadPhoto(uri, context);
+			bm.compress(Bitmap.CompressFormat.JPEG, percent, baos);
+			stream.write(baos.toByteArray());
+			baos.close();
+			result = loadPhoto(Uri.fromFile(file), context);
+			return result;
+		} catch (Exception e) {
+			e.printStackTrace();
+			return null;
+		} finally {
+			if (stream != null) {
+				try {
+					stream.close();
+				} catch (IOException e1) {
+					e1.printStackTrace();
+				}
+			}
+		}
+
+	}
+
+	/**
+	 * 调出选择文件
+	 * 
+	 * @param context
+	 *            要传入的活动 Activity
+	 */
+	public static void choesePhoto(Activity context) {
+		Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+		intent.setType("image/*");
+		context.startActivityForResult(intent, PHOTO_PICKED_WITH_DATA);
+	}
+
+	public static void choesePhoto(android.support.v4.app.Fragment context) {
+		Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+		intent.setType("image/*");
+		context.startActivityForResult(intent, PHOTO_PICKED_WITH_DATA);
+	}
+
+	/**
+	 * 图像缩小
+	 * 
+	 * @param src
+	 *            图像
+	 * @param destWidth
+	 *            缩小宽度
+	 * @param destHeigth
+	 *            缩小高度
+	 * @return 缩小后的图像
+	 */
+	public static Bitmap lessenBitmap(Bitmap src, int destWidth, int destHeigth) {
+		if (src == null) {
+			return null;
+		}
+		int w = src.getWidth();// 源文件的大小
+		int h = src.getHeight();
+		// calculate the scale - in this case = 0.4f
+		float scaleWidth = ((float) destWidth) / w;// 宽度缩小比例
+		float scaleHeight = ((float) destHeigth) / h;// 高度缩小比例
+		Matrix m = new Matrix();// 矩阵
+		m.postScale(scaleWidth, scaleHeight);// 设置矩阵比例
+		// 直接按照矩阵的比例把源文件画入进行
+		Bitmap resizedBitmap = Bitmap.createBitmap(src, 0, 0, w, h, m, true);
+		return resizedBitmap;
+	}
+
+	public static void saveBitmap(Bitmap bitmap, File file) {
+		FileOutputStream out;
+		try {
+			out = new FileOutputStream(file);
+			bitmap.compress(Bitmap.CompressFormat.PNG, 90, out);
+			bitmap.recycle();
+			out = null;
+		} catch (FileNotFoundException e) {
+			out = null;
+			Log.e("FileNotFoundException", e.getMessage());
+		}
+	}
+}

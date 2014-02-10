@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<animation-list xmlns:android="http://schemas.android.com/apk/res/android" >
+
+    <item
+        android:drawable="@drawable/icon_box_left"
+        android:duration="155"/>
+    <item
+        android:drawable="@drawable/icon_tipbox"
+        android:duration="155"/>
+    <item
+        android:drawable="@drawable/icon_box_right"
+        android:duration="155"/>
+
+</animation-list>

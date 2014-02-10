@@ -1,0 +1,39 @@
+package com.geetion.job138.activity;
+
+import java.io.IOException;
+
+import com.geetion.job138.util.SoundUtil;
+import android.content.Context;
+import android.content.res.AssetFileDescriptor;
+import android.os.Bundle;
+import android.support.v4.app.FragmentActivity;
+import android.view.View.OnClickListener;
+
+public abstract class BaseActivity extends FragmentActivity implements OnClickListener {
+	public Context context = this;
+	private AssetFileDescriptor afd = null;
+
+	@Override
+	protected void onCreate(Bundle arg0) {
+		super.onCreate(arg0);
+	}
+
+	public void playSound() {
+		try {
+			if (afd == null)
+				afd = getAssets().openFd("3807.mp3");
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		try {
+			SoundUtil.playSound(afd.getFileDescriptor(), (int) afd.getStartOffset(), (int) afd.getLength());
+		} catch (IllegalArgumentException e) {
+			e.printStackTrace();
+		} catch (IllegalStateException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+}

@@ -1,0 +1,74 @@
+package com.geetion.job138.adapter;
+
+import java.util.List;
+
+import com.liqi.job.R;
+import com.geetion.job138.activity.PosDetailActivity;
+import com.geetion.job138.model.JobInfo;
+
+import android.content.Context;
+import android.content.Intent;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
+import android.widget.TextView;
+
+public class PosListAdapter extends ArrayAdapter<JobInfo> {
+	private LayoutInflater mInflater;
+	private int mResource = R.layout.item_list_pos;
+	private Context context;
+	private int keyType = 1;
+	private View headerView;
+
+	public PosListAdapter(Context context, List<JobInfo> list, int keyType, View headerView) {
+		super(context, 0, list);
+		mInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+		this.context = context;
+		this.keyType = keyType;
+		this.headerView = headerView;
+	}
+
+	@Override
+	public View getView(int position, View convertView, final ViewGroup parent) {
+		View layout = convertView;
+		if (position == 0) {
+			return headerView;
+		}
+		final JobInfo jobInfo = getItem(position - 1);
+		if (layout == null || layout == headerView) {
+			layout = mInflater.inflate(mResource, parent, false);
+		}
+		TextView titleNameText = (TextView) layout.findViewById(R.id.title_name);
+		TextView nameText = (TextView) layout.findViewById(R.id.name);
+		TextView areaText = (TextView) layout.findViewById(R.id.area);
+		TextView payText = (TextView) layout.findViewById(R.id.pay);
+		TextView announceDateText = (TextView) layout.findViewById(R.id.announce_date);
+		if (keyType == 1) {
+			titleNameText.setText(jobInfo.getHireName());
+			titleNameText.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, 0);
+			nameText.setText("公司：" + jobInfo.getCompanyName());
+		} else {
+			titleNameText.setText(jobInfo.getCompanyName());
+			titleNameText.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, 0);
+			nameText.setText("职位：" + jobInfo.getHireName());
+		}
+		areaText.setText("地区：" + jobInfo.getArea());
+		payText.setText(jobInfo.getPay());
+		announceDateText.setText(jobInfo.getAnnounceDate());
+		layout.setOnClickListener(new OnClickListener() {
+			public void onClick(View arg0) {
+				Intent intent = new Intent(context, PosDetailActivity.class);
+				intent.putExtra("id", jobInfo.getHireId());
+				context.startActivity(intent);
+			}
+		});
+		return layout;
+	}
+
+	@Override
+	public int getCount() {
+		return super.getCount() + 1;
+	}
+}

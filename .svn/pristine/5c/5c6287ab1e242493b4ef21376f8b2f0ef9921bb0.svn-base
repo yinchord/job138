@@ -1,0 +1,22 @@
+package com.geetion.job138.fragment;
+
+import android.content.Context;
+import android.support.v4.app.Fragment;
+import android.view.View.OnClickListener;
+import android.view.inputmethod.InputMethodManager;
+
+public abstract class BaseFragment extends Fragment implements OnClickListener {
+	
+	public void closeInput() {
+		if (getActivity().getCurrentFocus() != null) {
+			((InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE)).hideSoftInputFromWindow(getActivity().getCurrentFocus()
+					.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
+		}
+	}
+
+	@Override
+	public void onDestroy() {
+		closeInput();
+		super.onDestroy();
+	}
+}

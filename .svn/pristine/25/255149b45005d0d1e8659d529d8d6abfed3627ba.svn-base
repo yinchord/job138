@@ -1,0 +1,26 @@
+package com.geetion.job138.application;
+
+import com.geetion.job138.service.CacheService;
+import com.geetion.job138.service.PersonInfoSave;
+import com.geetion.job138.service.PushService;
+import com.geetion.job138.service.SettingService;
+
+import android.app.Application;
+
+public class BaseApplication extends Application {
+	public static boolean IS_DEBUG = true;
+
+	@Override
+	public void onCreate() {
+		super.onCreate();
+		PushService.init(this);
+		SettingService.getLoginMessage(this);
+		if (SettingService.loginMessage.getMemberId() != -1 && SettingService.loginMessage.getResumeId() != -1) {
+			PersonInfoSave.resumeInfo.setId(SettingService.loginMessage.getResumeId());
+			PersonInfoSave.resumeInfo.setUserName(SettingService.loginMessage.getUserName());
+			PersonInfoSave.memberInfo.setMemberId(SettingService.loginMessage.getMemberId());
+			PersonInfoSave.memberInfo.setUserName(SettingService.loginMessage.getUserName());
+			CacheService.isLogined = true;
+		}
+	}
+}

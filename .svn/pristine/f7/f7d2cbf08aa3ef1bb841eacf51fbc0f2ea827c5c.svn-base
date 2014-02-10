@@ -1,0 +1,53 @@
+package com.geetion.job138.model;
+
+public class Comment {
+	/**
+	 * 1、Content：留言内容 2、Id：留言ID 3、Name：留言人 4、Time：留言时间
+	 */
+	private String Content;
+	private int Id;
+	private String Name;
+	private String Time;
+	private int Reply;
+
+	public String getContent() {
+		return Content;
+	}
+
+	public void setContent(String content) {
+		Content = content;
+	}
+
+	public int getId() {
+		return Id;
+	}
+
+	public void setId(int id) {
+		Id = id;
+	}
+
+	public String getName() {
+		return Name;
+	}
+
+	public void setName(String name) {
+		Name = name;
+	}
+
+	public String getTime() {
+		return Time;
+	}
+
+	public void setTime(String time) {
+		Time = time;
+	}
+
+	public int getReply() {
+		return Reply;
+	}
+
+	public void setReply(int reply) {
+		Reply = reply;
+	}
+
+}

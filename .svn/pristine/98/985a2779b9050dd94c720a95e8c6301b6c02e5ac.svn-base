@@ -1,0 +1,32 @@
+package com.geetion.job138.model;
+/**
+ *  1、Id：地区ID
+	2、Name:地区名
+	3、Fid:地区所在省份ID（0为省份）
+ * */
+
+public class CityInfo {
+	private int Id;
+	private String Name;
+	private int Fid;
+	
+	public int getId() {
+		return Id;
+	}
+	public void setId(int id) {
+		Id = id;
+	}
+	public String getName() {
+		return Name;
+	}
+	public void setName(String name) {
+		Name = name;
+	}
+	public int getFid() {
+		return Fid;
+	}
+	public void setFid(int fid) {
+		Fid = fid;
+	}
+
+}

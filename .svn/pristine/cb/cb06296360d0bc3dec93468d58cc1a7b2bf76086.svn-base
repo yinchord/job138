@@ -1,0 +1,109 @@
+package com.geetion.job138.adapter;
+
+import java.util.List;
+import com.liqi.job.R;
+import com.geetion.job138.activity.MyResumeActivity;
+import com.geetion.job138.fragment.resume.EduInfoChildFragment;
+import com.geetion.job138.model.EduExperience;
+import com.geetion.job138.model.JobInfo;
+import com.geetion.job138.service.CacheService;
+import com.geetion.job138.service.PersonInfoSave;
+import com.geetion.job138.service.ResumeManageService;
+import com.geetion.job138.util.MyHttpException;
+import com.geetion.job138.util.UIUtil;
+
+import android.app.Activity;
+import android.content.Context;
+import android.os.AsyncTask;
+import android.os.Bundle;
+import android.support.v4.app.FragmentActivity;
+import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
+import android.widget.ImageButton;
+import android.widget.TextView;
+
+public class EduInfoAdapter extends ArrayAdapter<EduExperience> {
+	private MyResumeActivity activity;
+	private LayoutInflater inflater;
+	private ImageButton btDelete, btModify;
+	private boolean isDel = false;
+	private DelEduInfoTask delTask;
+
+	public EduInfoAdapter(FragmentActivity activity, List<EduExperience> list) {
+		super(activity, 0, list);
+		this.activity = (MyResumeActivity) activity;
+		inflater = (LayoutInflater) activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+	}
+
+	@Override
+	public View getView(int position, View convertView, ViewGroup parent) {
+		View layout = convertView;
+		if (layout == null) {
+			layout = inflater.inflate(R.layout.item_resume, null);
+		}
+		final EduExperience eduExperience = getItem(position);
+		TextView titleView = (TextView) layout.findViewById(R.id.title);
+		titleView.setText(CacheService.educKeyMap.get(Integer.parseInt(eduExperience.getEducation())) + " - " + eduExperience.getSchool());
+		TextView dateView = (TextView) layout.findViewById(R.id.date);
+		String dateTime = eduExperience.getStartYear() + "-" + eduExperience.getStartMonth() + " ~ " + eduExperience.getEndYear() + " - "
+				+ eduExperience.getEndMonth();
+		dateView.setText(dateTime);
+		btDelete = (ImageButton) layout.findViewById(R.id.button_delete);
+		btModify = (ImageButton) layout.findViewById(R.id.button_modify);
+		btDelete.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				if (isDel) {
+					UIUtil.toast(activity, "删除中请稍后...");
+					return;
+				}
+				delTask = new DelEduInfoTask();
+				delTask.execute(eduExperience);
+			}
+		});
+		btModify.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				Bundle bundle = new Bundle();
+				bundle.putSerializable("eduExperience", eduExperience);
+				activity.changeFragmentAnOnResume(EduInfoChildFragment.TAG, bundle);
+			}
+		});
+		return layout;
+	}
+
+	public class DelEduInfoTask extends AsyncTask<EduExperience, Integer, EduExperience> {
+		protected void onPreExecute() {
+			activity.showLoadiing();
+			isDel = true;
+		};
+
+		@Override
+		protected EduExperience doInBackground(EduExperience... arg0) {
+			try {
+				ResumeManageService.delEduExperience(PersonInfoSave.resumeInfo.getId(), arg0[0].getEduId());
+				return arg0[0];
+			} catch (MyHttpException e) {
+				Log.e("MyHttpException", e.getErrorCode());
+				UIUtil.toast(activity, e.getErrorMessage());
+			}
+			return null;
+		}
+
+		@Override
+		protected void onPostExecute(EduExperience result) {
+			activity.hideLoading();
+			isDel = false;
+			if (result != null) {
+				remove(result);
+				PersonInfoSave.resumeInfo.getEduList().remove(result);
+				notifyDataSetChanged();
+				UIUtil.toast(activity, "删除成功");
+			}
+		}
+	}
+}

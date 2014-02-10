@@ -1,0 +1,56 @@
+package com.geetion.job138.adapter;
+
+import java.util.List;
+
+import com.liqi.job.R;
+import com.geetion.job138.activity.PosListActivity;
+import com.geetion.job138.model.Search;
+
+import android.content.Context;
+import android.content.Intent;
+import android.text.TextUtils;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
+import android.widget.TextView;
+
+public class SearchListAdapter extends ArrayAdapter<Search> {
+	private LayoutInflater mInflater;
+	private TextView searchText;
+	private int mResource = R.layout.item_search;
+	private Context context;
+
+	public SearchListAdapter(Context context, List<Search> list) {
+		super(context, 0, list);
+		mInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+		this.context = context;
+	}
+
+	@Override
+	public View getView(int position, View convertView, final ViewGroup parent) {
+		View layout = convertView;
+		final Search search = getItem(position);
+		if (layout == null) {
+			layout = mInflater.inflate(mResource, parent, false);
+		}
+		searchText = (TextView) layout.findViewById(R.id.search_text);
+		final String string = search.getKeyWord() + (search.getAreaId() == 0 ? "" : "+" + search.getAreaName())
+				+ (search.getPositionId() == 0 ? "" : "+" + search.getPositionName());
+		if (TextUtils.isEmpty(string))
+			searchText.setText("全部");
+		else
+			searchText.setText(string);
+
+		layout.setOnClickListener(new OnClickListener() {
+			public void onClick(View v) {
+				Intent intent = new Intent(context, PosListActivity.class);
+				intent.putExtra("search", search);
+				intent.putExtra("title", string);
+				context.startActivity(intent);
+			}
+		});
+		return layout;
+	}
+}

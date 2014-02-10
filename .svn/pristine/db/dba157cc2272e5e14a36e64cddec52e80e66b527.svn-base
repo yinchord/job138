@@ -1,0 +1,886 @@
+package com.geetion.job138.service;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import com.geetion.job138.model.Ability;
+import com.geetion.job138.model.EduExperience;
+import com.geetion.job138.model.Lang;
+import com.geetion.job138.model.ResumeInfo;
+import com.geetion.job138.model.TrainExperience;
+import com.geetion.job138.model.WorkExperience;
+import com.geetion.job138.util.HttpUtil;
+import com.geetion.job138.util.MyHttpException;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.reflect.TypeToken;
+
+public class ResumeManageService extends BaseService {
+	private final static String REFRESH_RESUME = SERVER_URL + "/Resume/Refresh/1";
+	private final static String OPEN_CLOSE_RESUME = SERVER_URL + "/Resume/Open/1";
+	private final static String APPLY_ADVANCE = SERVER_URL + "/Resume/Advance/1";
+	private final static String GET_BASE_INFO = SERVER_URL + "/Resume/BaseInfo";
+	private final static String UPDATE_BASE_INFO = SERVER_URL + "/Resume/BaseInfo/Update/1";
+	private final static String GET_CONTACT = SERVER_URL + "/Resume/Contact";
+	private final static String UPDATE_CONTACT = SERVER_URL + "/Resume/Contact/Update/1";
+	private final static String GET_JOB_INTENT = SERVER_URL + "/Resume/QiZhi";
+	private final static String UPDATE_JOB_INTENT = SERVER_URL + "/Resume/QiZhi/Update/1";
+	private final static String GET_WORK_EXPERIENCE_LIST = SERVER_URL + "/Resume/Work/List";
+	private final static String GET_WORK_EXPERIENCE_DETAIL = SERVER_URL + "/Resume/Work";
+	private final static String UPDATE_WORK_EXPERIENCE = SERVER_URL + "/Resume/Work/Update/1";
+	private final static String DELETE_WORK_EXPERIENCE = SERVER_URL + "/Resume/Work/Del";
+	private final static String GET_EDU_EXPERIENCE_LIST = SERVER_URL + "/Resume/Edu/List";
+	private final static String GET_EDU_EXPERIENCE_DETAIL = SERVER_URL + "/Resume/Edu";
+	private final static String UPDATE_EDU_EXPERIENCE = SERVER_URL + "/Resume/Edu/Update/1";
+	private final static String DELETE_EDU_EXPERIENCE = SERVER_URL + "/Resume/Edu/Del";
+	private final static String GET_TRAIN_EXPERIENCE_LIST = SERVER_URL + "/Resume/Train/List";
+	private final static String GET_TRAIN_EXPERIENCE_DETAIL = SERVER_URL + "/Resume/Train";
+	private final static String UPDATE_TRAIN_EXPERIENCE = SERVER_URL + "/Resume/Train/Update/1";
+	private final static String DELETE_TRAIN_EXPERIENCE = SERVER_URL + "/Resume/Train/Del";
+	private final static String GET_LANG_EXPERIENCE_LIST = SERVER_URL + "/Resume/Lang/List";
+	private final static String GET_LANG_EXPERIENCE_DETAIL = SERVER_URL + "/Resume/Lang";
+	private final static String UPDATE_LANG_EXPERIENCE = SERVER_URL + "/Resume/Lang/Update/1";
+	private final static String DELETE_LANG_EXPERIENCE = SERVER_URL + "/Resume/Lang/Del";
+	private final static String GET_ABILITY = SERVER_URL + "/Resume/JiNeng";
+	private final static String UPDATE_ABILITY = SERVER_URL + "/Resume/JiNeng/Update";
+
+	/**
+	 * 刷新简历
+	 * 
+	 * @param resumeId
+	 * @return
+	 * @throws MyHttpException
+	 */
+	public static int refreshResume(int resumeId) throws MyHttpException {
+		String json = HttpUtil.get(REFRESH_RESUME + "/" + String.valueOf(resumeId), null);
+		JSONObject jsonObject;
+		try {
+			jsonObject = new JSONObject(json);
+			boolean state = jsonObject.optBoolean("State");
+			if (state) {
+				JSONObject valueObject = jsonObject.optJSONObject("Value");
+				int resumeIdBack = valueObject.optInt("Id");
+				return resumeIdBack;
+			} else {
+				throw new MyHttpException(jsonObject.optString("Message"), jsonObject.optString("Message"));
+			}
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+		return 0;
+	}
+
+	/**
+	 * 修改简历保密状态
+	 * 
+	 * @param UserName
+	 * @param ResumeId
+	 * @param Open
+	 * @return
+	 * @throws MyHttpException
+	 */
+
+	public static int updateOpen(String UserName, int ResumeId, int Open) throws MyHttpException {
+		Map<String, String> params = new HashMap<String, String>();
+		params.put("UserName", UserName);
+		params.put("ResumeId", String.valueOf(ResumeId));
+		params.put("Open", String.valueOf(Open));
+		String json = HttpUtil.postJSON(OPEN_CLOSE_RESUME, params);
+		JSONObject jsonObject;
+		try {
+			jsonObject = new JSONObject(json);
+			boolean state = jsonObject.optBoolean("State");
+			if (state) {
+				JSONObject valueObject = jsonObject.optJSONObject("Value");
+				int resumeId = valueObject.optInt("Id");
+				return resumeId;
+			} else {
+				throw new MyHttpException(jsonObject.optString("Message"), jsonObject.optString("Message"));
+			}
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+		return 0;
+	}
+
+	/**
+	 * 申请高级人才简历
+	 * 
+	 * @param resumeId
+	 * @return
+	 * @throws MyHttpException
+	 */
+
+	public static int applyAdvance(int resumeId) throws MyHttpException {
+		String json = HttpUtil.get(APPLY_ADVANCE + "/" + String.valueOf(resumeId), null);
+		JSONObject jsonObject;
+		try {
+			jsonObject = new JSONObject(json);
+			boolean state = jsonObject.optBoolean("State");
+			if (state) {
+				JSONObject valueObject = jsonObject.optJSONObject("Value");
+				int resumeIdBack = valueObject.optInt("Id");
+				return resumeIdBack;
+			} else {
+				throw new MyHttpException(jsonObject.optString("Message"), jsonObject.optString("Message"));
+			}
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+		return 0;
+	}
+
+	/**
+	 * 获取简历基本信息
+	 * 
+	 * @param resumeId
+	 *            简历编号
+	 * @param memberId
+	 *            会员编号
+	 * @return
+	 * @throws MyHttpException
+	 */
+	public static ResumeInfo getBaseInfo(int resumeId, int memberId) throws MyHttpException {
+		String json = HttpUtil.get(GET_BASE_INFO + "/" + String.valueOf(resumeId) + "/" + String.valueOf(memberId), null);
+		JSONObject jsonObject;
+		try {
+			jsonObject = new JSONObject(json);
+			boolean state = jsonObject.optBoolean("State");
+			if (state) {
+				String valueString = jsonObject.optString("Value");
+				Gson gson = new GsonBuilder().serializeNulls().create();
+				ResumeInfo object = gson.fromJson(valueString, ResumeInfo.class);
+				return object;
+			} else {
+				throw new MyHttpException(jsonObject.optString("Message"), jsonObject.optString("Message"));
+			}
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+
+	/**
+	 * 新建修改用户建立基本信息
+	 * 
+	 * @param resumeInfo
+	 * @return
+	 * @throws MyHttpException
+	 */
+	public static int newOrUpdateBaseInfo(ResumeInfo resumeInfo) throws MyHttpException {
+		Map<String, String> params = new HashMap<String, String>();
+		params.put("Id", String.valueOf(resumeInfo.getId()));
+		params.put("UserName", resumeInfo.getUserName());
+		params.put("Name", resumeInfo.getName());
+		params.put("Sex", String.valueOf(resumeInfo.getSex()));
+		params.put("Birth", resumeInfo.getBirth());
+		params.put("Edu", String.valueOf(resumeInfo.getEdu()));
+		params.put("Graduate", resumeInfo.getGraduate());
+		params.put("Height", resumeInfo.getHeight());
+		params.put("Nation", String.valueOf(resumeInfo.getNation()));
+		params.put("Marriage", String.valueOf(resumeInfo.getMarriage()));
+		params.put("HuKouProvince", String.valueOf(resumeInfo.getHuKouProvince()));
+		params.put("HuKouCapital", String.valueOf(resumeInfo.getHuKouCapital()));
+		params.put("Province", String.valueOf(resumeInfo.getProvince()));
+		params.put("Capital", String.valueOf(resumeInfo.getCapital()));
+		params.put("CardType", String.valueOf(resumeInfo.getCardType()));
+		params.put("IdCard", resumeInfo.getIdCard());
+		params.put("WorkYear", resumeInfo.getWordYear());
+
+		String json = HttpUtil.postJSON(UPDATE_BASE_INFO, params);
+		JSONObject jsonObject;
+		try {
+			jsonObject = new JSONObject(json);
+			boolean state = jsonObject.optBoolean("State");
+			if (state) {
+				JSONObject valueObject = jsonObject.optJSONObject("Value");
+				int resumeId = valueObject.optInt("Id");
+				return resumeId;
+			} else {
+				throw new MyHttpException(jsonObject.optString("Message"), jsonObject.optString("Message"));
+			}
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+		return 0;
+	}
+
+	/**
+	 * 获取简历的联系方式
+	 * 
+	 * @param resumeId
+	 * @return
+	 * @throws MyHttpException
+	 */
+	public static ResumeInfo getContactInfo(int resumeId) throws MyHttpException {
+		String json = HttpUtil.get(GET_CONTACT + "/" + String.valueOf(resumeId), null);
+		JSONObject jsonObject;
+		try {
+			jsonObject = new JSONObject(json);
+			boolean state = jsonObject.optBoolean("State");
+			if (state) {
+				String valueString = jsonObject.optString("Value");
+				Gson gson = new GsonBuilder().serializeNulls().create();
+				ResumeInfo object = gson.fromJson(valueString, ResumeInfo.class);
+				return object;
+			} else {
+				throw new MyHttpException(jsonObject.optString("Message"), jsonObject.optString("Message"));
+			}
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+
+	/**
+	 * 修改联系方式
+	 * 
+	 * @param resumeInfo
+	 * @return
+	 * @throws MyHttpException
+	 */
+	public static int updateContactInfo(ResumeInfo resumeInfo) throws MyHttpException {
+		Map<String, String> params = new HashMap<String, String>();
+		params.put("Id", String.valueOf(resumeInfo.getId()));
+		params.put("Email", resumeInfo.getEmail());
+		params.put("Mobile", resumeInfo.getMobile());
+		params.put("Tel", resumeInfo.getTel());
+		params.put("QQ", resumeInfo.getQQ());
+		params.put("Weibo", resumeInfo.getWeibo());
+		params.put("Address", resumeInfo.getAddress());
+
+		String json = HttpUtil.postJSON(UPDATE_CONTACT, params);
+		JSONObject jsonObject;
+		try {
+			jsonObject = new JSONObject(json);
+			boolean state = jsonObject.optBoolean("State");
+			if (state) {
+				JSONObject valueObject = jsonObject.optJSONObject("Value");
+				int resumeId = valueObject.optInt("Id");
+				return resumeId;
+			} else {
+				throw new MyHttpException(jsonObject.optString("Message"), jsonObject.optString("Message"));
+			}
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+		return 0;
+	}
+
+	/**
+	 * 获取用户求职意向
+	 * 
+	 * @param resumeId
+	 * @return
+	 * @throws MyHttpException
+	 */
+	public static ResumeInfo getJobIntent(int resumeId) throws MyHttpException {
+		String json = HttpUtil.get(GET_JOB_INTENT + "/" + String.valueOf(resumeId), null);
+		JSONObject jsonObject;
+		try {
+			jsonObject = new JSONObject(json);
+			boolean state = jsonObject.optBoolean("State");
+			if (state) {
+				String valueString = jsonObject.optString("Value");
+				Gson gson = new GsonBuilder().serializeNulls().create();
+				ResumeInfo object = gson.fromJson(valueString, ResumeInfo.class);
+				return object;
+			} else {
+				throw new MyHttpException(jsonObject.optString("Message"), jsonObject.optString("Message"));
+			}
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+
+	/**
+	 * 修改求职意向
+	 * 
+	 * @param resumeInfo
+	 * @return
+	 * @throws MyHttpException
+	 */
+	public static int updateJobIntent(ResumeInfo resumeInfo) throws MyHttpException {
+		Map<String, String> params = new HashMap<String, String>();
+		params.put("Id", String.valueOf(resumeInfo.getId()));
+		params.put("JobType", String.valueOf(resumeInfo.getJobType()));
+		params.put("Position", resumeInfo.getPosition());
+		params.put("PositionName", resumeInfo.getPositionName());
+		params.put("Area", resumeInfo.getArea());
+		params.put("AreaName", resumeInfo.getAreaName());
+		params.put("Pay", resumeInfo.getPay());
+		params.put("Stay", String.valueOf(resumeInfo.getStay()));
+		params.put("Travel", String.valueOf(resumeInfo.getTravel()));
+		params.put("WorkDate", String.valueOf(resumeInfo.getWorkDate()));
+		params.put("Request", resumeInfo.getRequest());
+
+		String json = HttpUtil.postJSON(UPDATE_JOB_INTENT, params);
+		JSONObject jsonObject;
+		try {
+			jsonObject = new JSONObject(json);
+			boolean state = jsonObject.optBoolean("State");
+			if (state) {
+				JSONObject valueObject = jsonObject.optJSONObject("Value");
+				int resumeId = valueObject.optInt("Id");
+				return resumeId;
+			} else {
+				throw new MyHttpException(jsonObject.optString("Message"), jsonObject.optString("Message"));
+			}
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+		return 0;
+	}
+
+	/**
+	 * 获取工作经验列表
+	 * 
+	 * @param resumeId
+	 * @return
+	 * @throws MyHttpException
+	 */
+	public static List<WorkExperience> getWorkExorienceList(int resumeId) throws MyHttpException {
+		String json = HttpUtil.get(GET_WORK_EXPERIENCE_LIST + "/" + String.valueOf(resumeId), null);
+		JSONObject jsonObject;
+		try {
+			jsonObject = new JSONObject(json);
+			boolean state = jsonObject.optBoolean("State");
+			if (state) {
+				String valueString = jsonObject.optString("Value");
+				Gson gson = new GsonBuilder().serializeNulls().create();
+				List<WorkExperience> list = gson.fromJson(valueString, new TypeToken<List<WorkExperience>>() {
+				}.getType());
+				return list;
+			} else {
+				throw new MyHttpException(jsonObject.optString("Message"), jsonObject.optString("Message"));
+			}
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+
+	/**
+	 * 获取单个详细的工作经验
+	 * 
+	 * @param resumeId
+	 * @param workId
+	 * @return
+	 * @throws MyHttpException
+	 */
+	public static WorkExperience getWorkExorienceDetail(int resumeId, int workId) throws MyHttpException {
+		String json = HttpUtil.get(GET_WORK_EXPERIENCE_DETAIL + "/" + String.valueOf(resumeId) + "/" + String.valueOf(workId), null);
+		JSONObject jsonObject;
+		try {
+			jsonObject = new JSONObject(json);
+			boolean state = jsonObject.optBoolean("State");
+			if (state) {
+				String valueString = jsonObject.optString("Value");
+				Gson gson = new GsonBuilder().serializeNulls().create();
+				WorkExperience workExperience = gson.fromJson(valueString, WorkExperience.class);
+				return workExperience;
+			} else {
+				throw new MyHttpException(jsonObject.optString("Message"), jsonObject.optString("Message"));
+			}
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+
+	/**
+	 * 新建修改工作经验
+	 * 
+	 * @param workExperience
+	 * @return
+	 * @throws MyHttpException
+	 */
+	public static int newOrUpdateWorkExperience(WorkExperience workExperience) throws MyHttpException {
+		Map<String, String> params = new HashMap<String, String>();
+		params.put("Id", String.valueOf(workExperience.getId()));
+		params.put("WorkId", String.valueOf(workExperience.getWordId()));
+		params.put("StartYear", workExperience.getStartYear());
+		params.put("StartMonth", workExperience.getStartMonth());
+		params.put("EndYear", workExperience.getEndYear());
+		params.put("EndMonth", workExperience.getEndMonth());
+		params.put("ComName", workExperience.getComName());
+		params.put("Position", workExperience.getPosition());
+		params.put("Workers", workExperience.getWorkers());
+		params.put("Ecoclass", String.valueOf(workExperience.getEcoclass()));
+		params.put("Introduce", workExperience.getIntroduce());
+		params.put("UserName", workExperience.getUserName());
+
+		String json = HttpUtil.postJSON(UPDATE_WORK_EXPERIENCE, params);
+		JSONObject jsonObject;
+		try {
+			jsonObject = new JSONObject(json);
+			boolean state = jsonObject.optBoolean("State");
+			if (state) {
+				JSONObject valueObject = jsonObject.optJSONObject("Value");
+				int resumeId = valueObject.optInt("Id");
+				return resumeId;
+			} else {
+				throw new MyHttpException(jsonObject.optString("Message"), jsonObject.optString("Message"));
+			}
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+		return 0;
+	}
+
+	/**
+	 * 删除工作经验
+	 * 
+	 * @param resumeId
+	 * @param workId
+	 * @return
+	 * @throws MyHttpException
+	 */
+	public static int delWorkExorience(int resumeId, int workId) throws MyHttpException {
+		String json = HttpUtil.get(DELETE_WORK_EXPERIENCE + "/" + String.valueOf(resumeId) + "/" + String.valueOf(workId), null);
+		JSONObject jsonObject;
+		try {
+			jsonObject = new JSONObject(json);
+			boolean state = jsonObject.optBoolean("State");
+			if (state) {
+				JSONObject valueObject = jsonObject.optJSONObject("Value");
+				int resumeIdBack = valueObject.optInt("Id");
+				return resumeIdBack;
+			} else {
+				throw new MyHttpException(jsonObject.optString("Message"), jsonObject.optString("Message"));
+			}
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+		return 0;
+	}
+
+	/**
+	 * 获取教育经验列表
+	 * 
+	 * @param resumeId
+	 * @return
+	 * @throws MyHttpException
+	 */
+	public static List<EduExperience> getEduExperienceList(int resumeId) throws MyHttpException {
+		String json = HttpUtil.get(GET_EDU_EXPERIENCE_LIST + "/" + String.valueOf(resumeId), null);
+		JSONObject jsonObject;
+		try {
+			jsonObject = new JSONObject(json);
+			boolean state = jsonObject.optBoolean("State");
+			if (state) {
+				String valueString = jsonObject.optString("Value");
+				Gson gson = new GsonBuilder().serializeNulls().create();
+				List<EduExperience> list = gson.fromJson(valueString, new TypeToken<List<EduExperience>>() {
+				}.getType());
+				return list;
+			} else {
+				throw new MyHttpException(jsonObject.optString("Message"), jsonObject.optString("Message"));
+			}
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+
+	/**
+	 * 获取单个教育经验
+	 * 
+	 * @param resumeId
+	 * @param eduId
+	 * @return
+	 * @throws MyHttpException
+	 */
+	public static EduExperience getEduExperienceDetail(int resumeId, int eduId) throws MyHttpException {
+		String json = HttpUtil.get(GET_EDU_EXPERIENCE_DETAIL + "/" + String.valueOf(resumeId) + "/" + String.valueOf(eduId), null);
+		JSONObject jsonObject;
+		try {
+			jsonObject = new JSONObject(json);
+			boolean state = jsonObject.optBoolean("State");
+			if (state) {
+				String valueString = jsonObject.optString("Value");
+				Gson gson = new GsonBuilder().serializeNulls().create();
+				EduExperience eduExperience = gson.fromJson(valueString, EduExperience.class);
+				return eduExperience;
+			} else {
+				throw new MyHttpException(jsonObject.optString("Message"), jsonObject.optString("Message"));
+			}
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+
+	/**
+	 * 新建修改教育经历
+	 * 
+	 * @param eduExperience
+	 * @return
+	 * @throws MyHttpException
+	 */
+
+	public static int newOrUpdateEduExperience(EduExperience eduExperience) throws MyHttpException {
+		Map<String, String> params = new HashMap<String, String>();
+		params.put("Id", String.valueOf(eduExperience.getId()));
+		params.put("EduId", String.valueOf(eduExperience.getEduId()));
+		params.put("StartYear", eduExperience.getStartYear());
+		params.put("StartMonth", eduExperience.getStartMonth());
+		params.put("EndYear", eduExperience.getEndYear());
+		params.put("EndMonth", eduExperience.getEndMonth());
+		params.put("School", eduExperience.getSchool());
+		params.put("Education", eduExperience.getEducation());
+		params.put("Profession", eduExperience.getProfession());
+		params.put("Detail", eduExperience.getDetail());
+		params.put("UserName", eduExperience.getUserName());
+
+		String json = HttpUtil.postJSON(UPDATE_EDU_EXPERIENCE, params);
+		JSONObject jsonObject;
+		try {
+			jsonObject = new JSONObject(json);
+			boolean state = jsonObject.optBoolean("State");
+			if (state) {
+				JSONObject valueObject = jsonObject.optJSONObject("Value");
+				int resumeId = valueObject.optInt("Id");
+				return resumeId;
+			} else {
+				throw new MyHttpException(jsonObject.optString("Message"), jsonObject.optString("Message"));
+			}
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+		return 0;
+	}
+
+	/**
+	 * 删除教育经历
+	 * 
+	 * @param resumeId
+	 * @param eduId
+	 * @return
+	 * @throws MyHttpException
+	 */
+	public static int delEduExperience(int resumeId, int eduId) throws MyHttpException {
+		String json = HttpUtil.get(DELETE_EDU_EXPERIENCE + "/" + String.valueOf(resumeId) + "/" + String.valueOf(eduId), null);
+		JSONObject jsonObject;
+		try {
+			jsonObject = new JSONObject(json);
+			boolean state = jsonObject.optBoolean("State");
+			if (state) {
+				JSONObject valueObject = jsonObject.optJSONObject("Value");
+				int resumeIdBack = valueObject.optInt("Id");
+				return resumeIdBack;
+			} else {
+				throw new MyHttpException(jsonObject.optString("Message"), jsonObject.optString("Message"));
+			}
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+		return 0;
+	}
+
+	/**
+	 * 获取培训经验
+	 * 
+	 * @param resumeId
+	 * @return
+	 * @throws MyHttpException
+	 */
+
+	public static List<TrainExperience> getTraiinExperienceList(int resumeId) throws MyHttpException {
+		String json = HttpUtil.get(GET_TRAIN_EXPERIENCE_LIST + "/" + String.valueOf(resumeId), null);
+		JSONObject jsonObject;
+		try {
+			jsonObject = new JSONObject(json);
+			boolean state = jsonObject.optBoolean("State");
+			if (state) {
+				String valueString = jsonObject.optString("Value");
+				Gson gson = new GsonBuilder().serializeNulls().create();
+				List<TrainExperience> list = gson.fromJson(valueString, new TypeToken<List<TrainExperience>>() {
+				}.getType());
+				return list;
+			} else {
+				throw new MyHttpException(jsonObject.optString("Message"), jsonObject.optString("Message"));
+			}
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+
+	/**
+	 * 获取详细培训经验
+	 * 
+	 * @param resumeId
+	 * @param eduId
+	 * @return
+	 * @throws MyHttpException
+	 */
+
+	public static TrainExperience getTrainExperienceDetail(int resumeId, int trainId) throws MyHttpException {
+		String json = HttpUtil.get(GET_TRAIN_EXPERIENCE_DETAIL + "/" + String.valueOf(resumeId) + "/" + String.valueOf(trainId), null);
+		JSONObject jsonObject;
+		try {
+			jsonObject = new JSONObject(json);
+			boolean state = jsonObject.optBoolean("State");
+			if (state) {
+				String valueString = jsonObject.optString("Value");
+				Gson gson = new GsonBuilder().serializeNulls().create();
+				TrainExperience trainExperience = gson.fromJson(valueString, TrainExperience.class);
+				return trainExperience;
+			} else {
+				throw new MyHttpException(jsonObject.optString("Message"), jsonObject.optString("Message"));
+			}
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+
+	/**
+	 * 新建修改培训经验
+	 * 
+	 * @param trainExperience
+	 * @return
+	 * @throws MyHttpException
+	 */
+	public static int newOrUpdateTrainExperience(TrainExperience trainExperience) throws MyHttpException {
+		Map<String, String> params = new HashMap<String, String>();
+		params.put("Id", String.valueOf(trainExperience.getId()));
+		params.put("TrainId", String.valueOf(trainExperience.getTrainId()));
+		params.put("StartYear", trainExperience.getStartYear());
+		params.put("StartMonth", trainExperience.getStartMonth());
+		params.put("EndYear", trainExperience.getEndYear());
+		params.put("EndMonth", trainExperience.getEndMonth());
+		params.put("Train", trainExperience.getTrain());
+		params.put("Course", trainExperience.getCourse());
+		params.put("Address", trainExperience.getAddress());
+		params.put("Certificate", trainExperience.getCertificate());
+		params.put("Detail", trainExperience.getDetail());
+		params.put("UserName", trainExperience.getUserName());
+
+		String json = HttpUtil.postJSON(UPDATE_TRAIN_EXPERIENCE, params);
+		JSONObject jsonObject;
+		try {
+			jsonObject = new JSONObject(json);
+			boolean state = jsonObject.optBoolean("State");
+			if (state) {
+				JSONObject valueObject = jsonObject.optJSONObject("Value");
+				int resumeId = valueObject.optInt("Id");
+				return resumeId;
+			} else {
+				throw new MyHttpException(jsonObject.optString("Message"), jsonObject.optString("Message"));
+			}
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+		return 0;
+	}
+
+	/**
+	 * 删除培训经历
+	 * 
+	 * @param resumeId
+	 * @param trainId
+	 * @return
+	 * @throws MyHttpException
+	 */
+	public static int delTrainExperience(int resumeId, int trainId) throws MyHttpException {
+		String json = HttpUtil.get(DELETE_TRAIN_EXPERIENCE + "/" + String.valueOf(resumeId) + "/" + String.valueOf(trainId), null);
+		JSONObject jsonObject;
+		try {
+			jsonObject = new JSONObject(json);
+			boolean state = jsonObject.optBoolean("State");
+			if (state) {
+				JSONObject valueObject = jsonObject.optJSONObject("Value");
+				int resumeIdBack = valueObject.optInt("Id");
+				return resumeIdBack;
+			} else {
+				throw new MyHttpException(jsonObject.optString("Message"), jsonObject.optString("Message"));
+			}
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+		return 0;
+	}
+
+	/**
+	 * 获取语言能力列表
+	 * 
+	 * @param resumeId
+	 * @return
+	 * @throws MyHttpException
+	 */
+	public static List<Lang> getLangList(int resumeId) throws MyHttpException {
+		String json = HttpUtil.get(GET_LANG_EXPERIENCE_LIST + "/" + String.valueOf(resumeId), null);
+		JSONObject jsonObject;
+		try {
+			jsonObject = new JSONObject(json);
+			boolean state = jsonObject.optBoolean("State");
+			if (state) {
+				String valueString = jsonObject.optString("Value");
+				Gson gson = new GsonBuilder().serializeNulls().create();
+				List<Lang> list = gson.fromJson(valueString, new TypeToken<List<Lang>>() {
+				}.getType());
+				return list;
+			} else {
+				throw new MyHttpException(jsonObject.optString("Message"), jsonObject.optString("Message"));
+			}
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+
+	/**
+	 * 获取语言能力详细
+	 * 
+	 * @param resumeId
+	 * @param langId
+	 * @return
+	 * @throws MyHttpException
+	 */
+	public static Lang getLangDetail(int resumeId, int langId) throws MyHttpException {
+		String json = HttpUtil.get(GET_LANG_EXPERIENCE_DETAIL + "/" + String.valueOf(resumeId) + "/" + String.valueOf(langId), null);
+		JSONObject jsonObject;
+		try {
+			jsonObject = new JSONObject(json);
+			boolean state = jsonObject.optBoolean("State");
+			if (state) {
+				String valueString = jsonObject.optString("Value");
+				Gson gson = new GsonBuilder().serializeNulls().create();
+				Lang lang = gson.fromJson(valueString, Lang.class);
+				return lang;
+			} else {
+				throw new MyHttpException(jsonObject.optString("Message"), jsonObject.optString("Message"));
+			}
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+
+	/**
+	 * 更新修改语言能力
+	 * 
+	 * @param lang
+	 * @return
+	 * @throws MyHttpException
+	 */
+	public static int newOrUpdateLang(Lang lang) throws MyHttpException {
+		Map<String, String> params = new HashMap<String, String>();
+		params.put("Id", String.valueOf(lang.getId()));
+		params.put("LangId", String.valueOf(lang.getLangId()));
+		params.put("Name", lang.getName());
+		params.put("Master", lang.getMaster());
+		params.put("UserName", lang.getUserName());
+
+		String json = HttpUtil.postJSON(UPDATE_LANG_EXPERIENCE, params);
+		JSONObject jsonObject;
+		try {
+			jsonObject = new JSONObject(json);
+			boolean state = jsonObject.optBoolean("State");
+			if (state) {
+				JSONObject valueObject = jsonObject.optJSONObject("Value");
+				int resumeId = valueObject.optInt("Id");
+				return resumeId;
+			} else {
+				throw new MyHttpException(jsonObject.optString("Message"), jsonObject.optString("Message"));
+			}
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+		return 0;
+	}
+
+	/**
+	 * 删除语言能力
+	 * 
+	 * @param resumeId
+	 * @param langId
+	 * @return
+	 * @throws MyHttpException
+	 */
+	public static int delLang(int resumeId, int langId) throws MyHttpException {
+		String json = HttpUtil.get(DELETE_LANG_EXPERIENCE + "/" + String.valueOf(resumeId) + "/" + String.valueOf(langId), null);
+		JSONObject jsonObject;
+		try {
+			jsonObject = new JSONObject(json);
+			boolean state = jsonObject.optBoolean("State");
+			if (state) {
+				JSONObject valueObject = jsonObject.optJSONObject("Value");
+				int resumeIdBack = valueObject.optInt("Id");
+				return resumeIdBack;
+			} else {
+				throw new MyHttpException(jsonObject.optString("Message"), jsonObject.optString("Message"));
+			}
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+		return 0;
+	}
+
+	/**
+	 * 获取技能专长
+	 * 
+	 * @param resumeID
+	 * @return
+	 * @throws MyHttpException
+	 */
+	public static Ability getAbility(int resumeID) throws MyHttpException {
+		String json = HttpUtil.get(GET_ABILITY + "/" + String.valueOf(resumeID), null);
+		JSONObject jsonObject;
+		try {
+			jsonObject = new JSONObject(json);
+			boolean state = jsonObject.optBoolean("State");
+			if (state) {
+				String valueString = jsonObject.optString("Value");
+				Gson gson = new GsonBuilder().serializeNulls().create();
+				Ability ability = gson.fromJson(valueString, Ability.class);
+				return ability;
+			} else {
+				throw new MyHttpException(jsonObject.optString("Message"), jsonObject.optString("Message"));
+			}
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+
+	/**
+	 * 更新技能专长
+	 * 
+	 * @param ability
+	 * @return
+	 * @throws MyHttpException
+	 */
+	public static int updateAbility(Ability ability) throws MyHttpException {
+		Map<String, String> params = new HashMap<String, String>();
+		params.put("Id", String.valueOf(ability.getId()));
+		params.put("Certificate", ability.getCertificate());
+		params.put("Development", ability.getDevelopment());
+		params.put("Techniques", ability.getTechniques());
+
+		String json = HttpUtil.postJSON(UPDATE_LANG_EXPERIENCE, params);
+		JSONObject jsonObject;
+		try {
+			jsonObject = new JSONObject(json);
+			boolean state = jsonObject.optBoolean("State");
+			if (state) {
+				JSONObject valueObject = jsonObject.optJSONObject("Value");
+				int resumeId = valueObject.optInt("Id");
+				return resumeId;
+			} else {
+				throw new MyHttpException(jsonObject.optString("Message"), jsonObject.optString("Message"));
+			}
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+		return 0;
+	}
+	
+
+}

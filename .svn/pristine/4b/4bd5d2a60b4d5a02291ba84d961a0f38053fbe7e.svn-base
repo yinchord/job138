@@ -1,0 +1,33 @@
+package com.geetion.job138.model;
+
+public class JobType {
+	/***
+	 * 	1、Id：岗位ID
+		2、Name:岗位名
+		3、Fid:岗位所在父类ID（0为父类）
+	 */
+	private int Id;
+	private String Name;
+	private int Fid;
+	
+	public int getId() {
+		return Id;
+	}
+	public void setId(int id) {
+		Id = id;
+	}
+	public String getName() {
+		return Name;
+	}
+	public void setName(String name) {
+		Name = name;
+	}
+	public int getFid() {
+		return Fid;
+	}
+	public void setFid(int fid) {
+		Fid = fid;
+	}
+	
+	
+}

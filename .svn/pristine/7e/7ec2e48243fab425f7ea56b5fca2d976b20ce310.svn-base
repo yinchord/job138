@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/transparent"
+    android:padding="16dp" >
+
+    <RelativeLayout
+        android:layout_width="296dp"
+        android:layout_height="wrap_content"
+        android:background="@drawable/bg_notice"
+        android:paddingLeft="60dp"
+        android:paddingRight="0dp"
+        android:paddingTop="0dp" >
+
+        <TextView
+            android:id="@+id/textView1"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="24dp"
+            android:layout_marginTop="146dp"
+            android:gravity="center"
+            android:text="刷新简历成功 !"
+            android:textColor="@color/font_orange"
+            android:textSize="20sp" />
+
+        <TextView
+            android:id="@+id/textView2"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignLeft="@+id/textView1"
+            android:layout_below="@+id/textView1"
+            android:layout_marginRight="24dp"
+            android:layout_marginTop="16dp"
+            android:gravity="center"
+            android:text="更新时间 : 2013.11.26"
+            android:textColor="@color/font_gray"
+            android:textSize="12sp" />
+
+        <ImageButton
+            android:id="@+id/close_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignBottom="@+id/textView1"
+            android:layout_alignParentRight="true"
+            android:layout_marginBottom="43dp"
+            android:layout_marginRight="10dp"
+            android:background="@null"
+            android:src="@drawable/button_cancel_notice" />
+    </RelativeLayout>
+
+</RelativeLayout>

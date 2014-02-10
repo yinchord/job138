@@ -1,0 +1,254 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/resume_bg"
+    android:orientation="vertical" >
+
+    <ImageButton
+        android:id="@+id/close_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
+        android:background="@null"
+        android:padding="4dp"
+        android:src="@drawable/resume_arrow" />
+
+    <ScrollView
+        android:id="@+id/scrollView1"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_toRightOf="@+id/close_button"
+        android:fillViewport="true" >
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingBottom="60dp"
+            android:paddingLeft="5dp"
+            android:paddingRight="16dp"
+            android:paddingTop="16dp" >
+
+            <EditText
+                android:id="@+id/username"
+                android:layout_width="match_parent"
+                android:layout_height="30dp"
+                android:background="@drawable/textbox"
+                android:hint="用户名"
+                android:paddingBottom="0dp"
+                android:paddingLeft="10dp"
+                android:paddingTop="0dp"
+                android:textColor="@color/font_gray"
+                android:textColorHint="@color/font_light_gray"
+                android:textSize="16sp" >
+            </EditText>
+
+            <TextView
+                android:id="@+id/sex"
+                android:layout_width="wrap_content"
+                android:layout_height="30dp"
+                android:layout_marginTop="10dp"
+                android:background="@drawable/choose_lilitbox"
+                android:paddingLeft="12dp"
+                android:paddingTop="6dp"
+                android:text="女"
+                android:textColor="@color/font_gray" />
+
+            <EditText
+                android:id="@+id/birth"
+                android:layout_width="match_parent"
+                android:layout_height="30dp"
+                android:layout_marginTop="10dp"
+                android:background="@drawable/textbox"
+                android:hint="出生日期"
+                android:paddingBottom="0dp"
+                android:paddingLeft="10dp"
+                android:paddingTop="0dp"
+                android:textColor="@color/font_gray"
+                android:textColorHint="@color/font_light_gray"
+                android:textSize="16sp" />
+
+            <TextView
+                android:id="@+id/educ"
+                android:layout_width="match_parent"
+                android:layout_height="30dp"
+                android:layout_marginTop="10dp"
+                android:background="@drawable/textbox"
+                android:drawableRight="@drawable/choosebtn"
+                android:gravity="center_vertical"
+                android:paddingBottom="0dp"
+                android:paddingLeft="10dp"
+                android:paddingRight="0dp"
+                android:paddingTop="0dp"
+                android:text="最高学历"
+                android:textColor="@color/font_gray"
+                android:textColorHint="@color/font_light_gray"
+                android:textSize="16sp" />
+
+            <EditText
+                android:id="@+id/graduate"
+                android:layout_width="match_parent"
+                android:layout_height="30dp"
+                android:layout_marginTop="10dp"
+                android:background="@drawable/textbox"
+                android:hint="毕业时间"
+                android:paddingBottom="0dp"
+                android:paddingLeft="10dp"
+                android:paddingTop="0dp"
+                android:textColor="@color/font_gray"
+                android:textColorHint="@color/font_light_gray"
+                android:textSize="16sp" />
+
+            <EditText
+                android:id="@+id/hight"
+                android:layout_width="match_parent"
+                android:layout_height="30dp"
+                android:layout_marginTop="10dp"
+                android:background="@drawable/textbox"
+                android:hint="身高"
+                android:paddingBottom="0dp"
+                android:paddingLeft="10dp"
+                android:paddingRight="0dp"
+                android:paddingTop="0dp"
+                android:textColor="@color/font_gray"
+                android:textColorHint="@color/font_light_gray"
+                android:textSize="16sp" />
+
+            <TextView
+                android:id="@+id/nation"
+                android:layout_width="match_parent"
+                android:layout_height="30dp"
+                android:layout_marginTop="10dp"
+                android:background="@drawable/textbox"
+                android:drawableRight="@drawable/choosebtn"
+                android:gravity="center_vertical"
+                android:paddingBottom="0dp"
+                android:paddingLeft="10dp"
+                android:paddingRight="0dp"
+                android:paddingTop="0dp"
+                android:text="民族"
+                android:textColor="@color/font_gray"
+                android:textColorHint="@color/font_light_gray"
+                android:textSize="16sp" />
+
+            <TextView
+                android:id="@+id/marriage"
+                android:layout_width="match_parent"
+                android:layout_height="30dp"
+                android:layout_marginTop="10dp"
+                android:background="@drawable/textbox"
+                android:drawableRight="@drawable/choosebtn"
+                android:gravity="center_vertical"
+                android:paddingBottom="0dp"
+                android:paddingLeft="10dp"
+                android:paddingRight="0dp"
+                android:paddingTop="0dp"
+                android:text="未婚"
+                android:textColor="@color/font_gray"
+                android:textColorHint="@color/font_light_gray"
+                android:textSize="16sp" />
+
+            <TextView
+                android:id="@+id/native_register"
+                android:layout_width="match_parent"
+                android:layout_height="30dp"
+                android:layout_marginTop="10dp"
+                android:background="@drawable/textbox"
+                android:drawableRight="@drawable/choosebtn"
+                android:gravity="center_vertical"
+                android:paddingBottom="0dp"
+                android:paddingLeft="10dp"
+                android:paddingRight="0dp"
+                android:paddingTop="0dp"
+                android:text="户籍"
+                android:textColor="@color/font_gray"
+                android:textColorHint="@color/font_light_gray"
+                android:textSize="16sp" />
+
+            <TextView
+                android:id="@+id/loc"
+                android:layout_width="match_parent"
+                android:layout_height="30dp"
+                android:layout_marginTop="10dp"
+                android:background="@drawable/textbox"
+                android:drawableRight="@drawable/choosebtn"
+                android:gravity="center_vertical"
+                android:paddingBottom="0dp"
+                android:paddingLeft="10dp"
+                android:paddingRight="0dp"
+                android:paddingTop="0dp"
+                android:text="现所在地"
+                android:textColor="@color/font_gray"
+                android:textColorHint="@color/font_light_gray"
+                android:textSize="16sp" />
+
+            <TextView
+                android:id="@+id/card"
+                android:layout_width="match_parent"
+                android:layout_height="30dp"
+                android:layout_marginTop="10dp"
+                android:background="@drawable/textbox"
+                android:drawableRight="@drawable/choosebtn"
+                android:gravity="center_vertical"
+                android:paddingBottom="0dp"
+                android:paddingLeft="10dp"
+                android:paddingRight="0dp"
+                android:paddingTop="0dp"
+                android:text="身份证"
+                android:textColor="@color/font_gray"
+                android:textColorHint="@color/font_light_gray"
+                android:textSize="16sp" />
+
+            <EditText
+                android:id="@+id/card_num"
+                android:layout_width="match_parent"
+                android:layout_height="30dp"
+                android:layout_marginTop="10dp"
+                android:background="@drawable/textbox"
+                android:hint="证件编号"
+                android:paddingBottom="0dp"
+                android:paddingLeft="10dp"
+                android:paddingTop="0dp"
+                android:singleLine="true"
+                android:textColor="@color/font_gray"
+                android:textColorHint="@color/font_light_gray"
+                android:textSize="16sp" >
+            </EditText>
+
+            <EditText
+                android:id="@+id/work_age"
+                android:layout_width="match_parent"
+                android:layout_height="30dp"
+                android:layout_marginTop="10dp"
+                android:background="@drawable/textbox"
+                android:hint="美业职龄"
+                android:paddingBottom="0dp"
+                android:paddingLeft="10dp"
+                android:paddingTop="0dp"
+                android:textColor="@color/font_gray"
+                android:textColorHint="@color/font_light_gray"
+                android:textSize="16sp" >
+            </EditText>
+        </LinearLayout>
+    </ScrollView>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:layout_alignParentBottom="true"
+        android:background="#50000000"
+        android:gravity="center"
+        android:orientation="vertical" >
+
+        <ImageButton
+            android:id="@+id/save_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@null"
+            android:src="@drawable/button_save_selector" />
+    </LinearLayout>
+
+</RelativeLayout>

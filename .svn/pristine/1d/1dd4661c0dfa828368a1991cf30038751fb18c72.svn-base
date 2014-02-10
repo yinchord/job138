@@ -1,0 +1,242 @@
+package com.geetion.job138.fragment;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import android.content.Context;
+import android.content.Intent;
+import android.graphics.drawable.AnimationDrawable;
+import android.os.AsyncTask;
+import android.os.Bundle;
+import android.os.Handler;
+import android.os.Vibrator;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
+import android.widget.CompoundButton.OnCheckedChangeListener;
+import android.widget.ImageView;
+import android.widget.ListView;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
+
+import com.liqi.job.R;
+import com.geetion.job138.activity.PosDetailActivity;
+import com.geetion.job138.activity.group.BaseGroupActivity;
+import com.geetion.job138.adapter.RandomListAdapter;
+import com.geetion.job138.listener.ShakeListener;
+import com.geetion.job138.listener.ShakeListener.OnShakeListener;
+import com.geetion.job138.model.JobInfo;
+import com.geetion.job138.service.BallotService;
+import com.geetion.job138.service.CacheService;
+import com.geetion.job138.service.PersonInfoSave;
+import com.geetion.job138.service.SettingService;
+import com.geetion.job138.util.MyHttpException;
+import com.geetion.job138.util.UIUtil;
+
+public class RandomFragment extends BaseFragment {
+	public static String TAG = RandomFragment.class.getName();
+	private BaseGroupActivity activity;
+	private ShakeListener shakeListener;
+	private Vibrator vibrator;
+	private ImageView randomImage, tipsImage;
+	private AnimationDrawable animationDrawable;
+	private GetRondomTask task;
+	private boolean isFinish = true;
+	private RelativeLayout layout;
+	private CheckBox voiceBox;
+	private TextView jobNameView, addrView, locView, salaryView, titleView, shareView;
+	private ListView listView;
+	private RandomListAdapter adapter;
+	private List<JobInfo> list = new ArrayList<JobInfo>();
+	private Handler handler = new Handler();
+	private int shareCount = 0;
+
+	@Override
+	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+		return inflater.inflate(R.layout.fragment_random, container, false);
+	}
+
+	@Override
+	public void onActivityCreated(Bundle savedInstanceState) {
+		activity = (BaseGroupActivity) getActivity();
+		init();
+		super.onActivityCreated(savedInstanceState);
+	}
+
+	public void init() {
+		jobNameView = (TextView) getView().findViewById(R.id.job_name);
+		addrView = (TextView) getView().findViewById(R.id.addr);
+		locView = (TextView) getView().findViewById(R.id.loc);
+		salaryView = (TextView) getView().findViewById(R.id.salary);
+		titleView = (TextView) getView().findViewById(R.id.textView1);
+		shareView = (TextView) getView().findViewById(R.id.share_tips);
+		titleView.setOnClickListener(this);
+		voiceBox = (CheckBox) getView().findViewById(R.id.voice);
+		if (SettingService.getShowVoice(activity)) {
+			voiceBox.setChecked(true);
+		} else {
+			voiceBox.setChecked(false);
+		}
+		layout = (RelativeLayout) getView().findViewById(R.id.show_job);
+		randomImage = (ImageView) getView().findViewById(R.id.box);
+		tipsImage = (ImageView) getView().findViewById(R.id.tag_tips);
+		vibrator = (Vibrator) activity.getSystemService(Context.VIBRATOR_SERVICE);
+		shakeListener = new ShakeListener(activity);
+		shakeListener.setOnShakeListener(new OnShakeListener() {
+			@Override
+			public void onShake() {
+				if (shareCount == 3 && !CacheService.isLogined()) {
+					UIUtil.toast(activity, "未登陆用户只能求签3次");
+					return;
+				}
+				if (isFinish) {
+					task = new GetRondomTask();
+					vibrator.vibrate(new long[] { 10, 200, 50, 200 }, -1);
+					if (SettingService.getShowVoice(activity))
+						activity.playSound();
+					task.execute();
+				} else {
+					UIUtil.toast(activity, "求签中, 请稍后...");
+				}
+			}
+		});
+		voiceBox.setOnCheckedChangeListener(new OnCheckedChangeListener() {
+			@Override
+			public void onCheckedChanged(CompoundButton arg0, boolean arg1) {
+				SettingService.openOrCloseVoice(activity);
+			}
+		});
+		listView = (ListView) getView().findViewById(R.id.listView1);
+		adapter = new RandomListAdapter(getActivity(), list);
+		listView.setAdapter(adapter);
+		listView.setOnItemClickListener(new OnItemClickListener() {
+			@Override
+			public void onItemClick(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
+				showJobInfo(list.get(arg2));
+				listView.setVisibility(View.GONE);
+			}
+		});
+
+	}
+
+	@Override
+	public void onPause() {
+		shakeListener.stop();
+		super.onPause();
+	}
+
+	@Override
+	public void onResume() {
+		shakeListener.start();
+		if (SettingService.isShareHelp(activity)) {
+			shareView.setVisibility(View.GONE);
+		} else {
+			handler.postDelayed(new Runnable() {
+				@Override
+				public void run() {
+					shareView.setVisibility(View.GONE);
+					SettingService.saveShareShowed(activity);
+				}
+			}, 4000);
+		}
+		super.onResume();
+	}
+
+	@Override
+	public void onDestroy() {
+		shakeListener.stop();
+		if (task != null)
+			task.cancel(true);
+		super.onDestroy();
+	}
+
+	public void toggleListView() {
+		if (listView.getVisibility() != View.VISIBLE && !list.isEmpty()) {
+			listView.setVisibility(View.VISIBLE);
+			listView.setSelection(listView.getCount());
+		} else {
+			listView.setVisibility(View.GONE);
+		}
+	}
+
+	@Override
+	public void onClick(View v) {
+		if (v == titleView) {
+			toggleListView();
+		}
+	}
+
+	class GetRondomTask extends AsyncTask<Void, String, JobInfo> {
+
+		@Override
+		protected void onPreExecute() {
+			isFinish = false;
+			randomImage.setImageResource(R.anim.start_random);
+			animationDrawable = (AnimationDrawable) randomImage.getDrawable();
+			animationDrawable.setOneShot(false);
+			animationDrawable.start();
+			tipsImage.setVisibility(View.INVISIBLE);
+			layout.setVisibility(View.GONE);
+			super.onPreExecute();
+		}
+
+		@Override
+		protected JobInfo doInBackground(Void... params) {
+			try {
+				String city = CacheService.city;
+				if (city == null)
+					city = "0";
+				JobInfo result = BallotService.getBallotJob(PersonInfoSave.resumeInfo.getId(), city);
+				return result;
+			} catch (MyHttpException e) {
+				e.printStackTrace();
+				UIUtil.toast(activity, e.getErrorMessage());
+			}
+			return null;
+		}
+
+		@Override
+		protected void onPostExecute(JobInfo result) {
+			isFinish = true;
+			if (result != null) {
+				randomImage.setImageResource(R.drawable.icon_box_end);
+				tipsImage.setVisibility(View.VISIBLE);
+				layout.setVisibility(View.VISIBLE);
+				showJobInfo(result);
+				list.add(result);
+				adapter.notifyDataSetChanged();
+				listView.setSelection(listView.getCount());
+			} else {
+				randomImage.setImageResource(R.drawable.icon_tipbox);
+			}
+			super.onPostExecute(result);
+		}
+	}
+
+	public void showJobInfo(final JobInfo result) {
+		if (result != null) {
+			shareCount++;
+			if (result.getType() == 2) {
+				tipsImage.setImageResource(R.drawable.icon_midde_tip);
+			} else {
+				tipsImage.setImageResource(R.drawable.icon_good_tip);
+			}
+			jobNameView.setText(result.getHireName());
+			locView.setText(result.getArea());
+			salaryView.setText(result.getPay());
+			addrView.setText(result.getCompanyName());
+			layout.setOnClickListener(new OnClickListener() {
+				public void onClick(View arg0) {
+					Intent intent = new Intent(activity, PosDetailActivity.class);
+					intent.putExtra("id", result.getHireId());
+					activity.startActivity(intent);
+				}
+			});
+		}
+	}
+}

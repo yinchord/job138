@@ -1,0 +1,62 @@
+package com.geetion.job138.fragment.resume;
+
+import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ImageButton;
+
+import com.liqi.job.R;
+import com.geetion.job138.activity.MyResumeActivity;
+import com.geetion.job138.fragment.BaseFragment;
+import com.geetion.job138.model.EduExperience;
+import com.geetion.job138.model.WorkExperience;
+
+public class EduInfoChildFragment extends BaseFragment {
+	public static String TAG = EduInfoChildFragment.class.getName();
+	private MyResumeActivity activity;
+	private ImageButton btSave, btClose;
+	private Bundle bundle = new Bundle();
+
+	@Override
+	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+		return inflater.inflate(R.layout.fragment_resume_eduinfo, container, false);
+	}
+
+	@Override
+	public void onActivityCreated(Bundle savedInstanceState) {
+		activity = (MyResumeActivity) getActivity();
+		init();
+		super.onActivityCreated(savedInstanceState);
+	}
+
+	public void init() {
+		btClose = (ImageButton) getView().findViewById(R.id.close_button);
+		btSave = (ImageButton) getView().findViewById(R.id.save_button);
+		btSave.setOnClickListener(this);
+		btClose.setOnClickListener(this);
+	}
+
+	@Override
+	public void onClick(View v) {
+		// TODO Auto-generated method stub
+		if (v == btClose) {
+			activity.changeFragmentAnOnResume(EduInfoFragment.TAG, null);
+		} else if (v == btSave) {
+			if (getArguments() != null) {
+				boolean isModify = getArguments().getBoolean("isModify");
+				if (isModify)
+					activity.changeFragmentAnOnResume(EduInfoFragment.TAG, null);
+			} else {
+				bundle.putSerializable("edukExperience", new EduExperience());
+				activity.changeFragmentAnOnResume(EduInfoFragment.TAG, bundle);
+			}
+
+		}
+	}
+
+	@Override
+	public void onResume() {
+		super.onResume();
+	}
+}

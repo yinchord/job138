@@ -1,0 +1,60 @@
+package com.geetion.job138.test;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import com.geetion.job138.activity.WelcomeActivity;
+import com.geetion.job138.model.LoginRegisterMessage;
+import com.geetion.job138.model.WorkExperience;
+import com.geetion.job138.service.LoginRegisterService;
+import com.geetion.job138.service.ResumeManageService;
+import com.geetion.job138.util.HttpUtil;
+import com.geetion.job138.util.MyHttpException;
+
+import android.app.Activity;
+import android.test.ActivityInstrumentationTestCase2;
+import android.util.Log;
+
+public class MyTest extends ActivityInstrumentationTestCase2<WelcomeActivity> {
+	private Activity activity;
+	private final static String TAG = MyTest.class.getName();
+
+	public MyTest() {
+		super("com.geetion.job138", WelcomeActivity.class);
+	}
+
+	@Override
+	protected void setUp() throws Exception {
+		super.setUp();
+		activity = getActivity();
+	}
+
+	public void testPreconditions() {
+		// Map<String, String> map = new HashMap<String, String>();
+		// map.put("UserName", "138jobper");
+		// map.put("UserPwd", "138138");
+		// try {
+		// String jsonString =
+		// HttpUtil.postJSON("http://apijob.138mr.com/User/Login/1", map);
+		// Log.e("tag", jsonString);
+		// } catch (MyHttpException e) {
+		// e.printStackTrace();
+		// }
+		try {
+			LoginRegisterMessage message = LoginRegisterService.login("138jobper", "138138");
+			Log.e("message", message.getUserName());
+
+			List<WorkExperience> list = ResumeManageService.getWorkExorienceList(458735);
+
+			Log.e("word", list.get(0).getComName());
+		} catch (MyHttpException e) {
+			Log.e("error", e.getErrorMessage());
+		}
+	}
+
+	@Override
+	public void tearDown() {
+		activity.finish();
+	}
+}

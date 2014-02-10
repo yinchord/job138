@@ -1,0 +1,216 @@
+package com.geetion.job138.fragment.resume;
+
+import com.liqi.job.R;
+import com.geetion.job138.activity.BaseActivity;
+import com.geetion.job138.activity.MyResumeActivity;
+import com.geetion.job138.activity.ResumeContentActivity;
+import com.geetion.job138.fragment.BaseFragment;
+import com.geetion.job138.fragment.resume.BaseInfoFragment.GoBaseInfoTask;
+import com.geetion.job138.model.ResumeInfo;
+import com.geetion.job138.service.CacheService;
+import com.geetion.job138.service.PersonInfoSave;
+import com.geetion.job138.service.ResumeManageService;
+import com.geetion.job138.service.SearchJobService;
+import com.geetion.job138.util.FuncUtil;
+import com.geetion.job138.util.MyHttpException;
+import com.geetion.job138.util.UIUtil;
+
+import android.content.Intent;
+import android.os.AsyncTask;
+import android.os.Bundle;
+import android.text.TextUtils;
+import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.view.ViewGroup;
+import android.widget.EditText;
+import android.widget.ImageButton;
+import android.widget.TextView;
+
+public class ContactInfoFragment extends BaseFragment implements OnClickListener {
+	public static String TAG = ContactInfoFragment.class.getName();
+	private MyResumeActivity activity;
+	private ImageButton closeButton, saveButton;
+	private TextView addView;
+	private EditText emailView, telView, mobileView, qqView, weiboView;
+	private GetContactInfoTask task;
+	public static boolean isGetData = false;
+	private ResumeInfo updateResume = new ResumeInfo();
+	private UpdateContactInfoTask updateTask;
+
+	@Override
+	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+		return inflater.inflate(R.layout.fragment_resume_contact, container, false);
+	}
+
+	@Override
+	public void onActivityCreated(Bundle savedInstanceState) {
+		activity = (MyResumeActivity) getActivity();
+		init();
+		super.onActivityCreated(savedInstanceState);
+	}
+
+	public void init() {
+		closeButton = (ImageButton) getView().findViewById(R.id.close_button);
+		closeButton.setOnClickListener(this);
+		saveButton = (ImageButton) getView().findViewById(R.id.save_button);
+		saveButton.setOnClickListener(this);
+		emailView = (EditText) getView().findViewById(R.id.email);
+		telView = (EditText) getView().findViewById(R.id.tel);
+		mobileView = (EditText) getView().findViewById(R.id.mobile);
+		qqView = (EditText) getView().findViewById(R.id.qq);
+		weiboView = (EditText) getView().findViewById(R.id.weibo);
+		addView = (TextView) getView().findViewById(R.id.address);
+		updateResume.setId(PersonInfoSave.resumeInfo.getId());
+		if (PersonInfoSave.resumeInfo.getId() != 0) {
+			if (!isGetData)
+				getData();
+			else {
+				updateResume.saveResumeBaseInfo(PersonInfoSave.resumeInfo);
+				resetInfo();
+			}
+		}
+	}
+
+	public void getData() {
+		task = new GetContactInfoTask();
+		task.execute();
+	}
+
+	public void resetInfo() {
+		emailView.setText(PersonInfoSave.resumeInfo.getEmail());
+		telView.setText(PersonInfoSave.resumeInfo.getTel());
+		mobileView.setText(PersonInfoSave.resumeInfo.getMobile());
+		qqView.setText(PersonInfoSave.resumeInfo.getQQ());
+		weiboView.setText(PersonInfoSave.resumeInfo.getWeibo());
+		addView.setText(PersonInfoSave.resumeInfo.getAddress());
+		addView.setOnClickListener(this);
+	}
+
+	@Override
+	public void onClick(View v) {
+		if (v == closeButton) {
+			activity.hideSelectFragment();
+		} else if (v == saveButton) {
+			if (getUpdateInfo()) {
+				updateTask = new UpdateContactInfoTask();
+				updateTask.execute();
+			}
+		} else if (v == addView) {
+			Intent intent = new Intent(activity, ResumeContentActivity.class);
+			intent.putExtra("title", "详细地址");
+			intent.putExtra("content", updateResume.getAddress());
+			startActivityForResult(intent, 0);
+		}
+	}
+	
+	@Override
+	public void onActivityResult(int requestCode, int resultCode, Intent data) {
+		switch (resultCode) {
+		case -1:
+			String content = data.getStringExtra("content");
+			addView.setText(content);
+			updateResume.setAddress(content);
+			break;
+		}
+		super.onActivityResult(requestCode, resultCode, data);
+	}
+
+	public boolean getUpdateInfo() {
+		String email = emailView.getText().toString();
+		if (TextUtils.isEmpty(email)) {
+			UIUtil.toast(activity, "邮箱不能为空");
+			return false;
+		}
+		String mobile = mobileView.getText().toString();
+		if (TextUtils.isEmpty(mobile)) {
+			UIUtil.toast(activity, "手机号码");
+			return false;
+		}
+		String tel = telView.getText().toString();
+		String qq = qqView.getText().toString();
+		String weibo = weiboView.getText().toString();
+		String address = addView.getText().toString();
+		updateResume.setTel(tel);
+		updateResume.setEmail(email);
+		updateResume.setMobile(mobile);
+		updateResume.setQQ(qq);
+		updateResume.setWeibo(weibo);
+		updateResume.setAddress(address);
+		return true;
+	}
+
+	@Override
+	public void onDestroy() {
+		if (task != null)
+			task.cancel(true);
+		if (updateTask != null)
+			updateTask.cancel(true);
+		super.onDestroy();
+	}
+
+	public class GetContactInfoTask extends AsyncTask<Void, Integer, ResumeInfo> {
+		protected void onPreExecute() {
+			saveButton.setClickable(false);
+			activity.showLoadiing();
+		};
+
+		@Override
+		protected ResumeInfo doInBackground(Void... arg0) {
+			try {
+				ResumeInfo resumeInfo = ResumeManageService.getContactInfo(PersonInfoSave.resumeInfo.getId());
+				return resumeInfo;
+			} catch (MyHttpException e) {
+				Log.e("MyHttpException", e.getErrorCode());
+				UIUtil.toast(activity, e.getErrorMessage());
+			}
+			return null;
+		}
+
+		@Override
+		protected void onPostExecute(ResumeInfo result) {
+			activity.hideLoading();
+			saveButton.setClickable(true);
+			if (result != null) {
+				PersonInfoSave.saveResumeContactInfo(result);
+				resetInfo();
+				isGetData = true;
+			}
+		}
+	}
+
+	public class UpdateContactInfoTask extends AsyncTask<Void, Integer, Integer> {
+		protected void onPreExecute() {
+			saveButton.setClickable(false);
+			activity.showLoadiing();
+		};
+
+		@Override
+		protected Integer doInBackground(Void... arg0) {
+			try {
+				Integer result = ResumeManageService.updateContactInfo(updateResume);
+				return result;
+			} catch (MyHttpException e) {
+				Log.e("MyHttpException", e.getErrorCode());
+				UIUtil.toast(activity, e.getErrorMessage());
+			}
+			return null;
+		}
+
+		@Override
+		protected void onPostExecute(Integer result) {
+			activity.hideLoading();
+			saveButton.setClickable(true);
+			if (result != null) {
+				PersonInfoSave.updateSaveID(activity, result);
+				updateResume.setId(result);
+				PersonInfoSave.saveResumeContactInfo(updateResume);
+				UIUtil.toast(activity, "修改成功");
+				activity.changeFragmentAnOnResume(JobIntentFragment.TAG, null);
+				TextView jobIntentView=(TextView)activity.findViewById(R.id.job_intent_show);
+				activity.cleanAndSelect(R.id.job_intent, jobIntentView);
+			}
+		}
+	}
+}

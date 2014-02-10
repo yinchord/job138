@@ -1,0 +1,143 @@
+package com.geetion.job138.service;
+
+import java.util.HashMap;
+import java.util.Map;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import com.geetion.job138.model.LoginRegisterMessage;
+import com.geetion.job138.model.RegisterMessage;
+import com.geetion.job138.model.SimpleResume;
+import com.geetion.job138.util.HttpUtil;
+import com.geetion.job138.util.MyHttpException;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+
+public class LoginRegisterService extends BaseService {
+	private final static String REGISTER_URL = SERVER_URL + "/User/Register/1";
+	private final static String LOGIN_URL = SERVER_URL + "/User/Login/1";
+	private final static String MISCO_REGISTER_URL = SERVER_URL + "/User/MicroRegister/1";
+	private final static String REGISTER_RESUME = SERVER_URL + "/User/RegisterResume/1";
+
+	/**
+	 * 登陆
+	 * 
+	 * @param UserName
+	 *            用户名
+	 * @param UserPwd
+	 *            用户密码
+	 * @return
+	 * @throws MyHttpException
+	 */
+	public static LoginRegisterMessage login(String UserName, String UserPwd) throws MyHttpException {
+		Map<String, String> params = new HashMap<String, String>();
+		params.put("UserName", UserName);
+		params.put("UserPwd", UserPwd);
+		String json = HttpUtil.postJSON(LOGIN_URL, params);
+		JSONObject jsonObject;
+		try {
+			jsonObject = new JSONObject(json);
+			boolean state = jsonObject.optBoolean("State");
+			if (state) {
+				String data = jsonObject.optString("Value");
+				Gson gson = new GsonBuilder().serializeNulls().create();
+				LoginRegisterMessage object = gson.fromJson(data, LoginRegisterMessage.class);
+				return object;
+			} else {
+				throw new MyHttpException(jsonObject.optString("Message"), jsonObject.optString("Message"));
+			}
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+
+	/**
+	 * 注册
+	 * 
+	 * @param registerMessage
+	 *            注册信息(包含微注册)
+	 * @return
+	 * @throws MyHttpException
+	 */
+	public static LoginRegisterMessage register(RegisterMessage registerMessage) throws MyHttpException {
+		Map<String, String> params = new HashMap<String, String>();
+		params.put("UserName", registerMessage.getUserName());
+		params.put("UserPwd", registerMessage.getUserPwd());
+		params.put("Email", registerMessage.getEmail());
+		params.put("Mobile", registerMessage.getMobile());
+		String json = HttpUtil.postJSON(REGISTER_URL, params);
+		JSONObject jsonObject;
+		try {
+			jsonObject = new JSONObject(json);
+			boolean state = jsonObject.optBoolean("State");
+			if (state) {
+				String data = jsonObject.optString("Value");
+				Gson gson = new GsonBuilder().serializeNulls().create();
+				LoginRegisterMessage object = gson.fromJson(data, LoginRegisterMessage.class);
+				return object;
+			} else {
+				throw new MyHttpException(jsonObject.optString("Message"), jsonObject.optString("Message"));
+			}
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+	
+	/**
+	 *  微注册
+	 * @param registerMessage
+	 * @return
+	 * @throws MyHttpException
+	 */
+	public static LoginRegisterMessage microRegister(RegisterMessage registerMessage) throws MyHttpException {
+		Map<String, String> params = new HashMap<String, String>();
+		params.put("UserName", registerMessage.getUserName());
+		params.put("UserPwd", registerMessage.getUserPwd());
+		params.put("PName", registerMessage.getPname());
+		params.put("Sex", registerMessage.getSex());
+		params.put("Birth", registerMessage.getBirth());
+		params.put("Position", registerMessage.getPosition());
+		params.put("WordAdd", registerMessage.getWorkAdd());
+		params.put("Pay", registerMessage.getPay());
+		params.put("Email", registerMessage.getEmail());
+		params.put("Mobile", registerMessage.getMobile());
+		params.put("HireId", registerMessage.getHireId());
+
+		String json = HttpUtil.postJSON(MISCO_REGISTER_URL, params);
+		JSONObject jsonObject;
+		try {
+			jsonObject = new JSONObject(json);
+			boolean state = jsonObject.optBoolean("State");
+			if (state) {
+				String data = jsonObject.optString("Value");
+				Gson gson = new GsonBuilder().serializeNulls().create();
+				LoginRegisterMessage object = gson.fromJson(data, LoginRegisterMessage.class);
+				return object;
+			} else {
+				throw new MyHttpException(jsonObject.optString("Message"), jsonObject.optString("Message"));
+			}
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+	
+	public static LoginRegisterMessage postRegisterResume(SimpleResume resume) {
+		Map<String, String> params = new HashMap<String, String>();
+		params.put("Pname", resume.getPname());
+		params.put("Sex", String.valueOf(resume.getSex()));
+		params.put("Birth", resume.getBirth());
+		params.put("QQ", resume.getQQ());
+		params.put("Position", String.valueOf(resume.getPosition()));
+		params.put("WorkAdd", String.valueOf(resume.getWorkAdd()));
+		params.put("Pay", resume.getPay());
+		params.put("Status", resume.getStatus());
+		params.put("MemberId", String.valueOf(resume.getMemberId()));
+		
+		return null;
+	}
+
+}

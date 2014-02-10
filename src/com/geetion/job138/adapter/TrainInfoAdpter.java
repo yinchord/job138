@@ -1,0 +1,117 @@
+package com.geetion.job138.adapter;
+
+import java.util.List;
+
+import com.liqi.job.R;
+import com.geetion.job138.activity.MyResumeActivity;
+import com.geetion.job138.adapter.EduInfoAdapter.DelEduInfoTask;
+import com.geetion.job138.adapter.JobInfoAdpter.DelWorkExperienceInfoTask;
+import com.geetion.job138.fragment.resume.EduInfoChildFragment;
+import com.geetion.job138.fragment.resume.TrainInfoChildragment;
+import com.geetion.job138.model.EduExperience;
+import com.geetion.job138.model.JobInfo;
+import com.geetion.job138.model.TrainExperience;
+import com.geetion.job138.service.CacheService;
+import com.geetion.job138.service.PersonInfoSave;
+import com.geetion.job138.service.ResumeManageService;
+import com.geetion.job138.util.MyHttpException;
+import com.geetion.job138.util.UIUtil;
+
+import android.app.Activity;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.os.AsyncTask;
+import android.os.Bundle;
+import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.view.View.OnClickListener;
+import android.widget.ArrayAdapter;
+import android.widget.ImageButton;
+import android.widget.TextView;
+
+public class TrainInfoAdpter extends ArrayAdapter<TrainExperience> {
+	private LayoutInflater inflater;
+	private boolean isDel = false;
+	private MyResumeActivity activity;
+	private DelTrainInfoTask delTask;
+
+	public TrainInfoAdpter(MyResumeActivity activity, List<TrainExperience> list) {
+		super(activity, 0, list);
+		this.activity = activity;
+		inflater = (LayoutInflater) activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+	}
+
+	@Override
+	public View getView(int position, View convertView, ViewGroup parent) {
+		View layout = convertView;
+		if (layout == null)
+			layout = inflater.inflate(R.layout.item_resume, null);
+		final TrainExperience trainExperience = getItem(position);
+		TextView titleView = (TextView) layout.findViewById(R.id.title);
+		titleView.setText(trainExperience.getCourse() + " - " + trainExperience.getTrain());
+		TextView dateView = (TextView) layout.findViewById(R.id.date);
+		String dateTime = trainExperience.getStartYear() + "-" + trainExperience.getStartMonth() + " ~ " + trainExperience.getEndYear() + " - "
+				+ trainExperience.getEndMonth();
+		dateView.setText(dateTime);
+		ImageButton btDelete = (ImageButton) layout.findViewById(R.id.button_delete);
+		ImageButton btModify = (ImageButton) layout.findViewById(R.id.button_modify);
+		btDelete.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				if (isDel) {
+					UIUtil.toast(activity, "删除中请稍后...");
+					return;
+				}
+				UIUtil.confirm((Activity)getContext(), "提示", "是否要删除?", new DialogInterface.OnClickListener() {
+					@Override
+					public void onClick(DialogInterface arg0, int arg1) {
+						delTask = new DelTrainInfoTask();
+						delTask.execute(trainExperience);
+					}
+				});
+			}
+		});
+		btModify.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				Bundle bundle = new Bundle();
+				bundle.putSerializable("trainExperience", trainExperience);
+				activity.changeFragmentAnOnResume(TrainInfoChildragment.TAG, bundle);
+			}
+		});
+		return layout;
+	}
+
+	public class DelTrainInfoTask extends AsyncTask<TrainExperience, Integer, TrainExperience> {
+		protected void onPreExecute() {
+			activity.showLoadiing();
+			isDel = true;
+		};
+
+		@Override
+		protected TrainExperience doInBackground(TrainExperience... arg0) {
+			try {
+				ResumeManageService.delTrainExperience(PersonInfoSave.resumeInfo.getId(), arg0[0].getTrainId());
+				return arg0[0];
+			} catch (MyHttpException e) {
+				Log.e("MyHttpException", e.getErrorCode());
+				UIUtil.toast(activity, e.getErrorMessage());
+			}
+			return null;
+		}
+
+		@Override
+		protected void onPostExecute(TrainExperience result) {
+			activity.hideLoading();
+			isDel = false;
+			if (result != null) {
+				remove(result);
+				PersonInfoSave.resumeInfo.getEduList().remove(result);
+				notifyDataSetChanged();
+				UIUtil.toast(activity, "删除成功");
+			}
+		}
+	}
+}

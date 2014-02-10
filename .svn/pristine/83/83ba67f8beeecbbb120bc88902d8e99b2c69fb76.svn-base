@@ -1,0 +1,42 @@
+package com.geetion.job138.fragment;
+
+import com.geetion.job138.R;
+import com.geetion.job138.activity.MapActivity;
+
+import android.content.Intent;
+import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.view.ViewGroup;
+import android.widget.ImageButton;
+
+public class PosDetailComFragment extends BaseFragment implements OnClickListener{
+	public static String TAG = PosDetailComFragment.class.getName();
+	private ImageButton gps;
+	
+	@Override
+	public View onCreateView(LayoutInflater inflater, ViewGroup container,
+			Bundle savedInstanceState) {
+		return inflater.inflate(R.layout.fragment_pos_com, container, false);
+	}
+
+	@Override
+	public void onActivityCreated(Bundle savedInstanceState) {
+		initView();
+		super.onActivityCreated(savedInstanceState);
+	}
+
+	public void initView() {
+		gps = (ImageButton) getActivity().findViewById(R.id.gps);
+		gps.setOnClickListener(this);
+	}
+
+	@Override
+	public void onClick(View v) {
+		if(gps == v){
+			Intent intent = new Intent(getActivity(), MapActivity.class);
+			startActivity(intent);
+		}
+	}
+}

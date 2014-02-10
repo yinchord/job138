@@ -1,0 +1,133 @@
+package com.geetion.job138.fragment.resume;
+
+import android.os.AsyncTask;
+import android.os.Bundle;
+import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ImageButton;
+import android.widget.TextView;
+
+import com.liqi.job.R;
+import com.geetion.job138.activity.MyResumeActivity;
+import com.geetion.job138.fragment.BaseFragment;
+import com.geetion.job138.fragment.resume.BaseInfoFragment.UpadateBaseInfoTask;
+import com.geetion.job138.model.ResumeInfo;
+import com.geetion.job138.service.CacheService;
+import com.geetion.job138.service.PersonInfoSave;
+import com.geetion.job138.service.ResumeManageService;
+import com.geetion.job138.service.SearchJobService;
+import com.geetion.job138.util.MyHttpException;
+import com.geetion.job138.util.UIUtil;
+import com.geetion.job138.util.UIUtil.OnSelectAlter;
+import com.geetion.job138.widget.custom.SelectCityPop;
+import com.geetion.job138.widget.custom.SelectJobTypePop;
+
+public class JobIntentFragment extends BaseFragment {
+
+	public static String TAG = JobIntentFragment.class.getName();
+	private MyResumeActivity activity;
+	private ImageButton closeButton, saveButton;
+	private TextView jobTypeView, positionView, areaView, payView, wordDateView;
+	private SelectCityPop cityPop;
+	private SelectJobTypePop jobTypePop;
+	private ResumeInfo updateResume = new ResumeInfo();
+	private static boolean isGetData = false;
+
+	@Override
+	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+		return inflater.inflate(R.layout.fragment_resume_jobintent, container, false);
+	}
+
+	@Override
+	public void onActivityCreated(Bundle savedInstanceState) {
+		activity = (MyResumeActivity) getActivity();
+		init();
+		super.onActivityCreated(savedInstanceState);
+	}
+
+	public void init() {
+		closeButton = (ImageButton) getView().findViewById(R.id.close_button);
+		closeButton.setOnClickListener(this);
+		saveButton = (ImageButton) getView().findViewById(R.id.save_button);
+		saveButton.setOnClickListener(this);
+		jobTypeView = (TextView) getView().findViewById(R.id.job_type);
+		jobTypeView.setOnClickListener(this);
+		positionView = (TextView) getView().findViewById(R.id.position);
+		positionView.setOnClickListener(this);
+		areaView = (TextView) getView().findViewById(R.id.area);
+		areaView.setOnClickListener(this);
+		payView = (TextView) getView().findViewById(R.id.pay);
+		payView.setOnClickListener(this);
+		wordDateView = (TextView) getView().findViewById(R.id.work_date);
+		wordDateView.setOnClickListener(this);
+		LayoutInflater inflater = activity.getLayoutInflater();
+		View cityView = inflater.inflate(R.layout.window_city, null);
+		View jobTypeView = inflater.inflate(R.layout.window_station, null);
+		cityPop = new SelectCityPop(cityView, activity, false);
+		jobTypePop = new SelectJobTypePop(jobTypeView, activity, false);
+	}
+
+	@Override
+	public void onClick(View v) {
+		if (v == closeButton) {
+			activity.hideSelectFragment();
+		} else if (v == saveButton) {
+
+		} else if (v == jobTypeView) {
+			UIUtil.showSelectAlert(activity, CacheService.jobTypeKeyMap.values().toArray(new String[0]), new OnSelectAlter() {
+				public void onSelect(String select) {
+					jobTypeView.setText(select);
+				}
+			});
+		} else if (v == positionView) {
+			jobTypePop.showPop(positionView);
+		} else if (v == areaView) {
+			cityPop.showPop(areaView);
+		} else if (v == payView) {
+			UIUtil.showSelectAlert(activity, CacheService.payKeyMap.values().toArray(new String[0]), new OnSelectAlter() {
+				public void onSelect(String select) {
+					payView.setText(select);
+				}
+			});
+		} else if (v == wordDateView) {
+			UIUtil.showSelectAlert(activity, CacheService.workDateKeyMap.values().toArray(new String[0]), new OnSelectAlter() {
+				public void onSelect(String select) {
+					wordDateView.setText(select);
+				}
+			});
+		}
+	}
+
+	public class GoJobIntentTask extends AsyncTask<Void, Integer, ResumeInfo> {
+		protected void onPreExecute() {
+			saveButton.setClickable(false);
+			activity.showLoadiing();
+		};
+
+		@Override
+		protected ResumeInfo doInBackground(Void... arg0) {
+			try {
+				ResumeInfo resumeInfo = ResumeManageService.getJobIntent(PersonInfoSave.resumeInfo.getId());
+				return resumeInfo;
+			} catch (MyHttpException e) {
+				Log.e("MyHttpException", e.getErrorCode());
+				UIUtil.toast(activity, e.getErrorMessage());
+			}
+			return null;
+		}
+
+		@Override
+		protected void onPostExecute(ResumeInfo result) {
+			activity.hideLoading();
+			saveButton.setClickable(true);
+			if (result != null) {
+				PersonInfoSave.saveResumeJobIntentInfo(result);
+				updateResume = result;
+				isGetData = true;
+			}
+		}
+	}
+
+}

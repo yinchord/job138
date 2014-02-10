@@ -1,0 +1,29 @@
+package com.geetion.job138.activity;
+
+import com.liqi.job.R;
+import android.os.Bundle;
+import android.view.View;
+import android.widget.ImageButton;
+
+public class BindActivity extends BaseActivity {
+	private ImageButton returnButton;
+
+	@Override
+	protected void onCreate(Bundle arg0) {
+		super.onCreate(arg0);
+		setContentView(R.layout.activity_bind);
+		init();
+	}
+
+	public void init() {
+		returnButton = (ImageButton) findViewById(R.id.button_back);
+		returnButton.setOnClickListener(this);
+	}
+
+	@Override
+	public void onClick(View v) {
+		if (v == returnButton) {
+			finish();
+		}
+	}
+}

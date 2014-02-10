@@ -1,0 +1,285 @@
+package com.geetion.job138.activity;
+
+import java.util.HashMap;
+
+import com.liqi.job.R;
+import com.geetion.job138.fragment.SelectStatusFragment;
+import com.geetion.job138.model.CityInfo;
+import com.geetion.job138.model.JobType;
+import com.geetion.job138.model.LoginRegisterMessage;
+import com.geetion.job138.model.SimpleResume;
+import com.geetion.job138.service.CacheService;
+import com.geetion.job138.service.LoginRegisterService;
+import com.geetion.job138.service.PersonInfoSave;
+import com.geetion.job138.util.MyHttpException;
+import com.geetion.job138.util.UIUtil;
+import com.geetion.job138.util.UIUtil.OnSelectAlter;
+import com.geetion.job138.widget.custom.SelectCityPop;
+import com.geetion.job138.widget.custom.SelectCityPop.SelectCity;
+import com.geetion.job138.widget.custom.SelectJobTypePop.SelectJobType;
+import com.geetion.job138.widget.custom.SelectJobTypePop;
+
+import android.app.Activity;
+import android.os.AsyncTask;
+import android.os.Bundle;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
+import android.text.TextUtils;
+import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.widget.EditText;
+import android.widget.ImageButton;
+import android.widget.ProgressBar;
+import android.widget.TextView;
+
+public class CreateResumeActivity extends BaseActivity {
+	private LayoutInflater inflater;
+	private ProgressBar loadingBar;
+	private ImageButton passButton, submitButton;
+	private EditText realNameText, qqText;
+	private TextView sexText, positionText, expectAreaText, statueText, payText, birthdayText;
+	private String realName, birthday, qq, position, expectArea, pay, statue;
+	private int sexId = 1, positionId = 0, areaId = 0, memberId = 0;
+	private Activity activity;
+	private SelectCityPop cityPop;
+	private SelectJobTypePop jobTypePop;
+	private String[] statusSting = { "我目前正在求职, 可立即上岗", "我目前在职, 正考虑换个新环境", "我对现有工作算满意, 如有更好的工作机会, 我也可以考虑", "我是毕业生,还没有太多工作经验, 但我对新工作充满期待与热情, 请给我机会",
+			"我暂无求职打算" };
+	private int selectStatus = 0;
+	private Fragment selectFragment;
+	private FragmentManager fm;
+	private FragmentTransaction tr;
+	private View shawdow;
+	private CreateResumeTask task;
+
+	@Override
+	protected void onCreate(Bundle arg0) {
+		super.onCreate(arg0);
+		memberId = getIntent().getIntExtra("MemberId", 0);
+		System.out.println(memberId);
+		activity = this;
+		setContentView(R.layout.activity_create_resume);
+		init();
+		initStatus();
+	}
+	
+	@Override
+	protected void onDestroy() {
+		if (task != null)
+			task.cancel(true);
+		super.onDestroy();
+	}
+
+	private void init() {
+		shawdow = findViewById(R.id.shadow);
+		loadingBar = (ProgressBar)findViewById(R.id.loading);
+		loadingBar.setVisibility(View.GONE);
+		passButton = (ImageButton) findViewById(R.id.button_pass);
+		passButton.setOnClickListener(this);
+		submitButton = (ImageButton) findViewById(R.id.submit);
+		submitButton.setOnClickListener(this);
+		realNameText = (EditText) findViewById(R.id.real_name);
+		sexText = (TextView) findViewById(R.id.sex);
+		sexText.setText(CacheService.sexKeyMap.get(sexId));
+		sexText.setOnClickListener(this);
+		birthdayText = (TextView) findViewById(R.id.birthday);
+		birthdayText.setOnClickListener(this);
+		qqText = (EditText) findViewById(R.id.qq);
+		positionText = (TextView) findViewById(R.id.position);
+		positionText.setOnClickListener(this);
+		expectAreaText = (TextView) findViewById(R.id.expect_area);
+		expectAreaText.setOnClickListener(this);
+		payText = (TextView) findViewById(R.id.pay);
+		payText.setOnClickListener(this);
+		statueText = (TextView) findViewById(R.id.statue);
+		statueText.setOnClickListener(this);
+		inflater = activity.getLayoutInflater();
+		View cityView = inflater.inflate(R.layout.window_city, null);
+		View stationView = inflater.inflate(R.layout.window_station, null);
+		cityPop = new SelectCityPop(cityView, activity, true);
+		cityPop.setSelectCity(new SelectCity() {
+			@Override
+			public void getCity(CityInfo cityInfo) {
+				expectAreaText.setText(CacheService.provincesMap.get(cityInfo.getFid()).getName() + " " + cityInfo.getName());
+				areaId = cityInfo.getId();
+			}
+
+			@Override
+			public void check(HashMap<Integer, CityInfo> chooseMap, HashMap<Integer, CityInfo> chooseCityMap) {
+				// TODO Auto-generated method stub
+				
+			}
+		});
+		
+		jobTypePop = new SelectJobTypePop(stationView, activity, true);
+		jobTypePop.setSelectJobTpe(new SelectJobType() {
+			@Override
+			public void getJobType(JobType jobType) {
+				positionText.setText(jobType.getName());
+				positionId = jobType.getId();
+			}
+
+			@Override
+			public void check(HashMap<Integer, JobType> chooseMap, HashMap<Integer, JobType> chooseSubMap) {
+				// TODO Auto-generated method stub
+				
+			}
+		});
+	}
+
+	public void showSelectFragment() {
+		selectFragment = new SelectStatusFragment();
+		Bundle bundle = new Bundle();
+		bundle.putInt("selectStatus", selectStatus);
+		selectFragment.setArguments(bundle);
+		shawdow.setVisibility(View.VISIBLE);
+		fm = getSupportFragmentManager();
+		tr = fm.beginTransaction();
+		tr.setCustomAnimations(R.anim.left_slide_enter, R.anim.right_slide_exit);
+		tr.add(R.id.select, selectFragment);
+		tr.commit();
+	}
+	
+	public void hideSelectFragment() {
+		fm = getSupportFragmentManager();
+		tr = fm.beginTransaction();
+		tr.setCustomAnimations(R.anim.left_slide_enter, R.anim.right_slide_exit);
+		tr.remove(selectFragment);
+		tr.commit();
+		shawdow.setVisibility(View.GONE);
+	}
+	
+	public void setStatus(int num) {
+		statueText.setText(statusSting[num]);
+		selectStatus = num;
+	}
+
+	public void initStatus() {
+		String initStatus = PersonInfoSave.memberInfo.getStatus();
+		for (int i = 0; i < statusSting.length; i++) {
+			String nowStatus = statusSting[i];
+			if (nowStatus.equals(initStatus)) {
+				statueText.setText(initStatus);
+				selectStatus = i;
+				break;
+			}
+		}
+	}
+
+	@Override
+	public void onClick(View v) {
+		if (v == passButton) {
+			finish();
+		} else if (v == submitButton) {
+			realName = realNameText.getText().toString();
+			birthday = birthdayText.getText().toString();
+			qq = qqText.getText().toString();
+			position = positionText.getText().toString();
+			expectArea = expectAreaText.getText().toString();
+			pay = payText.getText().toString();
+			statue = statueText.getText().toString();
+			if (TextUtils.isEmpty(realName)) {
+				UIUtil.toast(context, "真实姓名不能为空");
+				return;
+			}
+			if (TextUtils.isEmpty(birthday)) {
+				UIUtil.toast(context, "出生日期不能为空");
+				return;
+			}
+			if (TextUtils.isEmpty(qq)) {
+				UIUtil.toast(context, "QQ号码不能为空");
+				return;
+			}
+			if (TextUtils.isEmpty(position)) {
+				UIUtil.toast(context, "希望岗位不能为空");
+				return;
+			}
+			if (TextUtils.isEmpty(expectArea)) {
+				UIUtil.toast(context, "希望地区不能为空");
+				return;
+			}
+			if (TextUtils.isEmpty(pay)) {
+				UIUtil.toast(context, "月薪要求不能为空");
+				return;
+			}
+			if (TextUtils.isEmpty(statue)) {
+				UIUtil.toast(context, "求职状态不能为空");
+				return;
+			}
+			
+			SimpleResume resume = new SimpleResume();
+			resume.setPname(realName);
+			resume.setSex(sexId);
+			resume.setBirth(birthday);
+			resume.setQQ(qq);
+			resume.setPosition(positionId);
+			resume.setPay(pay);
+			resume.setWorkAdd(areaId);
+			resume.setStatus(statue);
+			resume.setMemberId(memberId);
+			
+			task = new CreateResumeTask();
+			task.execute(resume);
+			
+		} else if (v == sexText) {
+			UIUtil.showSelectAlert(activity, CacheService.sexKeyMap.values().toArray(new String[0]), new OnSelectAlter() {
+				public void onSelect(String select) {
+					sexText.setText(select);
+					sexId = CacheService.sexNameMap.get(select);
+				}
+			});
+		} else if (v == positionText) {
+			jobTypePop.showPop(payText);
+		} else if (v == expectAreaText) {
+			cityPop.showPop(expectAreaText);
+		} else if (v == payText) {
+			UIUtil.showSelectAlert(activity, CacheService.payKeyMap.values().toArray(new String[0]), new OnSelectAlter() {
+				public void onSelect(String select) {
+					pay = select;
+					payText.setText(pay);
+				}
+			});
+		} else if (v == statueText) {
+			showSelectFragment();
+		} else if (v == birthdayText) {
+			UIUtil.datePicker(activity, birthdayText);
+		}
+	}
+
+	private class CreateResumeTask extends AsyncTask<SimpleResume, Integer, LoginRegisterMessage> {
+		@Override
+		protected void onPreExecute() {
+			submitButton.setClickable(false);
+			loadingBar.setVisibility(View.VISIBLE);
+		}
+
+		@Override
+		protected LoginRegisterMessage doInBackground(SimpleResume... params) {
+			try {
+				LoginRegisterMessage message = LoginRegisterService.postRegisterResume(params[0]);
+				return message;
+
+			} catch (MyHttpException e) {
+				Log.e("MyHttpException", e.getErrorCode());
+				UIUtil.toast(context, e.getErrorMessage());
+			}
+			return null;
+		}
+		
+		@Override
+		protected void onPostExecute(LoginRegisterMessage message) {
+			if (message == null) {
+				submitButton.setClickable(true);
+				UIUtil.toast(context, "提交简历失败，请重试");
+				loadingBar.setVisibility(View.GONE);
+				return;
+			} else {
+				UIUtil.toast(context, "提交简历成功");
+				finish();
+			}
+			loadingBar.setVisibility(View.GONE);
+		}
+	}
+}

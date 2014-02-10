@@ -1,0 +1,95 @@
+﻿package com.geetion.job138.model;
+
+/**
+ * @author 80work
+ */
+public class PageUtil {
+	private int rowCount; // 记录总数
+	private int pageSize = 15; // 每页显示数
+	private int startRow; // 开始记录
+	private int pageNo = 1; // 当前页码
+	private int pageCount; // 总页数
+	private int nextPage; // 上一页码
+	private int previousPage; // 下一页码
+
+	/**
+	 * 根据传入的页码,设置没有显示条数
+	 * @param pageSize : 传入每页的页码
+	 */
+	public void setPageSize(int pageSize) {
+		this.pageSize = pageSize;
+	}
+	/**
+	 * 根据传入的数量,设置总数量,用于计算起始页,下一页,上一页
+	 * @param rowCount : 传入数量
+	 */
+	public void setRowCount(int rowCount) {
+		this.rowCount = rowCount;
+	}
+	
+	/**
+	 * 根据传入的页码,设置页面数
+	 * @param pageNo : 传入数量
+	 */
+	public void setPageNo(int pageNo) {
+		if (pageNo < 1)
+			this.pageNo = 1;
+		else
+			this.pageNo = pageNo;
+	}
+	/**
+	 * 获取总条数
+	 * @return int
+	 */
+	public int getRowCount() {
+		return rowCount;
+	}
+	/**
+	 * 获取每页显示条数
+	 * @return int
+	 */
+	public int getPageSize() {
+		return pageSize;
+	}
+	/**
+	 * 获取开始位置
+	 * @return int
+	 */
+	public int getStartRow() {
+		return pageSize * (pageNo - 1);
+	}
+	/**
+	 * 获取当前页码
+	 * @return int
+	 */
+	public int getPageNo() {
+		return pageNo;
+	}
+	/**
+	 * 获取总总页码
+	 * @return int
+	 */
+	public int getPageCount() {
+		return this.pageCount;
+	}
+	/**
+	 * 获取下一页页码数
+	 * @return int
+	 */
+	public int getNextPage() {
+		return this.pageNo + 1;
+	}
+
+	/**
+	 * 获取上一页页码数
+	 * @return int
+	 */
+	public int getPreviousPage() {
+		return this.pageNo - 1;
+	}
+	public void setPageCount(int pageCount) {
+		this.pageCount = pageCount;
+	}
+	
+	
+}

@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:baselineAligned="false" >
+
+    <RelativeLayout
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="2" >
+
+        <ImageButton
+            android:id="@+id/button_close"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:layout_centerHorizontal="true"
+            android:layout_centerVertical="true"
+            android:background="@null"
+            android:src="@drawable/arrow2" />
+    </RelativeLayout>
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="8"
+        android:background="#0d0e12"
+        android:orientation="vertical" >
+
+        <TextView
+            android:id="@+id/textView1"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:background="#202228"
+            android:gravity="left|center_vertical"
+            android:paddingLeft="26dp"
+            android:text="求职状态"
+            android:textColor="@color/white"
+            android:textSize="22sp" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical" >
+
+            <RadioButton
+                android:id="@+id/status_1"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/status_select_bg"
+                android:button="@drawable/status_radio_selector"
+                android:paddingBottom="16dp"
+                android:paddingLeft="32dp"
+                android:paddingTop="16dp"
+                android:text="我目前正在求职, 可立即上岗"
+                android:textColor="@color/white"
+                android:textSize="16sp" />
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="2dp"
+                android:background="@drawable/line2" />
+
+            <RadioButton
+                android:id="@+id/status_2"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/status_select_bg"
+                android:button="@drawable/status_radio_selector"
+                android:paddingBottom="16dp"
+                android:paddingLeft="32dp"
+                android:paddingTop="16dp"
+                android:text="我目前在职, 正考虑换个新环境 "
+                android:textColor="@color/white"
+                android:textSize="16sp" />
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="2dp"
+                android:background="@drawable/line2" />
+
+            <RadioButton
+                android:id="@+id/status_3"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/status_select_bg"
+                android:button="@drawable/status_radio_selector"
+                android:paddingBottom="16dp"
+                android:paddingLeft="32dp"
+                android:paddingTop="16dp"
+                android:text="我对现有工作还算满意, 如有更好的工作机会, 我也可以考虑"
+                android:textColor="@color/white"
+                android:textSize="16sp" />
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="2dp"
+                android:background="@drawable/line2" />
+
+            <RadioButton
+                android:id="@+id/status_4"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/status_select_bg"
+                android:button="@drawable/status_radio_selector"
+                android:paddingBottom="16dp"
+                android:paddingLeft="32dp"
+                android:paddingTop="16dp"
+                android:text="我是毕业生, 还没有太多工作经验,但我对新工作龚曼期待与热情, 请给我机会!"
+                android:textColor="@color/white"
+                android:textSize="16sp" />
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="2dp"
+                android:background="@drawable/line2" />
+
+            <RadioButton
+                android:id="@+id/status_5"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/status_select_bg"
+                android:button="@drawable/status_radio_selector"
+                android:paddingBottom="16dp"
+                android:paddingLeft="32dp"
+                android:paddingTop="16dp"
+                android:text="我暂无求职打算"
+                android:textColor="@color/white"
+                android:textSize="16sp" />
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="2dp"
+                android:background="@drawable/line2" />
+        </LinearLayout>
+    </LinearLayout>
+
+</LinearLayout>

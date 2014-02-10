@@ -1,0 +1,190 @@
+package com.geetion.job138.service;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import com.geetion.job138.model.CityInfo;
+import com.geetion.job138.model.JobInfo;
+import com.geetion.job138.model.JobType;
+import com.geetion.job138.model.PageUtil;
+import com.geetion.job138.model.Station;
+import com.geetion.job138.util.HttpUtil;
+import com.geetion.job138.util.MyHttpException;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.reflect.TypeToken;
+
+public class SearchJobService extends BaseService {
+	private static String CITY_INFO = SERVER_URL + "/Common/Area";
+	private static String JOB_TYPE = SERVER_URL + "/Common/Position";
+	private static String KEY_WORD = SERVER_URL + "/Common/KeyWord";
+	private static String SERCH_JOB = SERVER_URL + "/Job/SearchHire";
+	private static String QUICK_SEARCH = SERVER_URL + "/Common/QuickSearch";
+	
+	/****
+	 * 搜索职位的城市数据源
+	 * @return 职位的城市数据源
+	 * @throws MyHttpException
+	 */
+	public static List<CityInfo> getCityInfo() throws MyHttpException {
+		String json = HttpUtil.get(CITY_INFO, null);
+		JSONObject jsonObject;
+		try {
+			jsonObject = new JSONObject(json);
+			boolean state = jsonObject.optBoolean("State");
+			if (state) {
+				String valueString = jsonObject.optString("Value");
+				Gson gson = new GsonBuilder().serializeNulls().create();
+				List<CityInfo> list = gson.fromJson(valueString, new TypeToken<List<CityInfo>>() {
+				}.getType());				
+				return list;
+			} else {
+				throw new MyHttpException(jsonObject.optString("Message"), jsonObject.optString("Message"));
+			}
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+	
+	/***
+	 * 搜索职位的岗位类别数据源
+	 * @return 职位的岗位类别数据源
+	 * @throws MyHttpException
+	 */
+	public static List<JobType> getJobType() throws MyHttpException {
+		String json = HttpUtil.get(JOB_TYPE, null);
+		JSONObject jsonObject; 
+		try {
+			jsonObject = new JSONObject(json);
+			boolean state = jsonObject.optBoolean("State");
+			if (state) {
+				String valueString = jsonObject.optString("Value");
+				Gson gson = new GsonBuilder().serializeNulls().create();
+				List<JobType> list = gson.fromJson(valueString, new TypeToken<List<JobType>>() {
+				}.getType());				
+				return list;
+			} else {
+				throw new MyHttpException(jsonObject.optString("Message"), jsonObject.optString("Message"));
+			}
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}	
+	
+	/***
+	 * 搜索职位的关键词
+	 * @param keyWord
+	 * @return
+	 * @throws MyHttpException
+	 */
+	public static List<String> getJobKeywork(String keyWord) throws MyHttpException {
+		String json = HttpUtil.get(KEY_WORD + "/" + keyWord, null);
+		JSONObject jsonObject; 
+		try {
+			jsonObject = new JSONObject(json);
+			boolean state = jsonObject.optBoolean("State");
+			if (state) {
+				JSONArray jsonArray = jsonObject.optJSONArray("Value");				
+				if (jsonArray.length() > 0) {
+					List<String> list = new ArrayList<String>();
+					for (int i = 0; i < jsonArray.length(); i++) {
+						list.add(jsonArray.getJSONObject(i).getString("KeyWord"));
+	//					Log.e("keyword", jsonArray.getString(i));
+					} 
+					return list;
+				} else {
+					return null;
+				}
+			} else {
+				throw new MyHttpException(jsonObject.optString("Message"), jsonObject.optString("Message"));
+			}
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+	
+	/**
+	 * 搜索职位
+	 * @param appType
+	 * 		    手机操作系统（Android = 1,iPhoneOS = 2,Symbian = 3,WinPhone = 4） 
+	 * @param pageUtil
+	 * @param keyWord
+	 * 	            关键字
+	 * @param keywordType
+	 *        搜索类型（1为搜职位，2为搜公司）
+	 * @param position
+	 * 		    岗位ID
+	 * @param area
+	 *        地区ID
+	 * @return
+	 * @throws MyHttpException
+	 */
+	public static List<JobInfo> searchJob(int appType, PageUtil pageUtil, String keyWord, int keywordType, int position, int area) throws MyHttpException {
+		String url = SERCH_JOB + "/" + appType + "/" + String.valueOf(pageUtil.getPageSize()) + "/" + String.valueOf(pageUtil.getPageNo());
+		Map<String, String> params = new HashMap<String, String>();
+		params.put("Keyword", keyWord);
+		params.put("KeywordType", String.valueOf(keywordType));
+		params.put("Position", String.valueOf(position));
+		params.put("Area", String.valueOf(area));
+		
+		String json = HttpUtil.postJSON(url, params);
+		JSONObject jsonObject;
+		try {
+			jsonObject = new JSONObject(json);
+			boolean state = jsonObject.optBoolean("State");
+			if (state) {
+				JSONObject valueObject = jsonObject.optJSONObject("Value");
+				int totalPageSize = valueObject.optInt("Pages");
+				pageUtil.setPageCount(totalPageSize);
+				Gson gson = new GsonBuilder().serializeNulls().create();
+				String listCompanyModle = valueObject.optString("ListSearchModel");
+				List<JobInfo> list = gson.fromJson(listCompanyModle, new TypeToken<List<JobInfo>>() {
+				}.getType());
+				return list;
+			} else {
+				throw new MyHttpException(jsonObject.optString("Message"), jsonObject.optString("Message"));
+			}
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+	
+	/**
+	 * 快速搜索的关键词
+	 * @return Station
+	 * 		      岗位
+	 * @throws MyHttpException
+	 */
+	public static List<Station> quickSearch() throws MyHttpException {
+		String json = HttpUtil.get(QUICK_SEARCH, null);
+		System.out.println(json);
+		JSONObject jsonObject; 
+		try {
+			jsonObject = new JSONObject(json);
+			boolean state = jsonObject.optBoolean("State");
+			if (state) {
+				String valueString = jsonObject.optString("Value");
+				Gson gson = new GsonBuilder().serializeNulls().create();
+				List<Station> list = gson.fromJson(valueString, new TypeToken<List<Station>>() {
+				}.getType());				
+				return list;
+			} else {
+				throw new MyHttpException(jsonObject.optString("Message"), jsonObject.optString("Message"));
+			}
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+	
+}

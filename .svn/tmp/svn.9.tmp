@@ -1,0 +1,332 @@
+package com.geetion.job138.fragment.resume;
+
+import java.util.HashMap;
+import java.util.Map.Entry;
+
+import android.content.Intent;
+import android.os.AsyncTask;
+import android.os.Bundle;
+import android.text.TextUtils;
+import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
+import android.widget.CompoundButton.OnCheckedChangeListener;
+import android.widget.ImageButton;
+import android.widget.TextView;
+import com.liqi.job.R;
+import com.geetion.job138.activity.MyResumeActivity;
+import com.geetion.job138.activity.ResumeContentActivity;
+import com.geetion.job138.activity.TabWidgetActivity;
+import com.geetion.job138.fragment.BaseFragment;
+import com.geetion.job138.model.CityInfo;
+import com.geetion.job138.model.JobType;
+import com.geetion.job138.model.ResumeInfo;
+import com.geetion.job138.service.CacheService;
+import com.geetion.job138.service.PersonInfoSave;
+import com.geetion.job138.service.ResumeManageService;
+import com.geetion.job138.util.MyHttpException;
+import com.geetion.job138.util.UIUtil;
+import com.geetion.job138.util.UIUtil.OnSelectAlter;
+import com.geetion.job138.widget.custom.SelectCityPop;
+import com.geetion.job138.widget.custom.SelectCityPop.SelectCity;
+import com.geetion.job138.widget.custom.SelectJobTypePop;
+import com.geetion.job138.widget.custom.SelectJobTypePop.SelectJobType;
+
+public class JobIntentFragment extends BaseFragment {
+
+	public static String TAG = JobIntentFragment.class.getName();
+	private MyResumeActivity activity;
+	private ImageButton closeButton, saveButton;
+	private TextView jobTypeView, positionView, areaView, payView, wordDateView, requestView;
+	private CheckBox stayView, travelView;
+	private SelectCityPop cityPop;
+	private SelectJobTypePop jobTypePop;
+	private ResumeInfo updateResume = new ResumeInfo();
+	public static boolean isGetData = false;
+	private GoJobIntentTask task;
+	private UpdateJobIntentTask updateTask;
+	private String positionIds = "";
+	private String positionNames = "";
+	private String areaIds = "";
+	private String areaNames = "";
+
+	@Override
+	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+		return inflater.inflate(R.layout.fragment_resume_jobintent, container, false);
+	}
+
+	@Override
+	public void onActivityCreated(Bundle savedInstanceState) {
+		activity = (MyResumeActivity) getActivity();
+		init();
+		super.onActivityCreated(savedInstanceState);
+	}
+
+	public void init() {
+		closeButton = (ImageButton) getView().findViewById(R.id.close_button);
+		closeButton.setOnClickListener(this);
+		saveButton = (ImageButton) getView().findViewById(R.id.save_button);
+		saveButton.setOnClickListener(this);
+		jobTypeView = (TextView) getView().findViewById(R.id.job_type);
+		jobTypeView.setOnClickListener(this);
+		positionView = (TextView) getView().findViewById(R.id.position);
+		positionView.setOnClickListener(this);
+		areaView = (TextView) getView().findViewById(R.id.area);
+		areaView.setOnClickListener(this);
+		payView = (TextView) getView().findViewById(R.id.pay);
+		payView.setOnClickListener(this);
+		wordDateView = (TextView) getView().findViewById(R.id.work_date);
+		wordDateView.setOnClickListener(this);
+		requestView = (TextView) getView().findViewById(R.id.request);
+		requestView.setOnClickListener(this);
+		stayView = (CheckBox) getView().findViewById(R.id.stay);
+		travelView = (CheckBox) getView().findViewById(R.id.travel);
+		LayoutInflater inflater = activity.getLayoutInflater();
+		View cityView = inflater.inflate(R.layout.window_city, null);
+		View jobTypeView = inflater.inflate(R.layout.window_station, null);
+		cityPop = new SelectCityPop(cityView, activity, false);
+		jobTypePop = new SelectJobTypePop(jobTypeView, activity, false);
+		updateResume.setId(PersonInfoSave.resumeInfo.getId());
+		updateResume.setUserName(PersonInfoSave.resumeInfo.getUserName());
+		if (PersonInfoSave.resumeInfo.getId() != 0) {
+			if (!isGetData) {
+				task = new GoJobIntentTask();
+				task.execute();
+			} else {
+				updateResume.saveResumeJobIntentInfo(PersonInfoSave.resumeInfo);
+				resetResumeInfo();
+			}
+		}
+		stayView.setOnCheckedChangeListener(new OnCheckedChangeListener() {
+			@Override
+			public void onCheckedChanged(CompoundButton arg0, boolean arg1) {
+				if (arg1)
+					updateResume.setStay(1);
+				else
+					updateResume.setStay(0);
+			}
+		});
+
+		travelView.setOnCheckedChangeListener(new OnCheckedChangeListener() {
+			@Override
+			public void onCheckedChanged(CompoundButton arg0, boolean arg1) {
+				if (arg1)
+					updateResume.setTravel(1);
+				else
+					updateResume.setTravel(0);
+			}
+		});
+		
+		jobTypePop.setSelectJobTpe(new SelectJobType() {
+			public void getJobType(JobType jobType) {
+			}
+
+			@Override
+			public void check(HashMap<Integer, JobType> chooseMap, HashMap<Integer, JobType> chooseSubMap) {
+				if(!chooseMap.isEmpty()) {
+					for (Entry<Integer, JobType> entry : chooseMap.entrySet()) {						
+						positionIds = String.valueOf(entry.getValue().getId()) + ",";
+						positionNames = entry.getValue().getName() + ",";
+					}
+				} else if (!chooseSubMap.isEmpty()) {
+					for (Entry<Integer, JobType> entry : chooseSubMap.entrySet()) {						
+						positionIds = String.valueOf(entry.getValue().getFid()) + "*" + String.valueOf(entry.getValue().getId()) + ",";
+						positionNames = entry.getValue().getName() + ",";
+					}
+				}
+				if(positionIds.length() > 1) {
+					positionIds.subSequence(0, positionIds.length() - 1);
+					positionNames.substring(0, positionNames.length() - 1);
+				}
+				positionView.setText(positionNames);
+				if (TextUtils.isEmpty(positionIds)) {
+					updateResume.setPosition(positionIds);
+					updateResume.setPositionName(positionNames);
+				}
+			}
+		});
+		
+		cityPop.setSelectCity(new SelectCity() {
+			public void getCity(CityInfo cityInfo) {
+			}
+			
+			@Override
+			public void check(HashMap<Integer, CityInfo> chooseMap, HashMap<Integer,CityInfo> chooseCityMap) {
+				if(!chooseMap.isEmpty()) {
+					for (Entry<Integer, CityInfo> entry : chooseMap.entrySet()) {						
+						areaIds = String.valueOf(entry.getValue().getId()) + ",";
+						areaNames = entry.getValue().getName() + ",";
+					}
+				} else if (!chooseCityMap.isEmpty()) {
+					for (Entry<Integer, CityInfo> entry : chooseCityMap.entrySet()) {						
+						areaIds = String.valueOf(entry.getValue().getFid()) + "*" + String.valueOf(entry.getValue().getId()) + ",";
+						areaNames = CacheService.provincesMap.get(entry.getValue().getFid()) + " " + entry.getValue().getName() + ",";
+					}
+				}
+				if(areaIds.length() > 1) {
+					areaIds.subSequence(0, areaIds.length() - 1);
+					areaNames.substring(0, areaNames.length() - 1);
+				}
+				areaView.setText(areaNames);
+				if(TextUtils.isEmpty(areaNames)) {
+					updateResume.setAreaName(areaNames);
+					updateResume.setArea(areaIds);
+				}
+			}
+		});
+	}
+
+	public void resetResumeInfo() {
+		if (!TextUtils.isEmpty(CacheService.jobTypeKeyMap.get(PersonInfoSave.resumeInfo.getJobType())))
+			jobTypeView.setText(CacheService.jobTypeKeyMap.get(PersonInfoSave.resumeInfo.getJobType()));
+		if (!TextUtils.isEmpty(PersonInfoSave.resumeInfo.getPositionName()))
+			positionView.setText(PersonInfoSave.resumeInfo.getPositionName());
+		if (!TextUtils.isEmpty(PersonInfoSave.resumeInfo.getAreaName()))
+			areaView.setText(PersonInfoSave.resumeInfo.getAreaName());
+		if (!TextUtils.isEmpty(PersonInfoSave.resumeInfo.getPay()))
+			payView.setText(PersonInfoSave.resumeInfo.getPay());
+		if (!TextUtils.isEmpty(CacheService.workDateKeyMap.get(PersonInfoSave.resumeInfo.getWorkDate())))
+			wordDateView.setText(CacheService.workDateKeyMap.get(PersonInfoSave.resumeInfo.getWorkDate()));
+		if (PersonInfoSave.resumeInfo.getStay() == 1) {
+			stayView.setChecked(true);
+		}
+		if (PersonInfoSave.resumeInfo.getTravel() == 1) {
+			travelView.setChecked(true);
+		}
+		requestView.setText(PersonInfoSave.resumeInfo.getRequest());
+	}
+
+	@Override
+	public void onDestroy() {
+		if (task != null)
+			task.cancel(true);
+		if (updateTask != null)
+			updateTask.cancel(true);
+		super.onDestroy();
+	}
+
+	@Override
+	public void onClick(View v) {
+		if (v == closeButton) {
+			activity.hideSelectFragment();
+		} else if (v == saveButton) {
+			if (getUpdateInfo()) {
+				updateTask = new UpdateJobIntentTask();
+				updateTask.execute();
+			}
+		} else if (v == jobTypeView) {
+			UIUtil.showSelectAlert(activity, CacheService.jobTypeKeyMap.values().toArray(new String[0]), new OnSelectAlter() {
+				public void onSelect(String select) {
+					jobTypeView.setText(select);
+					updateResume.setJobType(CacheService.jobTypeNameMap.get(select));
+				}
+			});
+		} else if (v == positionView) {
+			jobTypePop.showPop(positionView);
+		} else if (v == areaView) {
+			cityPop.showPop(areaView);
+		} else if (v == payView) {
+			UIUtil.showSelectAlert(activity, CacheService.payKeyMap.values().toArray(new String[0]), new OnSelectAlter() {
+				public void onSelect(String select) {
+					payView.setText(select);
+					updateResume.setPay(select);
+				}
+			});
+		} else if (v == wordDateView) {
+			UIUtil.showSelectAlert(activity, CacheService.workDateKeyMap.values().toArray(new String[0]), new OnSelectAlter() {
+				public void onSelect(String select) {
+					wordDateView.setText(select);
+					updateResume.setWorkDate(CacheService.workDateNameMap.get(select));
+				}
+			});
+		} else if (v == requestView) {
+			Intent intent = new Intent(activity, ResumeContentActivity.class);
+			intent.putExtra("title", "其他要求");
+			intent.putExtra("content", updateResume.getRequest());
+			startActivityForResult(intent, 0);
+		}
+	}
+
+	public boolean getUpdateInfo() {
+		return true;
+	}
+
+	@Override
+	public void onActivityResult(int requestCode, int resultCode, Intent data) {
+		switch (resultCode) {
+		case -1:
+			String content = data.getStringExtra("content");
+			requestView.setText(content);
+			updateResume.setRequest(content);
+			break;
+		}
+		super.onActivityResult(requestCode, resultCode, data);
+	}
+
+	public class UpdateJobIntentTask extends AsyncTask<Void, Integer, Integer> {
+		protected void onPreExecute() {
+			saveButton.setClickable(false);
+			activity.showLoadiing();
+		};
+
+		@Override
+		protected Integer doInBackground(Void... arg0) {
+			try {
+				Integer result = ResumeManageService.updateJobIntent(updateResume);
+				return result;
+			} catch (MyHttpException e) {
+				Log.e("MyHttpException", e.getErrorCode());
+				UIUtil.toast(activity, e.getErrorMessage());
+			}
+			return null;
+		}
+
+		@Override
+		protected void onPostExecute(Integer result) {
+			activity.hideLoading();
+			saveButton.setClickable(true);
+			if (result != null) {
+				PersonInfoSave.updateSaveID(activity, result);
+				updateResume.setId(result);
+				PersonInfoSave.saveResumeJobIntentInfo(updateResume);
+				UIUtil.toast(activity, "修改成功");
+			}
+		}
+	}
+
+	public class GoJobIntentTask extends AsyncTask<Void, Integer, ResumeInfo> {
+		protected void onPreExecute() {
+			saveButton.setClickable(false);
+			activity.showLoadiing();
+		};
+
+		@Override
+		protected ResumeInfo doInBackground(Void... arg0) {
+			try {
+				ResumeInfo resumeInfo = ResumeManageService.getJobIntent(PersonInfoSave.resumeInfo.getId());
+				return resumeInfo;
+			} catch (MyHttpException e) {
+				Log.e("MyHttpException", e.getErrorCode());
+				UIUtil.toast(activity, e.getErrorMessage());
+			}
+			return null;
+		}
+
+		@Override
+		protected void onPostExecute(ResumeInfo result) {
+			activity.hideLoading();
+			saveButton.setClickable(true);
+			if (result != null) {
+				PersonInfoSave.saveResumeJobIntentInfo(result);
+				updateResume = result;
+				updateResume.setId(PersonInfoSave.resumeInfo.getId());
+				resetResumeInfo();
+				isGetData = true;
+			}
+		}
+	}
+
+}

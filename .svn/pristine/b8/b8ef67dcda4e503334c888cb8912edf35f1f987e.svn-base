@@ -1,0 +1,43 @@
+package com.geetion.job138.fragment.resume;
+
+import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ImageButton;
+
+import com.liqi.job.R;
+import com.geetion.job138.activity.MyResumeActivity;
+import com.geetion.job138.fragment.BaseFragment;
+
+public class JobIntentFragment extends BaseFragment {
+
+	public static String TAG = JobIntentFragment.class.getName();
+	private MyResumeActivity activity;
+	private ImageButton closeButton, save;
+
+	@Override
+	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+		return inflater.inflate(R.layout.fragment_resume_jobintent, container, false);
+	}
+
+	@Override
+	public void onActivityCreated(Bundle savedInstanceState) {
+		activity = (MyResumeActivity) getActivity();
+		init();
+		super.onActivityCreated(savedInstanceState);
+	}
+
+	public void init() {
+		closeButton = (ImageButton) getView().findViewById(R.id.close_button);
+		closeButton.setOnClickListener(this);
+	}
+
+	@Override
+	public void onClick(View v) {
+		if (v == closeButton) {
+			activity.hideSelectFragment();
+		}
+	}
+
+}

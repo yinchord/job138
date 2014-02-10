@@ -1,0 +1,62 @@
+package com.geetion.job138.fragment.resume;
+
+import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ImageButton;
+
+import com.geetion.job138.R;
+import com.geetion.job138.activity.MyResumeActivity;
+import com.geetion.job138.fragment.BaseFragment;
+import com.geetion.job138.model.JobInfo;
+import com.geetion.job138.model.Lang;
+import com.geetion.job138.model.WorkExperience;
+
+public class JobInfoChildFragment extends BaseFragment {
+	public static String TAG=JobInfoChildFragment.class.getName();
+	private MyResumeActivity activity;
+	private ImageButton btSave, btClose;
+	private int count;// 记录添加的次数
+	Bundle bundle = new Bundle();
+
+
+	@Override
+	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+		return inflater.inflate(R.layout.fragment_resume_workexperience, container, false);
+	}
+
+	@Override
+	public void onActivityCreated(Bundle savedInstanceState) {
+		activity = (MyResumeActivity) getActivity();
+		init();
+		super.onActivityCreated(savedInstanceState);
+	}
+
+	public void init() {
+		btClose = (ImageButton) getView().findViewById(R.id.close_button);
+		btSave = (ImageButton) getView().findViewById(R.id.save_button);
+		btSave.setOnClickListener(this);
+		btClose.setOnClickListener(this);
+	}
+
+	@Override
+	public void onClick(View v) {
+		// TODO Auto-generated method stub
+		if (v == btClose) {
+			bundle.putInt("count", count);
+			activity.changeFragmentAnOnResume(JobInfoFragment.TAG, bundle);
+		}else if (v==btSave) {
+			count++;
+			bundle.putInt("count", count);
+			bundle.putSerializable("workExperience", new WorkExperience());
+			activity.changeFragmentAnOnResume(JobInfoFragment.TAG, bundle);
+			
+		}
+	}
+	@Override
+	public void onResume() {
+		count = getArguments().getInt("count");
+		super.onResume();
+	}
+}

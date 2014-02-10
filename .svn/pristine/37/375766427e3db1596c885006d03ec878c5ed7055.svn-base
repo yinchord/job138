@@ -1,0 +1,154 @@
+package com.geetion.job138.activity;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import com.geetion.job138.R;
+import com.geetion.job138.adapter.PosListAdapter;
+import com.geetion.job138.model.JobInfo;
+import com.geetion.job138.model.PageUtil;
+import com.geetion.job138.model.Search;
+import com.geetion.job138.service.SearchJobService;
+import com.geetion.job138.util.MyHttpException;
+import com.geetion.job138.util.UIUtil;
+import com.handmark.pulltorefresh.library.PullToRefreshBase;
+import com.handmark.pulltorefresh.library.PullToRefreshListView;
+import com.handmark.pulltorefresh.library.PullToRefreshBase.Mode;
+import com.handmark.pulltorefresh.library.PullToRefreshBase.OnRefreshListener2;
+import android.R.integer;
+import android.os.AsyncTask;
+import android.os.Bundle;
+import android.text.format.DateUtils;
+import android.util.Log;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.widget.ImageButton;
+import android.widget.ImageView;
+import android.widget.ListView;
+import android.widget.TextView;
+
+public class PosListActivity extends BaseActivity implements OnClickListener {
+	public static String TAG = PosListActivity.class.getName();
+	private ImageButton returnButton;
+	private ImageView listTitle;
+	private TextView titleText, emptyText;
+	private PosListAdapter adapter;
+	private PullToRefreshListView listView;
+	private View headerView;
+	private List<JobInfo> list;
+	private Search search;
+	private int keyWordType = 1;
+	private PageUtil pageUtil = new PageUtil();
+	private GetSearchTask searchTask;
+	private boolean isPullUp = false;
+	private String searchTitle = "";
+
+	@Override
+	protected void onCreate(Bundle arg0) {
+		super.onCreate(arg0);
+		setContentView(R.layout.activity_pos_list);
+		search = (Search) getIntent().getSerializableExtra("search");
+		searchTitle = getIntent().getStringExtra("title");
+		keyWordType = search.getKeyWordType();
+		initView();
+		initData();
+	}
+
+	private void initView() {
+		pageUtil.setPageSize(15);
+		pageUtil.setPageNo(1);
+		listTitle = (ImageView) findViewById(R.id.pos_title_image);
+		listView = (PullToRefreshListView) findViewById(R.id.pull_refresh_list);
+		headerView = getLayoutInflater().inflate(R.layout.header_pos, null);
+		titleText = (TextView) headerView.findViewById(R.id.pos_title);
+		emptyText = (TextView) findViewById(R.id.empty_text);
+		listView.setOnRefreshListener(new OnRefreshListener2<ListView>() {
+			@Override
+			public void onPullDownToRefresh(PullToRefreshBase refreshView) {
+				String label = DateUtils.formatDateTime(getApplicationContext(), System.currentTimeMillis(), DateUtils.FORMAT_SHOW_TIME
+						| DateUtils.FORMAT_SHOW_DATE | DateUtils.FORMAT_ABBREV_ALL);
+				listView.getLoadingLayoutProxy(true, false).setLastUpdatedLabel("刷新时间:" + label);
+				pageUtil.setPageNo(1);
+				isPullUp = true;
+				searchTask = new GetSearchTask();
+				searchTask.execute();
+			}
+
+			@Override
+			public void onPullUpToRefresh(PullToRefreshBase refreshView) {
+				pageUtil.setPageNo(pageUtil.getPageNo() + 1);
+				Log.e("pageNo", pageUtil.getPageNo() + "");
+				isPullUp = false;
+				searchTask = new GetSearchTask();
+				searchTask.execute();
+			}
+		});
+		listView.setRefreshing();
+		returnButton = (ImageButton) findViewById(R.id.button_back);
+		returnButton.setOnClickListener(this);
+	}
+
+	private void initData() {
+		listTitle.setImageResource((search.getKeyWordType() == 1) ? R.drawable.joblist : R.drawable.joblist);
+		titleText.setText(searchTitle);
+		list = new ArrayList<JobInfo>();
+		adapter = new PosListAdapter(context, list, keyWordType, headerView);
+		listView.setAdapter(adapter);
+		searchTask = new GetSearchTask();
+		searchTask.execute();
+	}
+
+	@Override
+	public void onClick(View v) {
+		if (v == returnButton) {
+			finish();
+		}
+	}
+
+	private class GetSearchTask extends AsyncTask<String, integer, List<JobInfo>> {
+
+		@Override
+		protected void onPreExecute() {
+			emptyText.setVisibility(View.GONE);
+			super.onPreExecute();
+		}
+
+		@Override
+		protected List<JobInfo> doInBackground(String... params) {
+			try {
+				List<JobInfo> list = SearchJobService.searchJob(1, pageUtil, search.getKeyWord(), keyWordType, search.getPositionId(), search.getAreaId());
+				return list;
+			} catch (MyHttpException e) {
+				Log.e("MyHttpException", e.getErrorCode());
+				UIUtil.toast(context, e.getErrorMessage());
+				runOnUiThread(new Runnable() {
+					public void run() {
+						listView.onRefreshComplete();
+					}
+				});
+			}
+			return null;
+		}
+
+		@Override
+		protected void onPostExecute(List<JobInfo> result) {
+			if (result != null && !result.isEmpty()) {
+				if (isPullUp) {
+					listView.setMode(Mode.BOTH);
+					list.clear();
+				} else {
+					if (pageUtil.getPageNo() == pageUtil.getPageCount()) {
+						listView.setMode(Mode.PULL_FROM_START);
+					}
+				}
+				list.addAll(result);
+				adapter.notifyDataSetChanged();
+			}
+			if (list.isEmpty()) {
+				emptyText.setVisibility(View.VISIBLE);
+			}
+			listView.onRefreshComplete();
+		}
+
+	}
+}

@@ -1,0 +1,99 @@
+package com.geetion.job138.activity;
+
+import java.util.ArrayList;
+
+import java.util.List;
+
+import com.geetion.job138.R;
+import com.geetion.job138.adapter.InviteListAdapter;
+import com.geetion.job138.model.Interview;
+import com.handmark.pulltorefresh.library.PullToRefreshBase;
+import com.handmark.pulltorefresh.library.PullToRefreshBase.Mode;
+import com.handmark.pulltorefresh.library.PullToRefreshBase.OnRefreshListener2;
+import com.handmark.pulltorefresh.library.PullToRefreshListView;
+import android.os.Bundle;
+import android.os.Handler;
+import android.text.format.DateUtils;
+import android.util.Log;
+import android.view.View;
+import android.widget.ImageButton;
+import android.widget.ListView;
+
+public class PersonalInviteActivity extends BaseActivity {
+	private ImageButton backButton;
+	private PullToRefreshListView listView;
+	private InviteListAdapter adapter;
+	private List<Interview> list = new ArrayList<Interview>();
+	private Handler handler = new Handler();
+
+	@Override
+	protected void onCreate(Bundle arg0) {
+		super.onCreate(arg0);
+		setContentView(R.layout.activity_personal_invite);
+		init();
+	}
+
+	@Override
+	public void onResume() {
+		getData();
+		super.onResume();
+	}
+
+	public void getData() {
+		list.add(new Interview());
+		list.add(new Interview());
+		list.add(new Interview());
+		list.add(new Interview());
+		list.add(new Interview());
+		list.add(new Interview());
+		list.add(new Interview());
+		list.add(new Interview());
+		list.add(new Interview());
+		list.add(new Interview());
+		list.add(new Interview());
+		list.add(new Interview());
+		list.add(new Interview());
+		adapter.notifyDataSetChanged();
+	}
+
+	public void init() {
+		backButton = (ImageButton) findViewById(R.id.button_left);
+		backButton.setOnClickListener(this);
+		listView = (PullToRefreshListView) findViewById(R.id.pull_refresh_list);
+		listView.setMode(Mode.BOTH);
+		listView.getLoadingLayoutProxy(true, false).setPullLabel("下拉刷新...");
+		listView.getLoadingLayoutProxy(false, true).setPullLabel("上拉加载更多...");
+		listView.getLoadingLayoutProxy(true, true).setRefreshingLabel("数据加载中...");
+		listView.setOnRefreshListener(new OnRefreshListener2<ListView>() {
+			@Override
+			public void onPullDownToRefresh(PullToRefreshBase refreshView) {
+				String label = DateUtils.formatDateTime(getApplicationContext(), System.currentTimeMillis(), DateUtils.FORMAT_SHOW_TIME
+						| DateUtils.FORMAT_SHOW_DATE | DateUtils.FORMAT_ABBREV_ALL);
+				listView.getLoadingLayoutProxy(true, false).setLastUpdatedLabel("刷新时间:" + label);
+				handler.postDelayed(new Runnable() {
+					public void run() {
+						listView.onRefreshComplete();
+					}
+				}, 2000);
+			}
+
+			@Override
+			public void onPullUpToRefresh(PullToRefreshBase refreshView) {
+				handler.postDelayed(new Runnable() {
+					public void run() {
+						listView.onRefreshComplete();
+					}
+				}, 2000);
+			}
+		});
+		adapter = new InviteListAdapter(context, list);
+		listView.setAdapter(adapter);
+	}
+
+	@Override
+	public void onClick(View v) {
+		if (v == backButton) {
+			finish();
+		}
+	}
+}

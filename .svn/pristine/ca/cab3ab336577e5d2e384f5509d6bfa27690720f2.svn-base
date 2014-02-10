@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="16dp"
+     android:background="@color/light_gray" >
+
+    <TextView
+        android:id="@+id/name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
+        android:drawableRight="@drawable/vip"
+        android:paddingBottom="4dp"
+        android:text="广州极迅客信息科技有限公司"
+        android:singleLine="true"
+        android:textColor="@color/font_blue"
+        android:textSize="16sp" />
+
+    <TextView
+        android:id="@+id/intro"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/name"
+        android:layout_below="@+id/name"
+        android:text="公司类型：美容院\n员工人数：10-49人 所在地区：广东深圳"
+        android:textSize="11sp"
+        android:textColor="@color/font_gray" />
+
+</RelativeLayout>
